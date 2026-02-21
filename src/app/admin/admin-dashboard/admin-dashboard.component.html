@@ -1,0 +1,161 @@
+<div class="admin-dashboard">
+  <!-- Header -->
+  <div class="dashboard-header">
+    <div class="container-fluid">
+      <div class="row align-items-center">
+        <div class="col">
+          <h1>Admin Dashboard</h1>
+        </div>
+        <div class="col-auto">
+          <button class="btn btn-danger" (click)="logout()">Logout</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Main Content -->
+  <div class="dashboard-content">
+    <div class="container-fluid">
+      <div class="row">
+        <!-- Sidebar -->
+        <div class="col-md-3">
+          <div class="sidebar">
+            <h3>Management</h3>
+            <ul class="nav flex-column">
+              <li class="nav-item">
+                <a class="nav-link active" href="#events" data-bs-toggle="pill">Events</a>
+              </li>
+              <li class="nav-item">
+                <a class="nav-link" href="#news" data-bs-toggle="pill">News</a>
+              </li>
+              <li class="nav-item">
+                <a class="nav-link" href="#courses" data-bs-toggle="pill">Courses</a>
+              </li>
+            </ul>
+          </div>
+        </div>
+
+        <!-- Content Area -->
+        <div class="col-md-9">
+          <div class="tab-content">
+            <!-- Events Tab -->
+            <div class="tab-pane fade show active" id="events">
+              <div class="content-card">
+                <h2>Add New Event</h2>
+                <form (ngSubmit)="addEvent()">
+                  <div class="row">
+                    <div class="col-md-6">
+                      <div class="form-group">
+                        <label>Event Title</label>
+                        <input type="text" [(ngModel)]="eventTitle" name="eventTitle" class="form-control" required>
+                      </div>
+                    </div>
+                    <div class="col-md-6">
+                      <div class="form-group">
+                        <label>Event Date</label>
+                        <input type="date" [(ngModel)]="eventDate" name="eventDate" class="form-control" required>
+                      </div>
+                    </div>
+                  </div>
+                  <div class="form-group">
+                    <label>Description</label>
+                    <textarea [(ngModel)]="eventDescription" name="eventDescription" class="form-control" rows="3" required></textarea>
+                  </div>
+                  <div class="form-group">
+                    <label>Event Image</label>
+                    <input type="file" (change)="onFileSelected($event)" class="form-control" accept="image/*">
+                  </div>
+                  <button type="submit" class="btn btn-primary">Add Event</button>
+                </form>
+
+                <h3 class="mt-5">Existing Events</h3>
+                <div class="table-responsive">
+                  <table class="table">
+                    <thead>
+                      <tr>
+                        <th>Title</th>
+                        <th>Date</th>
+                        <th>Description</th>
+                        <th>Actions</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      <tr *ngFor="let event of events">
+                        <td>{{ event.title }}</td>
+                        <td>{{ event.date }}</td>
+                        <td>{{ event.description }}</td>
+                        <td>
+                          <button class="btn btn-sm btn-danger" (click)="deleteEvent(event.id)">Delete</button>
+                        </td>
+                      </tr>
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+            </div>
+
+            <!-- News Tab -->
+            <div class="tab-pane fade" id="news">
+              <div class="content-card">
+                <h2>Manage News</h2>
+                <button class="btn btn-primary mb-3" (click)="addNews()">Add News</button>
+                
+                <div class="table-responsive">
+                  <table class="table">
+                    <thead>
+                      <tr>
+                        <th>Title</th>
+                        <th>Description</th>
+                        <th>Actions</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      <tr *ngFor="let item of news">
+                        <td>{{ item.title }}</td>
+                        <td>{{ item.description }}</td>
+                        <td>
+                          <button class="btn btn-sm btn-danger" (click)="deleteNews(item.id)">Delete</button>
+                        </td>
+                      </tr>
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+            </div>
+
+            <!-- Courses Tab -->
+            <div class="tab-pane fade" id="courses">
+              <div class="content-card">
+                <h2>Manage Courses</h2>
+                <button class="btn btn-primary mb-3" (click)="addCourse()">Add Course</button>
+                
+                <div class="table-responsive">
+                  <table class="table">
+                    <thead>
+                      <tr>
+                        <th>Title</th>
+                        <th>Description</th>
+                        <th>Rating</th>
+                        <th>Actions</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      <tr *ngFor="let course of courses">
+                        <td>{{ course.title }}</td>
+                        <td>{{ course.description }}</td>
+                        <td>{{ course.rating }}</td>
+                        <td>
+                          <button class="btn btn-sm btn-danger" (click)="deleteCourse(course.id)">Delete</button>
+                        </td>
+                      </tr>
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

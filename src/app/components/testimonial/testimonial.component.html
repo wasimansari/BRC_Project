@@ -1,0 +1,51 @@
+<section class="testimonial-section section-padding">
+  <div class="container">
+    <div class="row justify-content-center">
+      <div class="col-lg-8">
+        <div id="testimonialCarousel" class="carousel slide" data-bs-ride="carousel" data-bs-interval="5000" data-bs-touch="true">
+          <div class="carousel-inner">
+            <div *ngFor="let testimonial of testimonials; let i = index" 
+                 class="carousel-item" 
+                 [class.active]="i === 0">
+              <div class="testimonial-card">
+                <div class="testimonial-content">
+                  <div class="quote-icon">
+                    <i class="fas fa-quote-left"></i>
+                  </div>
+                  <p class="testimonial-text">{{ testimonial.text }}</p>
+                  <div class="testimonial-author">
+                    <img [src]="testimonial.image" [alt]="testimonial.name" class="author-image">
+                    <div class="author-info">
+                      <h4 class="author-name">{{ testimonial.name }}</h4>
+                      <p class="author-role">{{ testimonial.role }}</p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+          
+          <button class="carousel-control-prev" type="button" data-bs-target="#testimonialCarousel" data-bs-slide="prev">
+            <i class="fa fa-angle-left"></i>
+            <span class="visually-hidden">Previous</span>
+          </button>
+          <button class="carousel-control-next" type="button" data-bs-target="#testimonialCarousel" data-bs-slide="next">
+            <i class="fa fa-angle-right"></i>
+            <span class="visually-hidden">Next</span>
+          </button>
+          
+          <div class="carousel-indicators">
+            <button *ngFor="let testimonial of testimonials; let i = index" 
+                    type="button" 
+                    data-bs-target="#testimonialCarousel" 
+                    [attr.data-bs-slide-to]="i" 
+                    [class.active]="i === 0"
+                    [attr.aria-current]="i === 0 ? 'true' : null"
+                    [attr.aria-label]="'Slide ' + (i + 1)">
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>

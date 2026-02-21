@@ -1,0 +1,28 @@
+<section id="courses" class="courses-section section-padding">
+  <div class="container">
+    <div class="text-center mb-5">
+      <h2 class="section-title">POPULAR COURSES</h2>
+      <p class="section-subtitle">Explore our most sought-after educational programs</p>
+    </div>
+    
+    <div class="row">
+      <div *ngFor="let course of courses" class="col-lg-4 col-md-6 mb-4">
+        <div class="course-card">
+          <img [src]="course.image" [alt]="course.title" class="course-image">
+          <div class="course-content">
+            <h3 class="course-title">{{ course.title }}</h3>
+            <p class="course-description">{{ course.description }}</p>
+            <div class="course-rating">
+              <i *ngFor="let star of getStars(course.rating)" [class]="star"></i>
+              <span class="rating-text">({{ course.rating }})</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    
+    <div class="text-center mt-5">
+      <button class="btn btn-primary btn-lg">Browse all Courses</button>
+    </div>
+  </div>
+</section>

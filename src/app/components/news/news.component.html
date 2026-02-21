@@ -1,0 +1,21 @@
+<section id="blog" class="news-section section-padding">
+  <div class="container">
+    <div class="text-center mb-5">
+      <h2 class="section-title">LATEST NEWS</h2>
+      <p class="section-subtitle">Stay updated with our latest announcements and events</p>
+    </div>
+    
+    <div class="row">
+      <div *ngFor="let item of news" class="col-lg-4 col-md-6 mb-4">
+        <div class="news-card">
+          <img [src]="item.image" [alt]="item.title" class="news-image">
+          <div class="news-content">
+            <h3 class="news-title">{{ item.title }}</h3>
+            <p class="news-description">{{ item.description }}</p>
+            <button class="btn btn-outline-primary">READ MORE</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
