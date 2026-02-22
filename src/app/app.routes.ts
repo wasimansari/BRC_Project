@@ -8,6 +8,8 @@ import { BlogPageComponent } from './pages/blog/blog.component';
 import { ContactPageComponent } from './pages/contact/contact.component';
 import { AdminLoginComponent } from './admin/admin-login/admin-login.component';
 import { AdminDashboardComponent } from './admin/admin-dashboard/admin-dashboard.component';
+import { AdminSignupComponent } from './admin/admin-login/admin-signup.component';
+import { AuthGuard } from './auth.guard';
 
 const routes: Routes = [
   { 
@@ -43,8 +45,13 @@ const routes: Routes = [
     component: AdminLoginComponent 
   },
   { 
+    path: 'admin/signup', 
+    component: AdminSignupComponent 
+  },
+  { 
     path: 'admin/dashboard', 
-    component: AdminDashboardComponent 
+    component: AdminDashboardComponent,
+    canActivate: [AuthGuard]
   },
   { 
     path: '**', 

@@ -27,10 +27,7 @@ cloudinary.config({
 });
 
 // MongoDB connection
-mongoose.connect(process.env.MONGODB_URI || 'mongodb://localhost:27017/school-website', {
-  useNewUrlParser: true,
-  useUnifiedTopology: true,
-})
+mongoose.connect(process.env.MONGODB_URI || 'mongodb+srv://akram0031_db_user:pX19hTDFv04OUpEb@cluster0.8amidmz.mongodb.net/school-website?appName=Cluster0')
 .then(() => console.log('MongoDB connected successfully'))
 .catch(err => console.log('MongoDB connection error:', err));
 
@@ -60,7 +57,8 @@ const courseSchema = new mongoose.Schema({
 
 const adminSchema = new mongoose.Schema({
   username: { type: String, required: true, unique: true },
-  password: { type: String, required: true }
+  password: { type: String, required: true },
+  role: { type: String, enum: ['superadmin', 'admin'], default: 'admin' }
 });
 
 // Models
@@ -73,9 +71,62 @@ const Admin = mongoose.model('Admin', adminSchema);
 const storage = multer.memoryStorage();
 const upload = multer({ storage });
 
+// Middleware for verifying JWT
+const authenticateToken = (req, res, next) => {
+  const authHeader = req.headers['authorization'];
+  const token = authHeader && authHeader.split(' ')[1];
+  
+  if (!token) return res.status(401).json({ message: 'Access denied. No token provided.' });
+
+  jwt.verify(token, process.env.JWT_SECRET, (err, user) => {
+    if (err) return res.status(403).json({ message: 'Invalid token.' });
+    req.user = user;
+    next();
+  });
+};
+
+// Middleware for checking Super Admin role
+const requireSuperAdmin = (req, res, next) => {
+  if (req.user && req.user.role === 'superadmin') {
+    next();
+  } else {
+    res.status(403).json({ message: 'Access denied. Super Admin privileges required.' });
+  }
+};
+
 // Routes
 
 // Auth Routes
+app.post('/api/auth/signup', async (req, res) => {
+  try {
+    const { username, password, secretKey } = req.body;
+    
+    // Check if user already exists
+    const existingAdmin = await Admin.findOne({ username });
+    if (existingAdmin) {
+      return res.status(400).json({ message: 'Username already exists' });
+    }
+    
+    let role = 'admin';
+    // Check for special flag to become superadmin
+    if (secretKey === (process.env.SUPER_ADMIN_SECRET || 'supersecret_flag')) {
+      role = 'superadmin';
+    }
+    
+    const hashedPassword = await bcrypt.hash(password, 10);
+    const newAdmin = new Admin({
+      username,
+      password: hashedPassword,
+      role
+    });
+    
+    await newAdmin.save();
+    res.status(201).json({ message: 'Admin registered successfully', role });
+  } catch (error) {
+    res.status(500).json({ message: 'Server error', error: error.message });
+  }
+});
+
 app.post('/api/auth/login', async (req, res) => {
   try {
     const { username, password } = req.body;
@@ -94,12 +145,36 @@ app.post('/api/auth/login', async (req, res) => {
     
     // Generate JWT token
     const token = jwt.sign(
-      { id: admin._id, username: admin.username },
-      process.env.JWT_SECRET || 'your-secret-key',
+      { id: admin._id, username: admin.username, role: admin.role },
+      process.env.JWT_SECRET,
       { expiresIn: '24h' }
     );
     
-    res.json({ token, message: 'Login successful' });
+    res.json({ token, role: admin.role, message: 'Login successful' });
+  } catch (error) {
+    res.status(500).json({ message: 'Server error', error: error.message });
+  }
+});
+
+// Create new Admin (Only Super Admin can do this)
+app.post('/api/auth/create-admin', authenticateToken, requireSuperAdmin, async (req, res) => {
+  try {
+    const { username, password } = req.body;
+    
+    const existingAdmin = await Admin.findOne({ username });
+    if (existingAdmin) {
+      return res.status(400).json({ message: 'Username already exists' });
+    }
+    
+    const hashedPassword = await bcrypt.hash(password, 10);
+    const newAdmin = new Admin({
+      username,
+      password: hashedPassword,
+      role: 'admin'
+    });
+    
+    await newAdmin.save();
+    res.status(201).json({ message: 'New admin created successfully' });
   } catch (error) {
     res.status(500).json({ message: 'Server error', error: error.message });
   }
@@ -113,17 +188,26 @@ const initializeAdmin = async () => {
       const hashedPassword = await bcrypt.hash('admin123', 10);
       const admin = new Admin({
         username: 'admin',
-        password: hashedPassword
+        password: hashedPassword,
+        role: 'superadmin'
       });
       await admin.save();
-      console.log('Default admin user created');
+      console.log('Default superadmin user created');
+    } else if (!adminExists.role) {
+      // Update existing legacy admin to superadmin
+      adminExists.role = 'superadmin';
+      await adminExists.save();
+      console.log('Existing admin updated to superadmin');
     }
   } catch (error) {
     console.log('Error creating admin:', error);
   }
 };
 
-initializeAdmin();
+// Only run initialization after the database connection is open
+mongoose.connection.once('open', () => {
+  initializeAdmin();
+});
 
 // Event Routes
 app.get('/api/events', async (req, res) => {
@@ -139,66 +223,37 @@ app.post('/api/events', upload.single('image'), async (req, res) => {
   try {
     const { title, description, date } = req.body;
     
-    let imageUrl = 'https://via.placeholder.com/400x250/007bff/ffffff?text=Event';
+    let imageUrl = 'https://via.placeholder.com/400x250/cccccc/ffffff?text=Event';
     
     if (req.file) {
-      // Upload to Cloudinary
-      const result = await cloudinary.uploader.upload_stream(
-        { 
-          folder: 'school-events',
-          resource_type: 'auto'
-        },
-        (error, result) => {
-          if (error) {
-            console.log('Cloudinary upload error:', error);
-            return res.status(500).json({ message: 'Error uploading image' });
+      // Promisify the Cloudinary upload stream
+      const uploadPromise = new Promise((resolve, reject) => {
+        const uploadStream = cloudinary.uploader.upload_stream(
+          { folder: 'school-events' },
+          (error, result) => {
+            if (error) {
+              return reject(error);
+            }
+            resolve(result);
           }
-          imageUrl = result.secure_url;
-          
-          // Save event with image URL
-          const event = new Event({
-            title,
-            description,
-            date,
-            image: imageUrl
-          });
-          
-          event.save()
-            .then(savedEvent => res.json(savedEvent))
-            .catch(err => res.status(500).json({ message: 'Error saving event', error: err.message }));
-        }
-      );
-      
-      cloudinary.uploader.upload(req.file.buffer.toString('base64'), {
-        folder: 'school-events'
-      }).then(result => {
-        imageUrl = result.secure_url;
-        
-        const event = new Event({
-          title,
-          description,
-          date,
-          image: imageUrl
-        });
-        
-        return event.save();
-      }).then(savedEvent => {
-        res.json(savedEvent);
-      }).catch(err => {
-        res.status(500).json({ message: 'Error saving event', error: err.message });
+        );
+        uploadStream.end(req.file.buffer);
       });
-    } else {
-      const event = new Event({
-        title,
-        description,
-        date,
-        image: imageUrl
-      });
-      
-      const savedEvent = await event.save();
-      res.json(savedEvent);
+
+      const uploadResult = await uploadPromise;
+      imageUrl = uploadResult.secure_url;
     }
+
+    const event = new Event({
+      title,
+      description,
+      date,
+      image: imageUrl
+    });
+    const savedEvent = await event.save();
+    res.status(201).json(savedEvent);
   } catch (error) {
+    console.error("Error creating event:", error);
     res.status(500).json({ message: 'Error creating event', error: error.message });
   }
 });

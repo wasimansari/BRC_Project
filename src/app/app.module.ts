@@ -21,6 +21,7 @@ import { TestimonialComponent } from './components/testimonial/testimonial.compo
 import { FooterComponent } from './components/footer/footer.component';
 import { AdminLoginComponent } from './admin/admin-login/admin-login.component';
 import { AdminDashboardComponent } from './admin/admin-dashboard/admin-dashboard.component';
+import { AdminSignupComponent } from './admin/admin-login/admin-signup.component';
 import { AppComponent } from './app.component';
 
 @NgModule({
@@ -41,7 +42,8 @@ import { AppComponent } from './app.component';
     TestimonialComponent,
     FooterComponent,
     AdminLoginComponent,
-    AdminDashboardComponent
+    AdminDashboardComponent,
+    AdminSignupComponent
   ],
   imports: [
     BrowserModule,

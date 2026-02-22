@@ -1,5 +1,6 @@
 import { Component } from '@angular/core';
 import { Router } from '@angular/router';
+import { HttpClient } from '@angular/common/http';
 
 @Component({
   selector: 'app-admin-login',
@@ -12,14 +13,19 @@ export class AdminLoginComponent {
     password: ''
   };
 
-  constructor(private router: Router) {}
+  constructor(private router: Router, private http: HttpClient) {}
 
   onLogin() {
-    if (this.loginData.username === 'admin' && this.loginData.password === 'admin123') {
-      localStorage.setItem('isAdminLoggedIn', 'true');
-      this.router.navigate(['/admin/dashboard']);
-    } else {
-      alert('Invalid credentials. Please try again.');
-    }
+    this.http.post<any>('http://localhost:5000/api/auth/login', this.loginData).subscribe({
+      next: (response) => {
+        localStorage.setItem('token', response.token);
+        localStorage.setItem('role', response.role);
+        localStorage.setItem('isAdminLoggedIn', 'true');
+        this.router.navigate(['/admin/dashboard']);
+      },
+      error: (error) => {
+        alert('Invalid credentials. Please try again.');
+      }
+    });
   }
 }
