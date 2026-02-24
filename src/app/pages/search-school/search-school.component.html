@@ -1,0 +1,195 @@
+<app-header></app-header>
+
+<!-- Search School Hero Section -->
+<section class="search-school-hero">
+  <div class="hero-overlay"></div>
+  <div class="container">
+    <div class="hero-content">
+      <div class="hero-icon">
+        <i class="fas fa-school"></i>
+      </div>
+      <h1 class="hero-title">Search School</h1>
+      <p class="hero-subtitle">Find schools in your area using UDISE Plus database</p>
+    </div>
+  </div>
+</section>
+
+<!-- Search Form Section -->
+<section class="search-section">
+  <div class="container">
+    <div class="search-card">
+      <div class="search-header">
+        <h2><i class="fas fa-search"></i> School Search</h2>
+        <p>Enter any of the following details to search for a school</p>
+      </div>
+
+      <div class="search-form">
+        <div class="search-type-selector">
+          <button 
+            *ngFor="let type of searchTypes" 
+            class="search-type-btn"
+            [class.active]="selectedSearchType === type.id"
+            (click)="selectSearchType(type.id)">
+            <i [class]="type.icon"></i>
+            {{ type.label }}
+          </button>
+        </div>
+
+        <div class="search-inputs">
+          <div class="row g-3">
+            <div class="col-md-6" *ngIf="selectedSearchType === 'udise'">
+              <div class="form-group">
+                <label><i class="fas fa-id-card"></i> UDISE Code</label>
+                <input 
+                  type="text" 
+                  class="form-control" 
+                  placeholder="Enter 11-digit UDISE Code"
+                  [(ngModel)]="udiseCode"
+                  maxlength="11"
+                  (keypress)="onKeyPress($event)">
+                <small class="text-muted">Example: 12345678901</small>
+              </div>
+            </div>
+
+            <div class="col-md-6" *ngIf="selectedSearchType === 'school'">
+              <div class="form-group">
+                <label><i class="fas fa-graduation-cap"></i> School Name</label>
+                <input 
+                  type="text" 
+                  class="form-control" 
+                  placeholder="Enter School Name"
+                  [(ngModel)]="schoolName">
+              </div>
+            </div>
+
+            <div class="col-md-6" *ngIf="selectedSearchType === 'district'">
+              <div class="form-group">
+                <label><i class="fas fa-map-marker-alt"></i> District</label>
+                <select class="form-control" [(ngModel)]="selectedDistrict">
+                  <option value="">Select District</option>
+                  <option *ngFor="let district of districts" [value]="district">{{ district }}</option>
+                </select>
+              </div>
+            </div>
+
+            <div class="col-md-6" *ngIf="selectedSearchType === 'block'">
+              <div class="form-group">
+                <label><i class="fas fa-map-marked-alt"></i> Block</label>
+                <select class="form-control" [(ngModel)]="selectedBlock">
+                  <option value="">Select Block</option>
+                  <option *ngFor="let block of blocks" [value]="block">{{ block }}</option>
+                </select>
+              </div>
+            </div>
+
+            <div class="col-12">
+              <button class="btn-search" (click)="searchSchools()">
+                <i class="fas fa-search"></i> Search Schools
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Search Results Section -->
+<section class="results-section" *ngIf="showResults">
+  <div class="container">
+    <!-- Loading State -->
+    <div class="loading-container" *ngIf="isLoading">
+      <div class="spinner">
+        <i class="fas fa-circle-notch fa-spin"></i>
+      </div>
+      <p>Searching schools...</p>
+    </div>
+
+    <!-- Error Message -->
+    <div class="error-container" *ngIf="errorMessage && !isLoading">
+      <i class="fas fa-exclamation-circle"></i>
+      <h4>Search Error</h4>
+      <p>{{ errorMessage }}</p>
+    </div>
+
+    <!-- Search Results -->
+    <div *ngIf="!isLoading && !errorMessage">
+      <div class="results-header">
+        <h3><i class="fas fa-list"></i> Search Results</h3>
+        <p>{{ filteredSchools.length }} schools found</p>
+      </div>
+
+      <div class="results-list">
+        <div class="result-card" *ngFor="let school of filteredSchools">
+          <div class="result-header">
+            <div class="school-icon">
+              <i class="fas fa-school"></i>
+            </div>
+            <div class="school-info">
+              <h4>{{ school.schoolName }}</h4>
+              <span class="udise-code"><i class="fas fa-id-card"></i> UDISE: {{ school.udiseCode }}</span>
+            </div>
+            <div class="school-type">
+              <span [class]="getBadgeClass(school.type)">{{ school.type }}</span>
+            </div>
+          </div>
+          <div class="result-body">
+            <div class="detail-row">
+              <i class="fas fa-map-marker-alt"></i>
+              <span>{{ school.address }}, {{ school.block }}, {{ school.districtName }}, {{ school.stateName }} - {{ school.pincode }}</span>
+            </div>
+            <div class="detail-row">
+              <i class="fas fa-user"></i>
+              <span>Principal: {{ school.principal }}</span>
+            </div>
+            <div class="detail-row">
+              <i class="fas fa-phone"></i>
+              <span>{{ school.phone }}</span>
+            </div>
+            <div class="detail-row">
+              <i class="fas fa-envelope"></i>
+              <span>{{ school.email }}</span>
+            </div>
+            <div class="detail-row" *ngIf="school.website">
+              <i class="fas fa-globe"></i>
+              <span>{{ school.website }}</span>
+            </div>
+          </div>
+          <div class="result-footer">
+            <button class="btn-view-details">
+              <i class="fas fa-eye"></i> View Details
+            </button>
+            <button class="btn-contact">
+              <i class="fas fa-phone-alt"></i> Contact
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <div class="no-results" *ngIf="filteredSchools.length === 0">
+        <i class="fas fa-search"></i>
+        <h4>No Schools Found</h4>
+        <p>Try adjusting your search criteria</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Quick Stats Section -->
+<section class="quick-stats-section">
+  <div class="container">
+    <div class="stats-grid">
+      <div class="stat-card" *ngFor="let stat of stats">
+        <div class="stat-icon" [style.background]="stat.color">
+          <i [class]="stat.icon"></i>
+        </div>
+        <div class="stat-info">
+          <h3>{{ stat.value }}</h3>
+          <p>{{ stat.label }}</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- <app-footer></app-footer> -->

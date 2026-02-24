@@ -30,8 +30,8 @@
 
 .testimonial-card {
   background: white;
-  border-radius: 20px;
-  padding: 60px;
+  border-radius: 15px;
+  padding: 20px;
   box-shadow: 0 20px 60px rgba(0,0,0,0.08);
   text-align: center;
   position: relative;
@@ -122,11 +122,11 @@
 }
 
 .carousel-control-prev {
-  left: -25px;
+  left: -35px;
 }
 
 .carousel-control-next {
-  right: -25px;
+  right: -35px;
 }
 
 .carousel-control-prev:hover,

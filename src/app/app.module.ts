@@ -11,10 +11,14 @@ import { CoursesPageComponent } from './pages/courses/courses.component';
 import { EventsPageComponent } from './pages/events/events.component';
 import { BlogPageComponent } from './pages/blog/blog.component';
 import { ContactPageComponent } from './pages/contact/contact.component';
+import { GalleryPageComponent } from './pages/gallery/gallery.component';
+import { DownloadsPageComponent } from './pages/downloads/downloads.component';
+import { SearchSchoolComponent } from './pages/search-school/search-school.component';
 import { HeaderComponent } from './components/header/header.component';
 import { HeroSectionComponent } from './components/hero-section/hero-section.component';
 import { ServicesComponent } from './components/services/services.component';
 import { StatisticsComponent } from './components/statistics/statistics.component';
+import { NoticesComponent } from './components/notices/notices.component';
 import { NewsComponent } from './components/news/news.component';
 import { LibraryComponent } from './components/library/library.component';
 import { TestimonialComponent } from './components/testimonial/testimonial.component';
@@ -33,10 +37,14 @@ import { AppComponent } from './app.component';
     EventsPageComponent,
     BlogPageComponent,
     ContactPageComponent,
+    GalleryPageComponent,
+    DownloadsPageComponent,
+    SearchSchoolComponent,
     HeaderComponent,
     HeroSectionComponent,
     ServicesComponent,
     StatisticsComponent,
+    NoticesComponent,
     NewsComponent,
     LibraryComponent,
     TestimonialComponent,

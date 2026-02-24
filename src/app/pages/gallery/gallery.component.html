@@ -1,0 +1,109 @@
+<app-header></app-header>
+
+<!-- Gallery Banner -->
+<section class="gallery-banner">
+  <!-- <div class="gallery-banner-overlay"></div> -->
+  <div class="gallery-banner-content">
+    <div class="container">
+      <div class="row">
+        <div class="col-lg-12 text-center">
+          <h1 class="gallery-banner-title">Photo Gallery</h1>
+          <p class="gallery-banner-subtitle">Capturing memories of our vibrant events and activities</p>
+          <nav aria-label="breadcrumb">
+            <ol class="breadcrumb justify-content-center">
+              <li class="breadcrumb-item"><a href="#">Home</a></li>
+              <li class="breadcrumb-item active" aria-current="page">Gallery</li>
+            </ol>
+          </nav>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Gallery Section -->
+<section class="gallery-section section-padding">
+  <div class="container">
+    <!-- Filter Tabs -->
+    <div class="gallery-filter">
+      <button 
+        class="filter-btn" 
+        [class.active]="activeFilter === 'all'"
+        (click)="filterGallery('all')">
+        All Events
+      </button>
+      <button 
+        class="filter-btn" 
+        *ngFor="let filter of filters"
+        [class.active]="activeFilter === filter.id"
+        (click)="filterGallery(filter.id)">
+        {{ filter.name }}
+      </button>
+    </div>
+
+    <!-- Gallery by Date -->
+    <div class="gallery-dates">
+      <div class="date-section" *ngFor="let dateGroup of filteredGallery">
+        <div class="date-header">
+          <div class="date-badge">
+            <i class="fas fa-calendar-alt"></i>
+            <span>{{ dateGroup.date }}</span>
+          </div>
+          <h3 class="event-name">{{ dateGroup.eventName }}</h3>
+        </div>
+        
+        <div class="row g-4">
+          <div class="col-lg-4 col-md-6 col-sm-6" *ngFor="let photo of dateGroup.photos">
+            <div class="gallery-item" (click)="openLightbox(photo, dateGroup.photos)">
+              <img [src]="photo.src" [alt]="photo.alt" class="gallery-img">
+              <div class="gallery-overlay">
+                <div class="overlay-content">
+                  <i class="fas fa-search-plus"></i>
+                  <span>{{ photo.title }}</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Empty State -->
+    <div class="empty-state" *ngIf="filteredGallery.length === 0">
+      <i class="fas fa-images"></i>
+      <h3>No photos available</h3>
+      <p>Photos for this category will be uploaded soon!</p>
+    </div>
+  </div>
+</section>
+
+<!-- Lightbox Modal -->
+<div class="lightbox-modal" *ngIf="lightboxOpen" (click)="closeLightbox()">
+  <div class="lightbox-content" (click)="$event.stopPropagation()">
+    <button class="lightbox-close" (click)="closeLightbox()">
+      <i class="fas fa-times"></i>
+    </button>
+    <button class="lightbox-nav lightbox-prev" (click)="prevImage($event)" *ngIf="currentGalleryImages.length > 1">
+      <i class="fas fa-chevron-left"></i>
+    </button>
+    <img [src]="currentLightboxImage?.src" [alt]="currentLightboxImage?.alt" class="lightbox-img">
+    <div class="lightbox-caption">
+      <h4>{{ currentLightboxImage?.title }}</h4>
+      <p>{{ currentLightboxImage?.description }}</p>
+    </div>
+    <button class="lightbox-nav lightbox-next" (click)="nextImage($event)" *ngIf="currentGalleryImages.length > 1">
+      <i class="fas fa-chevron-right"></i>
+    </button>
+  </div>
+  <div class="lightbox-thumbnails" *ngIf="currentGalleryImages.length > 1">
+    <div 
+      class="thumbnail" 
+      *ngFor="let img of currentGalleryImages; let i = index"
+      [class.active]="currentLightboxIndex === i"
+      (click)="showImage(i, $event)">
+      <img [src]="img.src" [alt]="img.alt">
+    </div>
+  </div>
+</div>
+
+<!-- <app-footer></app-footer> -->

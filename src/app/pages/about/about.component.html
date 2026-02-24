@@ -1,30 +1,224 @@
 <app-header></app-header>
 
-<section class="about-page section-padding">
-  <div class="container">
-    <div class="row">
-      <div class="col-lg-12">
-        <h1 class="page-title">About Us</h1>
-        <div class="about-content">
-          <h2>Our Mission</h2>
-          <p>At Eduubuzz, we are dedicated to providing exceptional educational services that empower students to reach their full potential. Our comprehensive approach combines innovative teaching methods, experienced educators, and state-of-the-art facilities to create an optimal learning environment.</p>
-          
-          <h2>Our Vision</h2>
-          <p>To be a leading educational institution that nurtures creativity, critical thinking, and lifelong learning among students, preparing them for success in an ever-changing world.</p>
-          
-          <h2>Our Values</h2>
-          <ul>
-            <li>Excellence in education</li>
-            <li>Student-centered approach</li>
-            <li>Innovation in teaching</li>
-            <li>Integrity and transparency</li>
-            <li>Continuous improvement</li>
-          </ul>
-          
-          <h2>Our History</h2>
-          <p>Founded with a vision to transform education, Eduubuzz has been serving the community for over 2 years. We started with a small group of passionate educators and have grown into a comprehensive educational institution serving students from diverse backgrounds.</p>
+<!-- About Banner -->
+<section class="about-banner">
+  <div class="about-banner-overlay"></div>
+  <div class="about-banner-content">
+    <div class="container">
+      <div class="row">
+        <div class="col-lg-12 text-center">
+          <h1 class="about-banner-title">About Us</h1>
+          <p class="about-banner-subtitle">Discover our story, mission, and commitment to excellence in education</p>
+          <nav aria-label="breadcrumb">
+            <ol class="breadcrumb justify-content-center">
+              <li class="breadcrumb-item"><a href="#">Home</a></li>
+              <li class="breadcrumb-item active" aria-current="page">About Us</li>
+            </ol>
+          </nav>
         </div>
       </div>
     </div>
   </div>
 </section>
+
+<!-- Vision & Mission Section -->
+<section class="vision-mission-section section-padding">
+  <div class="container">
+    <div class="row">
+      <div class="col-lg-12 text-center">
+        <h2 class="section-title">Vision & Mission</h2>
+        <p class="section-subtitle">Our guiding principles for excellence in education</p>
+      </div>
+    </div>
+    <div class="row g-4">
+      <div class="col-lg-6">
+        <div class="vm-card vm-vision">
+          <div class="vm-icon">
+            <i class="fas fa-eye"></i>
+          </div>
+          <h3>Our Vision</h3>
+          <p>{{ visionMission.vision }}</p>
+        </div>
+      </div>
+      <div class="col-lg-6">
+        <div class="vm-card vm-mission">
+          <div class="vm-icon">
+            <i class="fas fa-bullseye"></i>
+          </div>
+          <h3>Our Mission</h3>
+          <ul class="mission-list">
+            <li *ngFor="let item of visionMission.mission">
+              <i class="fas fa-check-circle"></i>
+              {{ item }}
+            </li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- BEO Profile Section -->
+<section class="beo-profile-section section-padding">
+  <div class="container">
+    <div class="row">
+      <div class="col-lg-12 text-center">
+        <h2 class="section-title">BEO Profile</h2>
+        <p class="section-subtitle">Meet our Block Education Officer</p>
+      </div>
+    </div>
+    <div class="row justify-content-center">
+      <div class="col-lg-10">
+        <div class="beo-profile-card">
+          <div class="row g-0">
+            <div class="col-md-4">
+              <div class="beo-image-wrapper">
+                <div class="beo-image">
+                  <i class="fas fa-user-tie"></i>
+                </div>
+                <div class="beo-badge">
+                  <i class="fas fa-award"></i>
+                  <span>BEO</span>
+                </div>
+              </div>
+            </div>
+            <div class="col-md-8">
+              <div class="beo-info">
+                <h3 class="beo-name">{{ beoProfile.name }}</h3>
+                <p class="beo-designation">Block Education Officer</p>
+                
+                <div class="beo-details">
+                  <div class="detail-item">
+                    <i class="fas fa-graduation-cap"></i>
+                    <div>
+                      <span class="label">Qualification</span>
+                      <span class="value">{{ beoProfile.qualification }}</span>
+                    </div>
+                  </div>
+                  <div class="detail-item">
+                    <i class="fas fa-briefcase"></i>
+                    <div>
+                      <span class="label">Experience</span>
+                      <span class="value">{{ beoProfile.experience }}</span>
+                    </div>
+                  </div>
+                  <div class="detail-item">
+                    <i class="fas fa-phone-alt"></i>
+                    <div>
+                      <span class="label">Mobile</span>
+                      <span class="value">{{ beoProfile.mobile }}</span>
+                    </div>
+                  </div>
+                  <div class="detail-item">
+                    <i class="fas fa-envelope"></i>
+                    <div>
+                      <span class="label">Email</span>
+                      <span class="value">{{ beoProfile.email }}</span>
+                    </div>
+                  </div>
+                </div>
+
+                <div class="beo-message">
+                  <h4><i class="fas fa-quote-left"></i> Message from BEO</h4>
+                  <p>{{ beoProfile.message }}</p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Organizational Structure Section -->
+<section class="org-structure-section section-padding">
+  <div class="container">
+    <div class="row">
+      <div class="col-lg-12 text-center">
+        <h2 class="section-title">Organizational Structure</h2>
+        <p class="section-subtitle">Our hierarchical organizational framework</p>
+      </div>
+    </div>
+    <div class="row justify-content-center">
+      <div class="col-lg-10">
+        <div class="org-chart">
+          <div class="org-level org-level-beo">
+            <div class="org-node org-node-main" *ngFor="let item of organizationalStructure.slice(0,1)">
+              <div class="node-icon" [style.background]="item.color">
+                <i class="fas" [class]="item.icon"></i>
+              </div>
+              <div class="node-content">
+                <h4>{{ item.role }}</h4>
+                <span>Leadership</span>
+              </div>
+            </div>
+          </div>
+          <div class="org-connector">
+            <div class="connector-line"></div>
+          </div>
+          <div class="org-level org-level-middle">
+            <div class="org-node" *ngFor="let item of organizationalStructure.slice(1,3)">
+              <div class="node-icon" [style.background]="item.color">
+                <i class="fas" [class]="item.icon"></i>
+              </div>
+              <div class="node-content">
+                <h4>{{ item.role }}</h4>
+                <span>Co-ordination</span>
+              </div>
+            </div>
+          </div>
+          <div class="org-connector">
+            <div class="connector-line"></div>
+          </div>
+          <div class="org-level org-level-support">
+            <div class="org-node org-node-support" *ngFor="let item of organizationalStructure.slice(3)">
+              <div class="node-icon" [style.background]="item.color">
+                <i class="fas" [class]="item.icon"></i>
+              </div>
+              <div class="node-content">
+                <h4>{{ item.role }}</h4>
+                <span>Operations</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Staff Details Section -->
+<section class="staff-section section-padding">
+  <div class="container">
+    <div class="row">
+      <div class="col-lg-12 text-center">
+        <h2 class="section-title">Staff Details</h2>
+        <p class="section-subtitle">Meet our dedicated team of educators</p>
+      </div>
+    </div>
+    <div class="row g-4">
+      <div class="col-lg-3 col-md-4 col-sm-6" *ngFor="let staff of staffDetails">
+        <div class="staff-card">
+          <div class="staff-avatar">
+            <i class="fas fa-user-graduate"></i>
+          </div>
+          <div class="staff-info">
+            <h4 class="staff-name">{{ staff.name }}</h4>
+            <p class="staff-designation">{{ staff.designation }}</p>
+            <div class="staff-contact">
+              <a [href]="'tel:' + staff.mobile" class="contact-link">
+                <i class="fas fa-phone-alt"></i> {{ staff.mobile }}
+              </a>
+              <a [href]="'mailto:' + staff.email" class="contact-link">
+                <i class="fas fa-envelope"></i> {{ staff.email }}
+              </a>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- <app-footer></app-footer> -->

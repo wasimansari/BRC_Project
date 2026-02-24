@@ -1,0 +1,108 @@
+<app-header></app-header>
+
+<!-- Download Banner -->
+<section class="download-banner">
+  <div class="download-banner-overlay"></div>
+  <div class="download-banner-content">
+    <div class="container">
+      <div class="row">
+        <div class="col-lg-12 text-center">
+          <h1 class="download-banner-title">Downloads</h1>
+          <p class="download-banner-subtitle">Access important documents, forms, and resources</p>
+          <nav aria-label="breadcrumb">
+            <ol class="breadcrumb justify-content-center">
+              <li class="breadcrumb-item"><a href="#">Home</a></li>
+              <li class="breadcrumb-item active" aria-current="page">Downloads</li>
+            </ol>
+          </nav>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Download Section -->
+<section class="download-section section-padding">
+  <div class="container">
+    <!-- Category Filters -->
+    <div class="download-filter">
+      <button 
+        class="filter-btn" 
+        [class.active]="activeCategory === 'all'"
+        (click)="filterDownloads('all')">
+        All Files
+      </button>
+      <button 
+        class="filter-btn" 
+        *ngFor="let category of categories"
+        [class.active]="activeCategory === category.id"
+        (click)="filterDownloads(category.id)">
+        <i [class]="category.icon"></i> {{ category.name }}
+      </button>
+    </div>
+
+    <!-- Download Cards -->
+    <div class="row g-4">
+      <div class="col-lg-4 col-md-6" *ngFor="let file of filteredDownloads">
+        <div class="download-card">
+          <div class="download-icon" [style.background]="file.color">
+            <i [class]="file.icon"></i>
+          </div>
+          <div class="download-info">
+            <h3 class="file-name">{{ file.name }}</h3>
+            <p class="file-description">{{ file.description }}</p>
+            <div class="file-meta">
+              <span class="file-type">
+                <i class="fas fa-file-alt"></i> {{ file.type }}
+              </span>
+              <span class="file-size">
+                <i class="fas fa-hdd"></i> {{ file.size }}
+              </span>
+              <span class="file-date">
+                <i class="fas fa-calendar"></i> {{ file.date }}
+              </span>
+            </div>
+          </div>
+          <button class="download-btn" (click)="downloadFile(file)">
+            <i class="fas fa-download"></i> Download
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Empty State -->
+    <div class="empty-state" *ngIf="filteredDownloads.length === 0">
+      <i class="fas fa-folder-open"></i>
+      <h3>No files available</h3>
+      <p>Downloads for this category will be available soon!</p>
+    </div>
+  </div>
+</section>
+
+<!-- Recent Downloads -->
+<section class="recent-downloads-section">
+  <div class="container">
+    <div class="section-header text-center">
+      <h2 class="section-title">Recently Added</h2>
+      <p class="section-subtitle">Latest documents and resources</p>
+    </div>
+    <div class="row g-4">
+      <div class="col-lg-6" *ngFor="let recent of recentDownloads">
+        <div class="recent-item">
+          <div class="recent-icon" [style.background]="recent.color">
+            <i [class]="recent.icon"></i>
+          </div>
+          <div class="recent-info">
+            <h4>{{ recent.name }}</h4>
+            <p>{{ recent.description }}</p>
+          </div>
+          <button class="btn-download" (click)="downloadFile(recent)">
+            <i class="fas fa-download"></i>
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- <app-footer></app-footer> -->

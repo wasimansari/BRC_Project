@@ -6,6 +6,9 @@ import { CoursesPageComponent } from './pages/courses/courses.component';
 import { EventsPageComponent } from './pages/events/events.component';
 import { BlogPageComponent } from './pages/blog/blog.component';
 import { ContactPageComponent } from './pages/contact/contact.component';
+import { GalleryPageComponent } from './pages/gallery/gallery.component';
+import { DownloadsPageComponent } from './pages/downloads/downloads.component';
+import { SearchSchoolComponent } from './pages/search-school/search-school.component';
 import { AdminLoginComponent } from './admin/admin-login/admin-login.component';
 import { AdminDashboardComponent } from './admin/admin-dashboard/admin-dashboard.component';
 import { AdminSignupComponent } from './admin/admin-login/admin-signup.component';
@@ -35,6 +38,17 @@ const routes: Routes = [
   { 
     path: 'blog', 
     component: BlogPageComponent 
+  },
+  { 
+    path: 'gallery', 
+    component: GalleryPageComponent 
+  },  {
+    path: 'downloads',
+    component: DownloadsPageComponent
+  },
+  {
+    path: 'search-school',
+    component: SearchSchoolComponent
   },
   { 
     path: 'contact', 

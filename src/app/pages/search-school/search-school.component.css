@@ -1,0 +1,632 @@
+/* Search School Hero Section */
+.search-school-hero {
+  position: relative;
+  min-height: 350px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(135deg, #1F3971 0%, #16a085 100%);
+  margin-top: 70px;
+}
+
+.hero-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><defs><pattern id="grid" width="10" height="10" patternUnits="userSpaceOnUse"><path d="M 10 0 L 0 0 0 10" fill="none" stroke="rgba(255,255,255,0.1)" stroke-width="0.5"/></pattern></defs><rect width="100" height="100" fill="url(%23grid)"/></svg>');
+}
+
+.hero-content {
+  position: relative;
+  z-index: 10;
+  text-align: center;
+  padding: 60px 20px;
+}
+
+.hero-icon {
+  width: 100px;
+  height: 100px;
+  background: rgba(255, 255, 255, 0.15);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0 auto 25px;
+  animation: pulse 2s ease-in-out infinite;
+}
+
+.hero-icon i {
+  font-size: 45px;
+  color: white;
+}
+
+@keyframes pulse {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.05); }
+}
+
+.hero-title {
+  font-size: 3rem;
+  font-weight: 800;
+  color: white;
+  margin-bottom: 15px;
+  text-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+}
+
+.hero-subtitle {
+  font-size: 1.2rem;
+  color: rgba(255, 255, 255, 0.9);
+  max-width: 500px;
+  margin: 0 auto;
+}
+
+/* Search Section */
+.search-section {
+  padding: 60px 0;
+  background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+}
+
+.search-card {
+  background: white;
+  border-radius: 20px;
+  box-shadow: 0 15px 50px rgba(0, 0, 0, 0.1);
+  padding: 40px;
+  max-width: 900px;
+  margin: 0 auto;
+}
+
+.search-header {
+  text-align: center;
+  margin-bottom: 35px;
+}
+
+.search-header h2 {
+  font-size: 1.8rem;
+  font-weight: 700;
+  color: #1F3971;
+  margin-bottom: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+}
+
+.search-header h2 i {
+  color: #1abc9c;
+}
+
+.search-header p {
+  color: #666;
+  font-size: 1rem;
+  margin: 0;
+}
+
+/* Search Type Selector */
+.search-type-selector {
+  display: flex;
+  gap: 10px;
+  margin-bottom: 30px;
+  flex-wrap: wrap;
+  justify-content: center;
+}
+
+.search-type-btn {
+  background: #f8f9fa;
+  border: 2px solid #e9ecef;
+  border-radius: 12px;
+  padding: 12px 20px;
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: #555;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.search-type-btn i {
+  font-size: 16px;
+}
+
+.search-type-btn:hover {
+  border-color: #1abc9c;
+  color: #1abc9c;
+}
+
+.search-type-btn.active {
+  background: linear-gradient(135deg, #1abc9c, #16a085);
+  border-color: #1abc9c;
+  color: white;
+  box-shadow: 0 5px 20px rgba(26, 188, 156, 0.3);
+}
+
+/* Form Group */
+.form-group {
+  margin-bottom: 15px;
+}
+
+.form-group label {
+  display: block;
+  font-weight: 600;
+  color: #1F3971;
+  margin-bottom: 8px;
+  font-size: 0.95rem;
+}
+
+.form-group label i {
+  color: #1abc9c;
+  margin-right: 8px;
+}
+
+.form-control {
+  width: 100%;
+  padding: 12px 18px;
+  font-size: 1rem;
+  border: 2px solid #e9ecef;
+  border-radius: 10px;
+  transition: all 0.3s ease;
+  background: #f8f9fa;
+}
+
+.form-control:focus {
+  outline: none;
+  border-color: #1abc9c;
+  box-shadow: 0 0 0 4px rgba(26, 188, 156, 0.1);
+  background: white;
+}
+
+.form-control::placeholder {
+  color: #aaa;
+}
+
+select.form-control {
+  cursor: pointer;
+  appearance: none;
+  background-image: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 12 12"><path fill="%23666" d="M6 8L1 3h10z"/></svg>');
+  background-repeat: no-repeat;
+  background-position: right 15px center;
+  padding-right: 40px;
+}
+
+.text-muted {
+  display: block;
+  font-size: 0.85rem;
+  color: #888;
+  margin-top: 5px;
+}
+
+/* Search Button */
+.btn-search {
+  background: linear-gradient(135deg, #1F3971, #2c5282);
+  color: white;
+  border: none;
+  padding: 14px 40px;
+  font-size: 1.1rem;
+  font-weight: 600;
+  border-radius: 12px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  margin: 25px auto 0;
+  width: 100%;
+}
+
+.btn-search:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 10px 30px rgba(31, 57, 113, 0.3);
+}
+
+.btn-search i {
+  font-size: 18px;
+}
+
+/* Results Section */
+.results-section {
+  padding: 60px 0;
+  background: white;
+}
+
+.results-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 30px;
+  padding-bottom: 15px;
+  border-bottom: 2px solid #e9ecef;
+}
+
+.results-header h3 {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: #1F3971;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin: 0;
+}
+
+.results-header h3 i {
+  color: #1abc9c;
+}
+
+.results-header p {
+  color: #666;
+  font-size: 1rem;
+  margin: 0;
+}
+
+/* Result Card */
+.result-card {
+  background: white;
+  border-radius: 15px;
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.08);
+  margin-bottom: 25px;
+  overflow: hidden;
+  border: 1px solid rgba(26, 188, 156, 0.1);
+  transition: all 0.3s ease;
+}
+
+.result-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.15);
+  border-color: rgba(26, 188, 156, 0.3);
+}
+
+.result-header {
+  background: linear-gradient(135deg, #f8f9fa, #e9ecef);
+  padding: 20px 25px;
+  display: flex;
+  align-items: center;
+  gap: 15px;
+  border-bottom: 1px solid #e9ecef;
+}
+
+.school-icon {
+  width: 55px;
+  height: 55px;
+  background: linear-gradient(135deg, #1abc9c, #16a085);
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.school-icon i {
+  font-size: 24px;
+  color: white;
+}
+
+.school-info {
+  flex: 1;
+}
+
+.school-info h4 {
+  font-size: 1.15rem;
+  font-weight: 700;
+  color: #1F3971;
+  margin: 0 0 5px 0;
+}
+
+.udise-code {
+  font-size: 0.9rem;
+  color: #666;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.udise-code i {
+  color: #1abc9c;
+  font-size: 12px;
+}
+
+.school-type {
+  flex-shrink: 0;
+}
+
+.badge-primary {
+  background: linear-gradient(135deg, #27ae60, #2ecc71);
+  color: white;
+  padding: 6px 14px;
+  border-radius: 20px;
+  font-size: 0.8rem;
+  font-weight: 600;
+}
+
+.badge-upper-primary {
+  background: linear-gradient(135deg, #3498db, #2980b9);
+  color: white;
+  padding: 6px 14px;
+  border-radius: 20px;
+  font-size: 0.8rem;
+  font-weight: 600;
+}
+
+.badge-high-school {
+  background: linear-gradient(135deg, #9b59b6, #8e44ad);
+  color: white;
+  padding: 6px 14px;
+  border-radius: 20px;
+  font-size: 0.8rem;
+  font-weight: 600;
+}
+
+.badge-intermediate {
+  background: linear-gradient(135deg, #e67e22, #d35400);
+  color: white;
+  padding: 6px 14px;
+  border-radius: 20px;
+  font-size: 0.8rem;
+  font-weight: 600;
+}
+
+.result-body {
+  padding: 20px 25px;
+}
+
+.detail-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 0;
+  border-bottom: 1px solid #f0f0f0;
+}
+
+.detail-row:last-child {
+  border-bottom: none;
+}
+
+.detail-row i {
+  width: 30px;
+  height: 30px;
+  background: #e8f5e9;
+  color: #1abc9c;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 14px;
+}
+
+.detail-row span {
+  color: #555;
+  font-size: 0.95rem;
+}
+
+.result-footer {
+  padding: 15px 25px;
+  background: #f8f9fa;
+  display: flex;
+  gap: 12px;
+}
+
+.btn-view-details,
+.btn-contact {
+  padding: 10px 20px;
+  border-radius: 8px;
+  font-size: 0.9rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.btn-view-details {
+  background: #1F3971;
+  color: white;
+  border: none;
+  flex: 1;
+}
+
+.btn-view-details:hover {
+  background: #2c5282;
+}
+
+.btn-contact {
+  background: white;
+  color: #1abc9c;
+  border: 2px solid #1abc9c;
+}
+
+.btn-contact:hover {
+  background: #1abc9c;
+  color: white;
+}
+
+/* No Results */
+.no-results {
+  text-align: center;
+  padding: 60px 20px;
+  background: #f8f9fa;
+  border-radius: 15px;
+}
+
+.no-results i {
+  font-size: 50px;
+  color: #ccc;
+  margin-bottom: 20px;
+}
+
+.no-results h4 {
+  font-size: 1.5rem;
+  color: #1F3971;
+  margin-bottom: 10px;
+}
+
+.no-results p {
+  color: #666;
+  margin: 0;
+}
+
+/* Loading State */
+.loading-container {
+  text-align: center;
+  padding: 80px 20px;
+  background: white;
+  border-radius: 15px;
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.08);
+}
+
+.spinner {
+  font-size: 50px;
+  color: #1abc9c;
+  margin-bottom: 20px;
+}
+
+.loading-container p {
+  font-size: 1.1rem;
+  color: #666;
+}
+
+/* Error State */
+.error-container {
+  text-align: center;
+  padding: 40px 20px;
+  background: #fff5f5;
+  border-radius: 15px;
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.08);
+  border-left: 4px solid #e74c3c;
+}
+
+.error-container i {
+  font-size: 50px;
+  color: #e74c3c;
+  margin-bottom: 15px;
+}
+
+.error-container h4 {
+  font-size: 1.3rem;
+  color: #c0392b;
+  margin-bottom: 10px;
+}
+
+.error-container p {
+  color: #666;
+  font-size: 1rem;
+}
+
+/* Quick Stats Section */
+.quick-stats-section {
+  padding: 50px 0;
+  background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+}
+
+.stats-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 25px;
+}
+
+.stat-card {
+  background: white;
+  border-radius: 15px;
+  padding: 25px;
+  display: flex;
+  align-items: center;
+  gap: 15px;
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.08);
+  transition: all 0.3s ease;
+}
+
+.stat-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 15px 50px rgba(0, 0, 0, 0.12);
+}
+
+.stat-icon {
+  width: 60px;
+  height: 60px;
+  border-radius: 15px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.stat-icon i {
+  font-size: 26px;
+  color: white;
+}
+
+.stat-info h3 {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: #1F3971;
+  margin: 0 0 5px 0;
+}
+
+.stat-info p {
+  font-size: 0.9rem;
+  color: #666;
+  margin: 0;
+}
+
+/* Responsive */
+@media (max-width: 991px) {
+  .stats-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (max-width: 768px) {
+  .search-school-hero {
+    min-height: 280px;
+  }
+
+  .hero-title {
+    font-size: 2rem;
+  }
+
+  .hero-subtitle {
+    font-size: 1rem;
+  }
+
+  .search-card {
+    padding: 25px;
+  }
+
+  .search-header h2 {
+    font-size: 1.4rem;
+  }
+
+  .search-type-btn {
+    padding: 10px 15px;
+    font-size: 0.85rem;
+  }
+
+  .stats-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .stat-card {
+    padding: 20px;
+  }
+
+  .result-header {
+    flex-wrap: wrap;
+  }
+
+  .school-type {
+    width: 100%;
+    margin-top: 10px;
+  }
+
+  .result-footer {
+    flex-direction: column;
+  }
+
+  .btn-view-details,
+  .btn-contact {
+    width: 100%;
+    justify-content: center;
+  }
+}

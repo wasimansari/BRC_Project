@@ -1,0 +1,33 @@
+<section class="notices-section">
+  <div class="container">
+    <div class="row">
+      <div class="col-lg-12 text-center">
+        <h2 class="section-title">Latest Announcements</h2>
+        <p class="section-subtitle">Stay updated with the latest news and notices</p>
+      </div>
+    </div>
+    <div class="row g-4">
+      <div class="col-lg-4 col-md-6" *ngFor="let notice of notices">
+        <div class="notice-card">
+          <div class="notice-date">
+            <span class="date-day">{{ notice.day }}</span>
+            <span class="date-month">{{ notice.month }}</span>
+          </div>
+          <div class="notice-content">
+            <div class="notice-category" [class]="notice.categoryClass">{{ notice.category }}</div>
+            <h3 class="notice-title">{{ notice.title }}</h3>
+            <p class="notice-description">{{ notice.description }}</p>
+            <a [routerLink]="notice.link" class="read-more">
+              Read More <i class="fas fa-arrow-right"></i>
+            </a>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="row mt-5">
+      <div class="col-lg-12 text-center">
+        <a routerLink="/notices" class="btn btn-primary btn-lg">View All Notices</a>
+      </div>
+    </div>
+  </div>
+</section>
