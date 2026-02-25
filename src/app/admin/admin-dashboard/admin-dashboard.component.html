@@ -23,13 +23,24 @@
             <h3>Management</h3>
             <ul class="nav flex-column">
               <li class="nav-item">
-                <a class="nav-link active" href="#events" data-bs-toggle="pill">Events</a>
+                <a class="nav-link active" href="#banners" data-bs-toggle="pill">
+                  <i class="fas fa-images"></i> Banner Slider
+                </a>
               </li>
               <li class="nav-item">
-                <a class="nav-link" href="#news" data-bs-toggle="pill">News</a>
+                <a class="nav-link" href="#events" data-bs-toggle="pill">
+                  <i class="fas fa-calendar-alt"></i> Events
+                </a>
               </li>
               <li class="nav-item">
-                <a class="nav-link" href="#courses" data-bs-toggle="pill">Courses</a>
+                <a class="nav-link" href="#news" data-bs-toggle="pill">
+                  <i class="fas fa-newspaper"></i> News
+                </a>
+              </li>
+              <li class="nav-item">
+                <a class="nav-link" href="#courses" data-bs-toggle="pill">
+                  <i class="fas fa-book"></i> Courses
+                </a>
               </li>
             </ul>
           </div>
@@ -38,8 +49,113 @@
         <!-- Content Area -->
         <div class="col-md-9">
           <div class="tab-content">
+            <!-- Banner Slider Tab -->
+            <div class="tab-pane fade show active" id="banners">
+              <div class="content-card">
+                <h2>Manage Home Banner Slider</h2>
+                <p class="text-muted">Add, edit, or remove banners that appear on the home page hero section.</p>
+                
+                <!-- Add/Edit Banner Form -->
+                <div class="banner-form-card" [class.edit-mode]="isEditMode">
+                  <h4>
+                    <i class="fas" [class.fa-plus-circle]="!isEditMode" [class.fa-edit]="isEditMode"></i> 
+                    {{ isEditMode ? 'Edit Banner' : 'Add New Banner' }}
+                  </h4>
+                  <div *ngIf="isEditMode" class="edit-mode-badge">
+                    <span>You are editing a banner. </span>
+                    <button type="button" class="btn btn-link btn-sm p-0" (click)="cancelEdit()">Cancel edit</button>
+                  </div>
+                  <form (ngSubmit)="addBanner()" #bannerForm="ngForm">
+                    <div class="row">
+                      <div class="col-md-6">
+                        <div class="form-group">
+                          <label>Banner Title <span class="text-danger">*</span></label>
+                          <input type="text" [(ngModel)]="bannerTitle" name="bannerTitle" class="form-control" placeholder="e.g., Education for Bright Future" required>
+                        </div>
+                      </div>
+                      <div class="col-md-6">
+                        <div class="form-group">
+                          <label>Display Order</label>
+                          <input type="number" [(ngModel)]="bannerOrder" name="bannerOrder" class="form-control" placeholder="0" min="0">
+                          <small class="text-muted">Lower numbers appear first</small>
+                        </div>
+                      </div>
+                    </div>
+                    <div class="form-group">
+                      <label>Description</label>
+                      <textarea [(ngModel)]="bannerDescription" name="bannerDescription" class="form-control" rows="2" placeholder="Brief description for the banner..."></textarea>
+                    </div>
+                    <div class="form-group">
+                      <label>Banner Image <span class="text-danger">*</span></label>
+                      <input type="file" (change)="onBannerFileSelected($event)" class="form-control" accept="image/*" [required]="!isEditMode">
+                      <div class="banner-size-note mt-2">
+                        <i class="fas fa-info-circle"></i>
+                        <strong> Required size: 1920 x 800 pixels (24:10 ratio)</strong>
+                      </div>
+                      <small *ngIf="isEditMode" class="text-muted d-block">Leave empty to keep the current image</small>
+                      <div *ngIf="bannerSizeError" class="alert alert-danger mt-2 py-2" role="alert">
+                        <i class="fas fa-exclamation-triangle"></i> {{ bannerSizeError }}
+                      </div>
+                      <div *ngIf="bannerPreview" class="banner-preview mt-2">
+                        <img [src]="bannerPreview" alt="Banner preview" class="img-thumbnail" style="max-height: 150px;">
+                      </div>
+                    </div>
+                    <div class="form-group">
+                      <div class="form-check">
+                        <input type="checkbox" [(ngModel)]="bannerIsActive" name="bannerIsActive" class="form-check-input" id="bannerActive">
+                        <label class="form-check-label" for="bannerActive">Active (show on website)</label>
+                      </div>
+                    </div>
+                    <button type="submit" class="btn btn-primary" [disabled]="!bannerTitle || (!bannerFile && !isEditMode) || bannerSizeError">
+                      <i class="fas" [class.fa-plus]="!isEditMode" [class.fa-save]="isEditMode"></i>
+                      {{ isEditMode ? 'Update Banner' : 'Add Banner' }}
+                    </button>
+                  </form>
+                </div>
+
+                <!-- Existing Banners -->
+                <h4 class="mt-4"><i class="fas fa-images"></i> Existing Banners ({{banners.length}})</h4>
+                <div *ngIf="banners.length === 0" class="alert alert-info">
+                  <i class="fas fa-info-circle"></i> No banners found. Add your first banner above!
+                </div>
+                <div class="row" *ngIf="banners.length > 0">
+                  <div class="col-md-6" *ngFor="let banner of banners">
+                    <div class="banner-card" [class.inactive]="!banner.isActive">
+                      <div class="banner-image">
+                        <img [src]="banner.image" [alt]="banner.title">
+                        <div class="banner-status">
+                          <span class="badge" [class.bg-success]="banner.isActive" [class.bg-secondary]="!banner.isActive">
+                            {{ banner.isActive ? 'Active' : 'Inactive' }}
+                          </span>
+                        </div>
+                      </div>
+                      <div class="banner-info">
+                        <h5>{{ banner.title }}</h5>
+                        <p class="text-muted small">{{ banner.description }}</p>
+                        <div class="banner-meta">
+                          <span><i class="fas fa-sort"></i> Order: {{ banner.order }}</span>
+                        </div>
+                        <div class="banner-actions">
+                          <button class="btn btn-sm btn-primary" (click)="editBanner(banner)">
+                            <i class="fas fa-edit"></i> Edit
+                          </button>
+                          <button class="btn btn-sm" [class.btn-success]="!banner.isActive" [class.btn-warning]="banner.isActive" (click)="toggleBannerStatus(banner)">
+                            <i class="fas" [class.fa-eye]="!banner.isActive" [class.fa-eye-slash]="banner.isActive"></i>
+                            {{ banner.isActive ? 'Deactivate' : 'Activate' }}
+                          </button>
+                          <button class="btn btn-sm btn-danger" (click)="deleteBanner(banner._id)">
+                            <i class="fas fa-trash"></i> Delete
+                          </button>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
             <!-- Events Tab -->
-            <div class="tab-pane fade show active" id="events">
+            <div class="tab-pane fade" id="events">
               <div class="content-card">
                 <h2>Add New Event</h2>
                 <form (ngSubmit)="addEvent()">

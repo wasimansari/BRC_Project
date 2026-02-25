@@ -1,5 +1,96 @@
+/* Banner Styles */
+.contact-banner {
+  position: relative;
+  height: 400px;
+  background-image: url('../../../assets/images/contact/contactus.webp');
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 60px;
+}
+
+.banner-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: linear-gradient(135deg, rgba(30, 60, 114, 0.9) 0%, rgba(42, 82, 152, 0.85) 100%);
+}
+
+.banner-content {
+  position: relative;
+  z-index: 2;
+  text-align: center;
+  padding: 0 20px;
+  animation: fadeInUp 0.8s ease-out;
+}
+
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.banner-title {
+  font-size: 3.5rem;
+  font-weight: 700;
+  color: white;
+  margin-bottom: 15px;
+  text-shadow: 2px 2px 4px rgba(0,0,0,0.2);
+  letter-spacing: 1px;
+}
+
+.banner-subtitle {
+  font-size: 1.3rem;
+  color: rgba(255,255,255,0.9);
+  max-width: 600px;
+  margin: 0 auto 25px;
+  line-height: 1.6;
+}
+
+.banner-breadcrumb {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  background: rgba(255,255,255,0.15);
+  padding: 10px 25px;
+  border-radius: 30px;
+  backdrop-filter: blur(10px);
+}
+
+.banner-breadcrumb a {
+  color: rgba(255,255,255,0.8);
+  text-decoration: none;
+  font-weight: 500;
+  transition: color 0.3s;
+}
+
+.banner-breadcrumb a:hover {
+  color: white;
+}
+
+.banner-breadcrumb .separator {
+  color: rgba(255,255,255,0.6);
+}
+
+.banner-breadcrumb .current {
+  color: white;
+  font-weight: 600;
+}
+
+/* Contact Page Styles */
 .contact-page {
   background-color: #f8f9fa;
+  padding-bottom: 80px;
 }
 
 .page-title {
@@ -19,14 +110,33 @@
 .contact-form {
   background: white;
   padding: 40px;
-  border-radius: 15px;
-  box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+  border-radius: 20px;
+  box-shadow: 0 15px 50px rgba(0,0,0,0.08);
+  transition: transform 0.3s, box-shadow 0.3s;
+}
+
+.contact-form:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 20px 60px rgba(0,0,0,0.12);
 }
 
 .contact-form h3 {
   font-size: 1.8rem;
-  color: #333;
+  color: #1e3c72;
   margin-bottom: 30px;
+  position: relative;
+  padding-bottom: 15px;
+}
+
+.contact-form h3::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 60px;
+  height: 3px;
+  background: linear-gradient(90deg, #1e3c72, #2a5298);
+  border-radius: 2px;
 }
 
 .form-group {
@@ -38,57 +148,221 @@
   margin-bottom: 8px;
   font-weight: 600;
   color: #333;
+  font-size: 0.95rem;
 }
 
 .form-control {
   width: 100%;
-  padding: 12px 15px;
-  border: 2px solid #e1e1e1;
-  border-radius: 8px;
+  padding: 14px 18px;
+  border: 2px solid #e8e8e8;
+  border-radius: 12px;
   font-size: 16px;
-  transition: border-color 0.3s;
+  transition: all 0.3s ease;
+  background: #fafafa;
 }
 
 .form-control:focus {
   outline: none;
-  border-color: #007bff;
-  box-shadow: 0 0 0 3px rgba(0,123,255,0.1);
+  border-color: #1e3c72;
+  box-shadow: 0 0 0 4px rgba(30,60,114,0.1);
+  background: white;
+}
+
+.form-control::placeholder {
+  color: #aaa;
+}
+
+.contact-form button {
+  background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
+  border: none;
+  padding: 16px 40px;
+  font-size: 1.1rem;
+  font-weight: 600;
+  border-radius: 12px;
+  color: white;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  position: relative;
+  overflow: hidden;
+}
+
+.contact-form button::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
+  transition: left 0.5s;
+}
+
+.contact-form button:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 10px 30px rgba(30,60,114,0.3);
+}
+
+.contact-form button:hover::before {
+  left: 100%;
 }
 
 .contact-info {
   background: white;
   padding: 40px;
-  border-radius: 15px;
-  box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+  border-radius: 20px;
+  box-shadow: 0 15px 50px rgba(0,0,0,0.08);
+  transition: transform 0.3s, box-shadow 0.3s;
+}
+
+.contact-info:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 20px 60px rgba(0,0,0,0.12);
 }
 
 .contact-info h3 {
   font-size: 1.8rem;
-  color: #333;
+  color: #1e3c72;
   margin-bottom: 30px;
+  position: relative;
+  padding-bottom: 15px;
+}
+
+.contact-info h3::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 60px;
+  height: 3px;
+  background: linear-gradient(90deg, #1e3c72, #2a5298);
+  border-radius: 2px;
 }
 
 .info-item {
   display: flex;
   align-items: flex-start;
   margin-bottom: 30px;
+  padding: 20px;
+  border-radius: 12px;
+  transition: all 0.3s ease;
+  background: linear-gradient(135deg, #f8f9ff 0%, #fff 100%);
+}
+
+.info-item:hover {
+  transform: translateX(5px);
+  box-shadow: 0 5px 20px rgba(30,60,114,0.1);
 }
 
 .info-item i {
   font-size: 1.5rem;
-  color: #007bff;
+  color: white;
+  background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
+  width: 50px;
+  height: 50px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 12px;
   margin-right: 20px;
-  margin-top: 5px;
+  margin-top: 0;
+  flex-shrink: 0;
 }
 
 .info-item h4 {
   font-size: 1.1rem;
-  color: #333;
+  color: #1e3c72;
   margin-bottom: 5px;
+  font-weight: 600;
 }
 
 .info-item p {
   color: #666;
   margin: 0;
   line-height: 1.6;
+}
+
+/* Responsive Design */
+@media (max-width: 992px) {
+  .contact-banner {
+    height: 350px;
+  }
+  
+  .banner-title {
+    font-size: 2.8rem;
+  }
+  
+  .banner-subtitle {
+    font-size: 1.1rem;
+  }
+  
+  .contact-form,
+  .contact-info {
+    padding: 30px;
+    margin-bottom: 30px;
+  }
+}
+
+@media (max-width: 768px) {
+  .contact-banner {
+    height: 280px;
+  }
+  
+  .banner-title {
+    font-size: 2.2rem;
+  }
+  
+  .banner-subtitle {
+    font-size: 1rem;
+  }
+  
+  .banner-breadcrumb {
+    padding: 8px 20px;
+  }
+  
+  .page-title {
+    font-size: 2.2rem;
+  }
+  
+  .page-subtitle {
+    font-size: 1rem;
+  }
+  
+  .contact-form,
+  .contact-info {
+    padding: 25px;
+  }
+  
+  .contact-form h3,
+  .contact-info h3 {
+    font-size: 1.5rem;
+  }
+}
+
+@media (max-width: 576px) {
+  .contact-banner {
+    height: 250px;
+  }
+  
+  .banner-title {
+    font-size: 1.8rem;
+  }
+  
+  .banner-subtitle {
+    display: none;
+  }
+  
+  .info-item {
+    padding: 15px;
+  }
+  
+  .info-item i {
+    width: 40px;
+    height: 40px;
+    font-size: 1.2rem;
+  }
+  
+  .contact-form button {
+    width: 100%;
+    padding: 14px 30px;
+  }
 }

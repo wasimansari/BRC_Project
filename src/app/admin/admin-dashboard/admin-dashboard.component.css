@@ -136,3 +136,142 @@
     margin-bottom: 20px;
   }
 }
+
+/* Banner Management Styles */
+.banner-form-card.edit-mode {
+  border-color: #0d6efd;
+  background: linear-gradient(135deg, #f8f9ff 0%, #e8f4ff 100%);
+}
+
+.edit-mode-badge {
+  background: #e8f4ff;
+  color: #0d6efd;
+  padding: 8px 12px;
+  border-radius: 4px;
+  margin-bottom: 15px;
+  font-size: 0.9rem;
+}
+
+.edit-mode-badge .btn-link {
+  color: #0d6efd;
+  font-weight: 600;
+  text-decoration: none;
+}
+
+.edit-mode-badge .btn-link:hover {
+  text-decoration: underline;
+}
+
+.banner-form-card {
+  background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+  border-radius: 12px;
+  padding: 25px;
+  margin-bottom: 30px;
+  border: 1px solid #dee2e6;
+}
+
+.banner-form-card h4 {
+  color: #1e3c72;
+  margin-bottom: 20px;
+  font-weight: 600;
+}
+
+.banner-preview img {
+  border-radius: 8px;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+}
+
+.banner-size-note {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  padding: 10px 14px;
+  border-radius: 6px;
+  font-size: 0.85rem;
+  display: inline-block;
+  box-shadow: 0 2px 8px rgba(102, 126, 234, 0.4);
+}
+
+.banner-size-note i {
+  margin-right: 6px;
+}
+
+.banner-card {
+  background: white;
+  border-radius: 12px;
+  overflow: hidden;
+  box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+  margin-bottom: 20px;
+  transition: transform 0.3s, box-shadow 0.3s;
+}
+
+.banner-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 8px 25px rgba(0,0,0,0.15);
+}
+
+.banner-card.inactive {
+  opacity: 0.7;
+}
+
+.banner-card.inactive .banner-image img {
+  filter: grayscale(50%);
+}
+
+.banner-image {
+  position: relative;
+  height: 180px;
+  overflow: hidden;
+}
+
+.banner-image img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform 0.3s;
+}
+
+.banner-card:hover .banner-image img {
+  transform: scale(1.05);
+}
+
+.banner-status {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+}
+
+.banner-info {
+  padding: 15px;
+}
+
+.banner-info h5 {
+  color: #1e3c72;
+  margin-bottom: 8px;
+  font-weight: 600;
+}
+
+.banner-meta {
+  display: flex;
+  gap: 15px;
+  color: #6c757d;
+  font-size: 13px;
+  margin: 10px 0;
+}
+
+.banner-actions {
+  display: flex;
+  gap: 8px;
+  margin-top: 12px;
+}
+
+.banner-actions .btn {
+  flex: 1;
+  font-size: 12px;
+  padding: 6px 10px;
+}
+
+.sidebar .nav-link i {
+  margin-right: 10px;
+  width: 20px;
+  text-align: center;
+}

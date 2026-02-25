@@ -8,7 +8,7 @@ const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 
 // Load environment variables
-dotenv.config();
+dotenv.config({ path: __dirname + '/.env' });
 
 // Initialize Express app
 const app = express();
@@ -61,11 +61,21 @@ const adminSchema = new mongoose.Schema({
   role: { type: String, enum: ['superadmin', 'admin'], default: 'admin' }
 });
 
+const bannerSchema = new mongoose.Schema({
+  title: { type: String, required: true },
+  description: { type: String },
+  image: { type: String, required: true },
+  order: { type: Number, default: 0 },
+  isActive: { type: Boolean, default: true },
+  createdAt: { type: Date, default: Date.now }
+});
+
 // Models
 const Event = mongoose.model('Event', eventSchema);
 const News = mongoose.model('News', newsSchema);
 const Course = mongoose.model('Course', courseSchema);
 const Admin = mongoose.model('Admin', adminSchema);
+const Banner = mongoose.model('Banner', bannerSchema);
 
 // Multer configuration for file uploads
 const storage = multer.memoryStorage();
@@ -305,6 +315,115 @@ app.delete('/api/news/:id', async (req, res) => {
     res.json({ message: 'News deleted successfully' });
   } catch (error) {
     res.status(500).json({ message: 'Error deleting news', error: error.message });
+  }
+});
+
+// Banner Routes
+app.get('/api/banners', async (req, res) => {
+  try {
+    const banners = await Banner.find({ isActive: true }).sort({ order: 1 });
+    res.json(banners);
+  } catch (error) {
+    res.status(500).json({ message: 'Error fetching banners', error: error.message });
+  }
+});
+
+app.get('/api/banners/all', async (req, res) => {
+  try {
+    const banners = await Banner.find().sort({ order: 1 });
+    res.json(banners);
+  } catch (error) {
+    res.status(500).json({ message: 'Error fetching banners', error: error.message });
+  }
+});
+
+app.post('/api/banners', upload.single('image'), async (req, res) => {
+  try {
+    const { title, description, order, isActive } = req.body;
+    
+    let imageUrl = 'https://via.placeholder.com/1920x750/1e3c72/ffffff?text=Banner';
+    
+    if (req.file) {
+      const uploadPromise = new Promise((resolve, reject) => {
+        const uploadStream = cloudinary.uploader.upload_stream(
+          { folder: 'school-banners' },
+          (error, result) => {
+            if (error) return reject(error);
+            resolve(result);
+          }
+        );
+        uploadStream.end(req.file.buffer);
+      });
+
+      const uploadResult = await uploadPromise;
+      imageUrl = uploadResult.secure_url;
+    }
+
+    const banner = new Banner({
+      title,
+      description,
+      image: imageUrl,
+      order: order || 0,
+      isActive: isActive !== 'false'
+    });
+    
+    const savedBanner = await banner.save();
+    res.status(201).json(savedBanner);
+  } catch (error) {
+    console.error("Error creating banner:", error);
+    res.status(500).json({ message: 'Error creating banner', error: error.message });
+  }
+});
+
+app.put('/api/banners/:id', upload.single('image'), async (req, res) => {
+  try {
+    const { title, description, order, isActive } = req.body;
+    const banner = await Banner.findById(req.params.id);
+    
+    if (!banner) {
+      return res.status(404).json({ message: 'Banner not found' });
+    }
+
+    if (title) banner.title = title;
+    if (description) banner.description = description;
+    if (order !== undefined) banner.order = parseInt(order);
+    if (isActive !== undefined) banner.isActive = isActive === 'true' || isActive === true;
+    
+    if (req.file) {
+      const uploadPromise = new Promise((resolve, reject) => {
+        const uploadStream = cloudinary.uploader.upload_stream(
+          { folder: 'school-banners' },
+          (error, result) => {
+            if (error) return reject(error);
+            resolve(result);
+          }
+        );
+        uploadStream.end(req.file.buffer);
+      });
+
+      const uploadResult = await uploadPromise;
+      banner.image = uploadResult.secure_url;
+    } else if (req.body.existingImage) {
+      // Keep the existing image when no new image is uploaded
+      banner.image = req.body.existingImage;
+    }
+
+    const updatedBanner = await banner.save();
+    res.json(updatedBanner);
+  } catch (error) {
+    res.status(500).json({ message: 'Error updating banner', error: error.message });
+  }
+});
+
+app.delete('/api/banners/:id', async (req, res) => {
+  try {
+    const banner = await Banner.findByIdAndDelete(req.params.id);
+    if (!banner) {
+      return res.status(404).json({ message: 'Banner not found' });
+    }
+    res.json({ message: 'Banner deleted successfully' });
+  } catch (error) {
+    res.status(500).json({ message: 'Error deleting banner', error: error.message });
   }
 });
 
