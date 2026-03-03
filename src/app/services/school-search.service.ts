@@ -2,6 +2,7 @@ import { Injectable } from '@angular/core';
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { Observable, of } from 'rxjs';
 import { map, catchError } from 'rxjs/operators';
+import { ApiEndpoints, SearchTypes } from '../core/constants/api-endpoints';
 
 export interface SchoolDetails {
   udise_code?: string;
@@ -43,7 +44,7 @@ export interface UdiseApiResponse {
   providedIn: 'root'
 })
 export class SchoolSearchService {
-  private readonly API_URL = 'https://kys.udiseplus.gov.in/webapp/api/search-schools';
+  private readonly API_URL = ApiEndpoints.udise.search;
 
   // Local fallback schools data for when API doesn't return results
   private localSchools: SchoolDetails[] = [
@@ -198,7 +199,7 @@ export class SchoolSearchService {
    */
   searchByUdiseCode(udiseCode: string): Observable<SchoolDetails | null> {
     const params = new HttpParams()
-      .set('searchType', '3')
+      .set('searchType', SearchTypes.BY_UDISE_CODE)
       .set('searchParam', udiseCode);
 
     return this.http.get<any>(this.API_URL, { params }).pipe(
@@ -261,7 +262,7 @@ export class SchoolSearchService {
    */
   searchBySchoolName(schoolName: string): Observable<SchoolDetails[]> {
     const params = new HttpParams()
-      .set('searchType', '1')
+      .set('searchType', SearchTypes.BY_SCHOOL_NAME)
       .set('searchParam', schoolName);
 
     return this.http.get<any>(this.API_URL, { params }).pipe(
@@ -301,7 +302,7 @@ export class SchoolSearchService {
    */
   searchByDistrict(district: string): Observable<SchoolDetails[]> {
     const params = new HttpParams()
-      .set('searchType', '4')
+      .set('searchType', SearchTypes.BY_DISTRICT)
       .set('searchParam', district);
 
     return this.http.get<any>(this.API_URL, { params }).pipe(
@@ -341,7 +342,7 @@ export class SchoolSearchService {
    */
   searchByBlock(block: string): Observable<SchoolDetails[]> {
     const params = new HttpParams()
-      .set('searchType', '5')
+      .set('searchType', SearchTypes.BY_BLOCK)
       .set('searchParam', block);
 
     return this.http.get<any>(this.API_URL, { params }).pipe(

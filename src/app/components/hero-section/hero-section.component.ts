@@ -1,5 +1,5 @@
 import { Component, OnInit } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
+import { BannerService, Banner } from '../../services/banner.service';
 
 @Component({
   selector: 'app-hero-section',
@@ -7,45 +7,33 @@ import { HttpClient } from '@angular/common/http';
   styleUrls: ['./hero-section.component.css']
 })
 export class HeroSectionComponent implements OnInit {
-  slides: any[] = [];
+  slides: Banner[] = [];
   
-  private defaultSlides = [
+  private defaultSlides: Banner[] = [
     {
       title: 'Education Needs Complete Solution',
-      description: 'We provide comprehensive educational services to help students achieve their full potential through innovative teaching methods and personalized learning approaches.',
+      description: 'We provide comprehensive educational services to help students achieve their full potential.',
       image: 'assets/images/hero/1.webp'
     },
     {
       title: 'Quality Education for Bright Future',
-      description: 'Join thousands of students who have transformed their lives through our award-winning educational programs and expert mentorship.',
+      description: 'Join thousands of students who have transformed their lives through our educational programs.',
       image: 'assets/images/hero/2.jpg'
     }
   ];
 
-  constructor(private http: HttpClient) {}
+  constructor(private bannerService: BannerService) {}
 
   ngOnInit() {
     this.loadBanners();
   }
 
   loadBanners() {
-    // First try to load from localStorage (set by admin dashboard)
-    const storedBanners = localStorage.getItem('banners');
-    if (storedBanners) {
-      const parsed = JSON.parse(storedBanners);
-      if (parsed.length > 0) {
-        this.slides = parsed;
-        return;
-      }
-    }
-
-    // If no stored banners, fetch from API
-    this.http.get<any[]>('http://localhost:5000/api/banners').subscribe({
+    this.bannerService.getBanners().subscribe({
       next: (banners) => {
         if (banners && banners.length > 0) {
           this.slides = banners;
         } else {
-          // Use default slides if no banners in database
           this.slides = this.defaultSlides;
         }
       },

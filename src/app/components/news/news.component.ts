@@ -1,26 +1,29 @@
-import { Component } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
+import { NewsService, News } from '../../services/news.service';
 
 @Component({
   selector: 'app-news',
   templateUrl: './news.component.html',
   styleUrls: ['./news.component.css']
 })
-export class NewsComponent {
-  news = [
-    {
-      title: 'New Science Lab Opening',
-      description: 'We are excited to announce the opening of our new state-of-the-art science laboratory.',
-      image: 'assets/images/news/1.webp'
-    },
-    {
-      title: 'Student Achievement Awards',
-      description: 'Celebrating the outstanding achievements of our students in various competitions.',
-      image: 'assets/images/news/2.webp'
-    },
-    {
-      title: 'Summer Program Launch',
-      description: 'Join our exciting summer educational programs designed for all age groups.',
-      image: 'assets/images/news/4.webp'
-    }
-  ];
+export class NewsComponent implements OnInit {
+  news: News[] = [];
+
+  constructor(private newsService: NewsService) {}
+
+  ngOnInit() {
+    this.loadNews();
+  }
+
+  loadNews() {
+    this.newsService.getNews().subscribe({
+      next: (news) => {
+        this.news = news;
+      },
+      error: (err) => {
+        console.error('Error loading news:', err);
+        this.news = this.newsService.getLocalNews();
+      }
+    });
+  }
 }

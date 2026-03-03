@@ -1,5 +1,5 @@
 .testimonial-section {
-  background: linear-gradient(135deg, rgba(26, 188, 156, 0.95) 0%, rgba(22, 160, 133, 0.95) 100%), url('../../../../assets/images/testimonials/testimonial_bg.webp');
+  background: linear-gradient(135deg, rgba(26, 188, 156, 0.95) 0%, rgba(22, 160, 133, 0.95) 100%);
   background-size: cover;
   background-position: center;
   position: relative;

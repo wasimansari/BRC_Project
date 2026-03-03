@@ -1,6 +1,6 @@
 import { Component } from '@angular/core';
 import { Router } from '@angular/router';
-import { HttpClient } from '@angular/common/http';
+import { AuthService } from '../../services/auth.service';
 
 @Component({
   selector: 'app-admin-login',
@@ -13,14 +13,11 @@ export class AdminLoginComponent {
     password: ''
   };
 
-  constructor(private router: Router, private http: HttpClient) {}
+  constructor(private router: Router, private authService: AuthService) {}
 
   onLogin() {
-    this.http.post<any>('http://localhost:5000/api/auth/login', this.loginData).subscribe({
-      next: (response) => {
-        localStorage.setItem('token', response.token);
-        localStorage.setItem('role', response.role);
-        localStorage.setItem('isAdminLoggedIn', 'true');
+    this.authService.login(this.loginData.username, this.loginData.password).subscribe({
+      next: () => {
         this.router.navigate(['/admin/dashboard']);
       },
       error: (error) => {

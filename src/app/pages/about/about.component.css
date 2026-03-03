@@ -64,6 +64,12 @@
   animation-delay: 0.4s;
 }
 
+/* .beo_bg{
+    background-image: url('/assets/images/aboutus/BEO5.jpg');
+    background-size: cover;
+    background-position: 100%;
+} */
+
 .breadcrumb-item {
   font-size: 1rem;
   color: rgba(255, 255, 255, 0.9);
@@ -156,7 +162,10 @@
 
 /* Vision & Mission Section */
 .vision-mission-section {
-  background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+  /* background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%); */
+    background-image: url('/assets/images/aboutus/BEO4.jpg');
+    background-size: cover;
+    background-position: 100%;
 }
 
 .vm-card {
@@ -511,8 +520,8 @@
 }
 
 .staff-avatar {
-  width: 90px;
-  height: 90px;
+  width: 120px;
+  height: 120px;
   margin: 0 auto 20px;
   background: linear-gradient(135deg, #e8f5e9, #c8e6c9);
   border-radius: 50%;
@@ -520,6 +529,11 @@
   align-items: center;
   justify-content: center;
   border: 4px solid #1abc9c;
+  overflow: hidden;
+}
+
+.img_width{
+  width: 100%;
 }
 
 .staff-avatar i {
