@@ -1,5 +1,5 @@
 import { Component, OnInit } from '@angular/core';
-import { SchoolSearchService, SchoolDetails } from '../../services/school-search.service';
+import { SchoolSearchService, SchoolDetails, SchoolReportCard, SchoolCompleteDetails } from '../../services/school-search.service';
 import { app_constants, SearchTypeId } from '../../../constant';
 
 // Local school interface matching our database
@@ -43,6 +43,8 @@ interface School {
   lastmodifiedTime:string;
   latitude:number;
   longitude:number;
+  // schoolId from the search API (different from UDISE code, used for facility API)
+  schoolId: string;
 }
 
 @Component({
@@ -230,6 +232,12 @@ export class SearchSchoolComponent implements OnInit {
   isLoading = false;
   errorMessage = '';
 
+  // Modal properties
+  showReportCardModel = false;
+  showReportCardDetails: SchoolCompleteDetails | null = null;
+  isLoadingReportCard = false;
+  reportCardError = '';
+
   stats = app_constants.schoolSearchStats;
 
   selectSearchType(type: SearchTypeId): void {
@@ -399,9 +407,78 @@ export class SearchSchoolComponent implements OnInit {
       schTypeDesc:data.sch_Type_Desc || '',
       lastmodifiedTime:data.last_modified_Time || '',
       latitude:data.latitude || 0,
-      longitude:data.longitude || 0
-
-
+      longitude:data.longitude || 0,
+      // Map schoolId from search API (this is the ID to use for facility API)
+      schoolId: data.schoolId || ''
     };
+  }
+
+  /**
+   * Open facility modal and fetch school details from all 3 APIs
+   */
+  openFacilityModal(school: School): void {
+    this.showReportCardModel = true;
+    this.isLoadingReportCard = true;
+    this.reportCardError = '';
+    this.showReportCardDetails = null;
+
+    // Use schoolId from the search API (not the UDISE code) for facility API
+    const facilityId = school.schoolId || school.udiseCode;
+    console.log('Opening facility modal for school:', school.schoolName, 'UDISE:', school.udiseCode, 'SchoolId:', facilityId);
+
+    // Call all 3 APIs and combine the data
+    this.schoolSearchService.getCompleteSchoolDetails(facilityId).subscribe({
+      next: (data) => {
+        this.isLoadingReportCard = false;
+        console.log('Complete school details received:', data);
+        
+        if (data) {
+          this.showReportCardDetails = data;
+        } else {
+          // If API doesn't return data, use search results data as fallback
+          this.showReportCardDetails = this.getFallbackData(school);
+          console.log('Using fallback data for facility details');
+        }
+      },
+      error: (err) => {
+        this.isLoadingReportCard = false;
+        console.error('Error fetching school details:', err);
+        // On error, use search results data as fallback
+        this.showReportCardDetails = this.getFallbackData(school);
+        console.log('Using fallback data for facility details due to error');
+      }
+    });
+  }
+
+  /**
+   * Get fallback data from search results when APIs fail
+   */
+  private getFallbackData(school: School): SchoolCompleteDetails {
+    return {
+      schoolId: school.udiseCode,
+      schoolName: school.schoolName,
+      schoolCategory: school.schCatDesc || school.category,
+      schoolManagement: school.schMgmtDesc,
+      class: school.classFrm && school.classTo ? `${school.classFrm} To ${school.classTo}` : '',
+      schoolType: school.schTypeDesc || school.type,
+      schoolLocation: school.schLocDesc,
+      lgdBlock: school.block,
+      lgdPanchayat: '',
+      lgdVillage: school.villageName,
+      address: school.address,
+      pinCode: school.pincode,
+      stateName: school.stateName,
+      districtName: school.districtName,
+      blockName: school.block,
+      clusterName: school.clusterName
+    };
+  }
+
+  /**
+   * Close facility modal
+   */
+  closeFacilityModal(): void {
+    this.showReportCardModel = false;
+    this.showReportCardDetails = null;
   }
 }

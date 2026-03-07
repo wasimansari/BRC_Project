@@ -407,39 +407,26 @@ select.form-control {
   gap: 12px;
 }
 
-.btn-view-details,
-.btn-contact {
-  padding: 10px 20px;
+.btn-know-more {
+  padding: 12px 25px;
   border-radius: 8px;
-  font-size: 0.9rem;
+  font-size: 0.95rem;
   font-weight: 600;
   cursor: pointer;
   transition: all 0.3s ease;
   display: flex;
   align-items: center;
+  justify-content: center;
   gap: 8px;
-}
-
-.btn-view-details {
-  background: #1F3971;
+  background: linear-gradient(135deg, #1abc9c, #16a085);
   color: white;
   border: none;
-  flex: 1;
+  width: 100%;
 }
 
-.btn-view-details:hover {
-  background: #2c5282;
-}
-
-.btn-contact {
-  background: white;
-  color: #1abc9c;
-  border: 2px solid #1abc9c;
-}
-
-.btn-contact:hover {
-  background: #1abc9c;
-  color: white;
+.btn-know-more:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 5px 20px rgba(26, 188, 156, 0.4);
 }
 
 /* No Results */
@@ -575,6 +562,197 @@ select.form-control {
   .stats-grid {
     grid-template-columns: repeat(2, 1fr);
   }
+}
+
+/* Modal Styles */
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.6);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 10000;
+  padding: 20px;
+  animation: fadeIn 0.3s ease;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+.modal-content {
+  background: white;
+  border-radius: 20px;
+  width: 100%;
+  max-width: 1100px;
+  max-height: 90vh;
+  overflow-y: auto;
+  box-shadow: 0 25px 80px rgba(0, 0, 0, 0.3);
+  animation: slideUp 0.3s ease;
+}
+
+@keyframes slideUp {
+  from { 
+    opacity: 0;
+    transform: translateY(30px);
+  }
+  to { 
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.modal-header {
+  background: linear-gradient(135deg, #1F3971, #2c5282);
+  padding: 20px 25px;
+  border-radius: 20px 20px 0 0;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  position: sticky;
+  top: 0;
+  z-index: 10;
+}
+
+.modal-header h3 {
+  color: white;
+  font-size: 1.3rem;
+  font-weight: 700;
+  margin: 0;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.modal-header h3 i {
+  color: #1abc9c;
+}
+
+.modal-close {
+  background: rgba(255, 255, 255, 0.2);
+  border: none;
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  color: white;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.3s ease;
+}
+
+.modal-close:hover {
+  background: rgba(255, 255, 255, 0.3);
+  transform: rotate(90deg);
+}
+
+.modal-body {
+  padding: 25px;
+}
+
+.facility-loading {
+  text-align: center;
+  padding: 50px 20px;
+}
+
+.facility-loading .spinner {
+  font-size: 40px;
+  color: #1abc9c;
+  margin-bottom: 15px;
+}
+
+.facility-loading p {
+  color: #666;
+  font-size: 1rem;
+}
+
+.facility-school-name {
+  background: linear-gradient(135deg, #f8f9fa, #e9ecef);
+  padding: 15px 20px;
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 25px;
+  border-left: 4px solid #1abc9c;
+}
+
+.facility-school-name i {
+  font-size: 24px;
+  color: #1abc9c;
+}
+
+.facility-school-name span {
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: #1F3971;
+}
+
+.facility-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 15px;
+}
+
+.facility-item {
+  background: #f8f9fa;
+  padding: 15px;
+  border-radius: 10px;
+  border: 1px solid #e9ecef;
+}
+
+.facility-item.full-width {
+  grid-column: span 2;
+}
+
+.facility-label {
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: #888;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  margin-bottom: 6px;
+}
+
+.facility-value {
+  font-size: 1rem;
+  font-weight: 600;
+  color: #1F3971;
+}
+
+.facility-error {
+  text-align: center;
+  padding: 50px 20px;
+  color: #666;
+}
+
+.facility-error i {
+  font-size: 50px;
+  color: #e74c3c;
+  margin-bottom: 15px;
+}
+
+/* Section Titles in Modal */
+.facility-section-title {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: #1F3971;
+  margin: 25px 0 15px 0;
+  padding-bottom: 10px;
+  border-bottom: 2px solid #1abc9c;
+}
+
+.facility-section-title i {
+  color: #1abc9c;
 }
 
 @media (max-width: 768px) {

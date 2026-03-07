@@ -18,6 +18,9 @@ export const SearchTypes = app_constants.searchTypes;
 export const ApiEndpoints = {
   baseUrl: app_constants.baseUrl,
   udise: app_constants.udise,
+  udiseKnowMore: app_constants.udiseKnowMore,
+  udiseProfileDetail: app_constants.udiseProfileDetail,
+  udiseEnrollmentDetail: app_constants.udiseEnrollmentDetail,
   auth: app_constants.auth,
   events: app_constants.events,
   news: app_constants.news,

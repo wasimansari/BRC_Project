@@ -19,6 +19,9 @@ export const galleryCategories: GalleryCategory[] = [
 export const app_constants = {
   baseUrl: 'http://localhost:5000/api',
   udise: { search: 'https://kys.udiseplus.gov.in/webapp/api/search-schools' },
+  udiseKnowMore:{knowMore:'https://kys.udiseplus.gov.in/webapp/api/school/report-card?schoolId='},
+  udiseProfileDetail:{udiseProfile:'https://kys.udiseplus.gov.in/webapp/api/school/profile?schoolId='},
+  udiseEnrollmentDetail:{udiseEnrollment:'https://kys.udiseplus.gov.in/webapp/api/school-statistics/enrolment-teacher?schoolId='},
   auth: { login: '/auth/login', signup: '/auth/signup', createAdmin: '/auth/create-admin' },
   events: { getAll: '/events', create: '/events', delete: '/events' },
   news: { getAll: '/news', create: '/news', delete: '/news' },

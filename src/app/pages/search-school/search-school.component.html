@@ -156,11 +156,8 @@
             </div>
           </div>
           <div class="result-footer">
-            <button class="btn-view-details">
-              <i class="fas fa-eye"></i> View Details
-            </button>
-            <button class="btn-contact">
-              <i class="fas fa-phone-alt"></i> Contact
+            <button class="btn-know-more" (click)="openFacilityModal(school)">
+              <i class="fas fa-info-circle"></i> Know More
             </button>
           </div>
         </div>
@@ -192,4 +189,241 @@
   </div>
 </section>
 
-<!-- <app-footer></app-footer> -->
+<!-- Facility Details Modal -->
+<div class="modal-overlay" *ngIf="showReportCardModel" (click)="closeFacilityModal()">
+  <div class="modal-content" (click)="$event.stopPropagation()">
+    <div class="modal-header">
+      <h3><i class="fas fa-school"></i> School Facility Details</h3>
+      <button class="modal-close" (click)="closeFacilityModal()">
+        <i class="fas fa-times"></i>
+      </button>
+    </div>
+    <div class="modal-body">
+      <!-- Loading State -->
+      <div class="facility-loading" *ngIf="isLoadingReportCard">
+        <div class="spinner">
+          <i class="fas fa-circle-notch fa-spin"></i>
+        </div>
+        <p>Loading facility details...</p>
+      </div>
+
+      <!-- Facility Details -->
+      <div class="facility-details" *ngIf="!isLoadingReportCard && showReportCardDetails">
+        <div class="facility-school-name">
+          <i class="fas fa-graduation-cap"></i>
+          <span>{{ showReportCardDetails.schoolName }}</span>
+        </div>
+
+        <!-- Profile Section -->
+        <div class="facility-section-title">
+          <i class="fas fa-user-graduate"></i> School Profile
+        </div>
+        <div class="facility-grid">
+          <div class="facility-item">
+            <div class="facility-label">State</div>
+            <div class="facility-value">{{ showReportCardDetails.stateName || 'N/A' }}</div>
+          </div>
+
+          <div class="facility-item">
+            <div class="facility-label">District</div>
+            <div class="facility-value">{{ showReportCardDetails.districtName || 'N/A' }}</div>
+          </div>
+
+          <div class="facility-item">
+            <div class="facility-label">Block</div>
+            <div class="facility-value">{{ showReportCardDetails.blockName || showReportCardDetails.lgdBlock || 'N/A' }}</div>
+          </div>
+
+          <div class="facility-item">
+            <div class="facility-label">Cluster</div>
+            <div class="facility-value">{{ showReportCardDetails.clusterName || 'N/A' }}</div>
+          </div>
+
+          <div class="facility-item">
+            <div class="facility-label">Village</div>
+            <div class="facility-value">{{ showReportCardDetails.villageName || showReportCardDetails.lgdVillage || 'N/A' }}</div>
+          </div>
+
+          <div class="facility-item">
+            <div class="facility-label">Established Year</div>
+            <div class="facility-value">{{ showReportCardDetails.estdYear || 'N/A' }}</div>
+          </div>
+
+          <div class="facility-item full-width">
+            <div class="facility-label">Address</div>
+            <div class="facility-value">{{ showReportCardDetails.address || 'N/A' }}</div>
+          </div>
+
+          <div class="facility-item">
+            <div class="facility-label">PIN Code</div>
+            <div class="facility-value">{{ showReportCardDetails.pinCode || 'N/A' }}</div>
+          </div>
+        </div>
+
+        <!-- School Info Section -->
+        <div class="facility-section-title">
+          <i class="fas fa-info-circle"></i> School Information
+        </div>
+        <div class="facility-grid">
+          <div class="facility-item">
+            <div class="facility-label">School Category</div>
+            <div class="facility-value">{{ showReportCardDetails.schoolCategory || showReportCardDetails.categoryName || 'N/A' }}</div>
+          </div>
+
+          <div class="facility-item">
+            <div class="facility-label">School Management</div>
+            <div class="facility-value">{{ showReportCardDetails.schoolManagement || showReportCardDetails.managementName || 'N/A' }}</div>
+          </div>
+
+          <div class="facility-item">
+            <div class="facility-label">Class</div>
+            <div class="facility-value">{{ showReportCardDetails.class || 'N/A' }}</div>
+          </div>
+
+          <div class="facility-item">
+            <div class="facility-label">School Type</div>
+            <div class="facility-value">{{ showReportCardDetails.schoolType || showReportCardDetails.typeName || 'N/A' }}</div>
+          </div>
+
+          <div class="facility-item">
+            <div class="facility-label">School Location</div>
+            <div class="facility-value">{{ showReportCardDetails.schoolLocation || 'N/A' }}</div>
+          </div>
+
+          <div class="facility-item">
+            <div class="facility-label">LGD Block</div>
+            <div class="facility-value">{{ showReportCardDetails.lgdBlock || 'N/A' }}</div>
+          </div>
+
+          <div class="facility-item">
+            <div class="facility-label">LGD Panchayat</div>
+            <div class="facility-value">{{ showReportCardDetails.lgdPanchayat || 'N/A' }}</div>
+          </div>
+
+          <div class="facility-item">
+            <div class="facility-label">LGD Village</div>
+            <div class="facility-value">{{ showReportCardDetails.lgdVillage || 'N/A' }}</div>
+          </div>
+        </div>
+
+        <!-- Enrollment Statistics Section -->
+        <div class="facility-section-title">
+          <i class="fas fa-users"></i> Enrollment Statistics
+        </div>
+        <div class="facility-grid">
+          <div class="facility-item">
+            <div class="facility-label">Total Students</div>
+            <div class="facility-value">{{ showReportCardDetails.totalStudents || 0 }}</div>
+          </div>
+
+          <div class="facility-item">
+            <div class="facility-label">Total Boys</div>
+            <div class="facility-value">{{ showReportCardDetails.totalBoys || 0 }}</div>
+          </div>
+
+          <div class="facility-item">
+            <div class="facility-label">Total Girls</div>
+            <div class="facility-value">{{ showReportCardDetails.totalGirls || 0 }}</div>
+          </div>
+
+          <div class="facility-item">
+            <div class="facility-label">Total Teachers (Regular)</div>
+            <div class="facility-value">{{ showReportCardDetails.totalTeacherReg || showReportCardDetails.totalTeachers || 0 }}</div>
+          </div>
+
+          <div class="facility-item" *ngIf="showReportCardDetails.totalTeacherCon">
+            <div class="facility-label">Total Teachers (Contractual)</div>
+            <div class="facility-value">{{ showReportCardDetails.totalTeacherCon }}</div>
+          </div>
+
+          <div class="facility-item" *ngIf="showReportCardDetails.totalTeacherMale">
+            <div class="facility-label">Male Teachers</div>
+            <div class="facility-value">{{ showReportCardDetails.totalTeacherMale }}</div>
+          </div>
+
+          <div class="facility-item" *ngIf="showReportCardDetails.totalTeacherFemale">
+            <div class="facility-label">Female Teachers</div>
+            <div class="facility-value">{{ showReportCardDetails.totalTeacherFemale }}</div>
+          </div>
+        </div>
+
+        <!-- Class-wise Enrollment -->
+        <div class="facility-section-title" *ngIf="(showReportCardDetails?.totalStudents ?? 0) > 0">
+          <i class="fas fa-layer-group"></i> Class-wise Enrollment
+        </div>
+        <div class="facility-grid" *ngIf="(showReportCardDetails?.totalStudents ?? 0) > 0">
+          <div class="facility-item" *ngIf="showReportCardDetails.prePrimary">
+            <div class="facility-label">Pre-Primary</div>
+            <div class="facility-value">{{ showReportCardDetails.prePrimary }}</div>
+          </div>
+
+          <div class="facility-item" *ngIf="showReportCardDetails.class1">
+            <div class="facility-label">Class 1</div>
+            <div class="facility-value">{{ showReportCardDetails.class1 }}</div>
+          </div>
+
+          <div class="facility-item" *ngIf="showReportCardDetails.class2">
+            <div class="facility-label">Class 2</div>
+            <div class="facility-value">{{ showReportCardDetails.class2 }}</div>
+          </div>
+
+          <div class="facility-item" *ngIf="showReportCardDetails.class3">
+            <div class="facility-label">Class 3</div>
+            <div class="facility-value">{{ showReportCardDetails.class3 }}</div>
+          </div>
+
+          <div class="facility-item" *ngIf="showReportCardDetails.class4">
+            <div class="facility-label">Class 4</div>
+            <div class="facility-value">{{ showReportCardDetails.class4 }}</div>
+          </div>
+
+          <div class="facility-item" *ngIf="showReportCardDetails.class5">
+            <div class="facility-label">Class 5</div>
+            <div class="facility-value">{{ showReportCardDetails.class5 }}</div>
+          </div>
+
+          <div class="facility-item" *ngIf="showReportCardDetails.class6">
+            <div class="facility-label">Class 6</div>
+            <div class="facility-value">{{ showReportCardDetails.class6 }}</div>
+          </div>
+
+          <div class="facility-item" *ngIf="showReportCardDetails.class7">
+            <div class="facility-label">Class 7</div>
+            <div class="facility-value">{{ showReportCardDetails.class7 }}</div>
+          </div>
+
+          <div class="facility-item" *ngIf="showReportCardDetails.class8">
+            <div class="facility-label">Class 8</div>
+            <div class="facility-value">{{ showReportCardDetails.class8 }}</div>
+          </div>
+
+          <div class="facility-item" *ngIf="showReportCardDetails.class9">
+            <div class="facility-label">Class 9</div>
+            <div class="facility-value">{{ showReportCardDetails.class9 }}</div>
+          </div>
+
+          <div class="facility-item" *ngIf="showReportCardDetails.class10">
+            <div class="facility-label">Class 10</div>
+            <div class="facility-value">{{ showReportCardDetails.class10 }}</div>
+          </div>
+
+          <div class="facility-item" *ngIf="showReportCardDetails.class11">
+            <div class="facility-label">Class 11</div>
+            <div class="facility-value">{{ showReportCardDetails.class11 }}</div>
+          </div>
+
+          <div class="facility-item" *ngIf="showReportCardDetails.class12">
+            <div class="facility-label">Class 12</div>
+            <div class="facility-value">{{ showReportCardDetails.class12 }}</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Error State -->
+      <div class="facility-error" *ngIf="!isLoadingReportCard && !showReportCardDetails">
+        <i class="fas fa-exclamation-triangle"></i>
+        <p>Unable to load facility details. Please try again.</p>
+      </div>
+    </div>
+  </div>
+</div>
