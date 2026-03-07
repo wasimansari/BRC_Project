@@ -1,68 +1,45 @@
 /**
- * Centralized API Endpoints Configuration
- * All API endpoints should be defined here
+ * Centralized API Configuration
+ * This file provides backward compatibility for services
+ * and uses constants from src/constant.ts
  */
 
-export const ApiEndpoints = {
-  // Base URL
-  baseUrl: 'http://localhost:5000/api',
+import { app_constants } from '../../../constant';
 
-  // External UDISE API
-  udise: {
-    search: 'https://kys.udiseplus.gov.in/webapp/api/search-schools'
-  },
-
-  // Auth endpoints
-  auth: {
-    login: '/auth/login',
-    signup: '/auth/signup',
-    createAdmin: '/auth/create-admin'
-  },
-
-  // Data endpoints
-  events: {
-    getAll: '/events',
-    create: '/events',
-    delete: '/events'
-  },
-
-  news: {
-    getAll: '/news',
-    create: '/news',
-    delete: '/news'
-  },
-
-  courses: {
-    getAll: '/courses',
-    create: '/courses',
-    delete: '/courses'
-  },
-
-  banners: {
-    getAll: '/banners',
-    getActive: '/banners',
-    create: '/banners',
-    update: '/banners',
-    delete: '/banners'
-  },
-
-  about: {
-    get: '/about',
-    update: '/about',
-    addStaff: '/about/staff',
-    deleteStaff: '/about/staff'
-  }
-} as const;
-
-// Helper function to get full URL
+// Helper function to get full URL - used by services
 export function getFullUrl(endpoint: string): string {
-  return `${ApiEndpoints.baseUrl}${endpoint}`;
+  return `${app_constants.baseUrl}${endpoint}`;
 }
 
-// Search type constants for UDISE API
-export const SearchTypes = {
-  BY_SCHOOL_NAME: '1',
-  BY_UDISE_CODE: '3',
-  BY_DISTRICT: '4',
-  BY_BLOCK: '5'
-} as const;
+// Re-export search types for backward compatibility
+export const SearchTypes = app_constants.searchTypes;
+
+// Re-export API endpoints for backward compatibility
+export const ApiEndpoints = {
+  baseUrl: app_constants.baseUrl,
+  udise: app_constants.udise,
+  auth: app_constants.auth,
+  events: app_constants.events,
+  news: app_constants.news,
+  courses: app_constants.courses,
+  banners: app_constants.banners,
+  about: app_constants.about
+};
+
+// Re-export search type config for backward compatibility
+export const SearchTypeConfig = app_constants.searchTypeConfig;
+
+// Re-export districts and blocks for backward compatibility
+export const UPDistricts = app_constants.upDistricts;
+export const UPBlocks = app_constants.upBlocks;
+
+// Re-export statistics for backward compatibility
+export const SchoolSearchStats = app_constants.schoolSearchStats;
+export const HomepageStatistics = app_constants.homepageStatistics;
+
+// Re-export banners and testimonials for backward compatibility
+export const DefaultBanners = app_constants.defaultBanners;
+export const TestimonialsData = app_constants.testimonialsData;
+
+// Re-export search type ID
+export type SearchTypeId = 'udise' | 'school' | 'district' | 'block';

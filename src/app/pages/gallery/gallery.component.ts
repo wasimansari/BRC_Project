@@ -1,4 +1,6 @@
-import { Component } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
+import { GalleryService, GalleryImage, GallerySettings } from '../../services/gallery.service';
+import { galleryCategories, GalleryCategory } from '../../../constant';
 
 interface GalleryPhoto {
   src: string;
@@ -24,76 +26,113 @@ interface Filter {
   templateUrl: './gallery.component.html',
   styleUrls: ['./gallery.component.css']
 })
-export class GalleryPageComponent {
+export class GalleryPageComponent implements OnInit {
   activeFilter: string = 'all';
   lightboxOpen: boolean = false;
   currentLightboxImage: GalleryPhoto | null = null;
   currentLightboxIndex: number = 0;
   currentGalleryImages: GalleryPhoto[] = [];
+  loading: boolean = true;
+  galleryImages: GalleryImage[] = [];
 
-  filters: Filter[] = [
-    { id: 'science', name: 'Science Fair' },
-    { id: 'sports', name: 'Sports Day' },
-    { id: 'cultural', name: 'Cultural Festival' },
-    { id: 'academic', name: 'Academic Events' }
-  ];
+  get filters(): Filter[] {
+    // Use dynamic categories from server, fallback to constants
+    const categoryFilters: Filter[] = this.categories.map(cat => ({
+      id: cat.value,
+      name: cat.label
+    }));
+    return [{ id: 'all', name: 'All Events' }, ...categoryFilters];
+  }
 
-  galleryData: GalleryDateGroup[] = [
-    {
-      date: 'June 15, 2024',
-      eventName: 'Annual Science Fair 2024',
-      category: 'science',
-      photos: [
-        { src: 'assets/images/events/science-fair.webp', alt: 'Science Fair Project 1', title: 'Student Project Exhibition', description: 'Innovative science projects by students' },
-        { src: 'assets/images/events/science-fair.webp', alt: 'Science Fair Project 2', title: 'Robotics Display', description: 'Robotics demonstrations' },
-        { src: 'assets/images/events/science-fair.webp', alt: 'Science Fair Project 3', title: 'Chemistry Experiment', description: 'Live chemistry experiments' }
-      ]
-    },
-    {
-      date: 'June 22, 2024',
-      eventName: 'Sports Day Celebration',
-      category: 'sports',
-      photos: [
-        { src: 'assets/images/events/sports-day.jpeg', alt: 'Sports Day 1', title: 'Track Events', description: 'Students competing in races' },
-        { src: 'assets/images/events/sports-day.jpeg', alt: 'Sports Day 2', title: 'Team Activities', description: 'Group sports activities' },
-        { src: 'assets/images/events/sports-day.jpeg', alt: 'Sports Day 3', title: 'Awards Ceremony', description: 'Prize distribution' }
-      ]
-    },
-    {
-      date: 'June 30, 2024',
-      eventName: 'Cultural Festival',
-      category: 'cultural',
-      photos: [
-        { src: 'assets/images/events/cultural-festival.webp', alt: 'Cultural 1', title: 'Dance Performance', description: 'Traditional dance by students' },
-        { src: 'assets/images/events/cultural-festival.webp', alt: 'Cultural 2', title: 'Music Concert', description: 'Musical performances' },
-        { src: 'assets/images/events/cultural-festival.webp', alt: 'Cultural 3', title: 'Art Exhibition', description: 'Student artwork display' }
-      ]
-    },
-    {
-      date: 'July 10, 2024',
-      eventName: 'Annual Day Celebration',
-      category: 'academic',
-      photos: [
-        { src: 'assets/images/events/science-fair.webp', alt: 'Annual Day 1', title: 'Drama Performance', description: 'Stage play by students' },
-        { src: 'assets/images/events/cultural-festival.webp', alt: 'Annual Day 2', title: 'Award Distribution', description: 'Academic awards ceremony' }
-      ]
-    },
-    {
-      date: 'August 15, 2024',
-      eventName: 'Independence Day Celebration',
-      category: 'cultural',
-      photos: [
-        { src: 'assets/images/events/sports-day.jpeg', alt: 'Independence Day 1', title: 'Flag Hoisting', description: 'Independence Day ceremony' },
-        { src: 'assets/images/events/cultural-festival.webp', alt: 'Independence Day 2', title: 'Patriotic Song', description: ' Patriotic performances' }
-      ]
-    }
-  ];
+  // Dynamic categories from server
+  categories: GalleryCategory[] = [...galleryCategories];
+  
+  galleryData: GalleryDateGroup[] = [];
+
+  constructor(private galleryService: GalleryService) {}
+
+  ngOnInit(): void {
+    this.loadCategoriesFromServer();
+    this.loadGalleryImages();
+  }
+
+  loadCategoriesFromServer(): void {
+    this.galleryService.getCategories().subscribe({
+      next: (settings) => {
+        if (settings) {
+          const merged = this.galleryService.mergeCategories(settings.categories, settings.tabsOrder);
+          this.categories = merged.categories;
+        }
+      },
+      error: (err) => {
+        console.error('Error loading categories:', err);
+      }
+    });
+  }
+
+  loadGalleryImages(): void {
+    this.loading = true;
+    this.galleryService.getAllGallery().subscribe({
+      next: (images) => {
+        this.galleryImages = images.filter(img => img.isActive);
+        this.organizeGalleryByCategory();
+        this.loading = false;
+      },
+      error: (err) => {
+        console.error('Error loading gallery images:', err);
+        this.loading = false;
+      }
+    });
+  }
+
+  organizeGalleryByCategory(): void {
+    // Group images by category
+    const categoryGroups = new Map<string, GalleryImage[]>();
+    
+    this.galleryImages.forEach(img => {
+      const existing = categoryGroups.get(img.category) || [];
+      existing.push(img);
+      categoryGroups.set(img.category, existing);
+    });
+
+    // Convert to gallery date groups
+    // Build category labels from dynamic categories
+    const categoryLabels: { [key: string]: string } = {};
+    this.categories.forEach(cat => {
+      categoryLabels[cat.value] = cat.label;
+    });
+
+    this.galleryData = [];
+    categoryGroups.forEach((images, category) => {
+      const photos: GalleryPhoto[] = images.map(img => ({
+        src: img.imageUrl,
+        alt: img.title,
+        title: img.title,
+        description: img.description
+      }));
+
+      this.galleryData.push({
+        date: new Date().toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' }),
+        eventName: categoryLabels[category] || category,
+        category: category,
+        photos: photos
+      });
+    });
+  }
 
   get filteredGallery(): GalleryDateGroup[] {
     if (this.activeFilter === 'all') {
       return this.galleryData;
     }
-    return this.galleryData.filter(group => group.category === this.activeFilter);
+    // Map filter IDs to category values
+    const categoryMap: { [key: string]: string } = {
+      'science': 'science-fair',
+      'sports': 'sports-day',
+      'cultural': 'cultural-festival',
+      'academic': 'academic-event'
+    };
+    const mappedCategory = categoryMap[this.activeFilter] || this.activeFilter;
+    return this.galleryData.filter(group => group.category === mappedCategory);
   }
 
   filterGallery(filterId: string): void {

@@ -1,5 +1,21 @@
 import { Component, OnInit } from '@angular/core';
 import { SchoolSearchService, SchoolDetails } from '../../services/school-search.service';
+import { app_constants, SearchTypeId } from '../../../constant';
+
+// Local school interface matching our database
+interface LocalSchool {
+  _id?: string;
+  srNo: number;
+  district: string;
+  block: string;
+  udiseCode: string;
+  schoolName: string;
+  hmHtName: string;
+  mobileNo: string;
+  crc: string;
+  crcName: string;
+  isActive: boolean;
+}
 
 interface School {
   udiseCode: string;
@@ -42,67 +58,18 @@ export class SearchSchoolComponent implements OnInit {
     // Component initialization
   }
 
-  selectedSearchType = 'udise';
+  selectedSearchType: SearchTypeId = app_constants.searchTypeConfig.default as SearchTypeId;
   
-  searchTypes = [
-    { id: 'udise', label: 'By UDISE Code', icon: 'fas fa-id-card' },
-    { id: 'school', label: 'By School Name', icon: 'fas fa-graduation-cap' },
-    { id: 'district', label: 'By District', icon: 'fas fa-map-marker-alt' },
-    { id: 'block', label: 'By Block', icon: 'fas fa-map-marked-alt' }
-  ];
+  searchTypes: { id: SearchTypeId; label: string; icon: string }[] = app_constants.searchTypeConfig.types as { id: SearchTypeId; label: string; icon: string }[];
 
   udiseCode = '';
   schoolName = '';
   selectedDistrict = '';
   selectedBlock = '';
 
-  districts = [
-    'Agra', 'Aligarh', 'Allahabad', 'Ambedkar Nagar', 'Auraiya', 'Azamgarh', 
-    'Baghpat', 'Bahraich', 'Ballia', 'Balrampur', 'Banda', 'Barabanki', 
-    'Bareilly', 'Basti', 'Bhadohi', 'Bijnor', 'Budaun', 'Bulandshahr', 
-    'Chandauli', 'Chitrakoot', 'Deoria', 'Etah', 'Etawah', 'Faizabad', 
-    'Farrukhabad', 'Fatehpur', 'Firozabad', 'Gautam Buddha Nagar', 'Ghaziabad', 
-    'Ghazipur', 'Gonda', 'Gorakhpur', 'Hamirpur', 'Hardoi', 'Hathras', 
-    'Jalaun', 'Jaunpur', 'Jhansi', 'Kannauj', 'Kanpur Dehat', 'Kanpur Nagar', 
-    'Kashganj', 'Kaushambi', 'Kushinagar', 'Lakhimpur Kheri', 'Lalitpur', 
-    'Lucknow', 'Maharajganj', 'Mahoba', 'Mainpuri', 'Mathura', 'Mau', 
-    'Meerut', 'Mirzapur', 'Moradabad', 'Muzaffarnagar', 'Pilibhit', 
-    'Pratapgarh', 'Rae Bareli', 'Rampur', 'Saharanpur', 'Sant Kabir Nagar', 
-    'Sant Ravidas Nagar', 'Shahjahanpur', 'Shamli', 'Siddharthnagar', 
-    'Sitapur', 'Sonbhadra', 'Sultanpur', 'Unnao', 'Varanasi'
-  ];
+  districts = app_constants.upDistricts;
 
-  blocks = [
-    'Ahirori', 'Ajhuva', 'Amraudha', 'Araziline', 'Asothar', 'Atrauli', 
-    'Auraiya', 'Aurai', 'Ayana', 'Badlapur', 'Baghra', 'Bah', 'Bahadurpur',
-    'Baraut', 'Begumganj', 'Bhargo', 'Bhojpur', 'Bibiganj', 'Bijpura',
-    'Bilari', 'Bilaspur', 'Bindki', 'Bisalpur', 'Bisanda', 'Bithoor',
-    'Bulandshahr', 'Chandausi', 'Chandpur', 'Charkhari', 'Chhibramau',
-    'Chirgaon', 'Dadamari', 'Dhanipur', 'Dhaurhara', 'Dibiyapur', 'Dudhi',
-    'Etmadpur', 'Farrukhabad', 'Fatehgarh', 'Fatehpur', 'Garautha', 'Garhmukteshwar',
-    'Ghatampur', 'Ghorawal', 'Gosaiganj', 'Gunnaur', 'Gursahaiganj', 'Haidergarh',
-    'Hapur', 'Harraiya', 'Hasanganj', 'Hastinapur', 'Husainganj', 'Iltifatganj',
-    'Indara', 'Itaunja', 'Jafarabad', 'Jagner', 'Jalaun', 'Jalusi', 'Jamalpur',
-    'Jamshila', 'Jaunpur', 'Jhansi', 'Kabrai', 'Kachhauna', 'Kadipur', 'Kaimganj',
-    'Kairana', 'Kamalganj', 'Kamor', 'Kandhala', 'Kannauj', 'Kanpur', 'Kapsethi',
-    'Karla', 'Karyakund', 'Kaushambi', 'Khaga', 'Khair', 'Khalilabad', 'Kheragarh',
-    'Kunda', 'Kunda', 'Kunwarpur', 'Kurali', 'Laharpur', 'Lalganj', 'Lalitpur',
-    'Machhlishahr', 'Madhugarh', 'Mahmoodabad', 'Mainpuri', 'Malihabad', 'Mau',
-    'Mauranipur', 'Mawana', 'Meernagar', 'Meja', 'Milak', 'Mirzapur', 'Misrikh',
-    'Modinagar', 'Mohan', 'Mubarakpur', 'Mungaoli', 'Nadigaon', 'Nagina',
-    'Nagram', 'Narauli', 'Narayanpur', 'Nawabganj', 'Nichlaul', 'Nidhauli',
-    'Nigoh', 'Niwari', 'Orai', 'Padrauna', 'Pahala', 'Pailani', 'Paniyra',
-    'Paras Rampur', 'Parshadepur', 'Patara', 'Pindra', 'Pipraich', 'Pipri',
-    'PurseIam', 'Raibareilly', 'Rampur', 'Rampura', 'Ranipur', 'Rasara',
-    'Rath', 'Richha', 'Robertsganj', 'Rudauli', 'Rudrapur', 'Ruperdeenpur',
-    'Sadabad', 'Safipur', 'Sagri', 'Saharanpur', 'Sahaspur', 'Sahoo',
-    'Salempur', 'Samthar', 'Sanda', 'Sandsal', 'Sankalp', 'Sant Kabir Nagar',
-    'Saraimir', 'Shahabad', 'Shahganj', 'Shahjahanpur', 'Shankargarh', 'Shergarh',
-    'Siddharthnagar', 'Sikanderpur', 'Sikhi', 'Sultanpur', 'Sundaripur', 'Taddipura',
-    'Tanda', 'Thakurdwara', 'Thana Bhawan', 'Tindwari', 'Tori', 'Tyonthar',
-    'Ujhani', 'Umri', 'Unnao', 'Urwa', 'Usehat', 'Varanasi', 'Visheshwarganj',
-    'Vyaspur', 'Wazirganj', 'Zaidpur'
-  ];
+  blocks = app_constants.upBlocks;
 
   // Sample schools data - fallback when API is not available
   /*schools: School[] = [
@@ -263,14 +230,9 @@ export class SearchSchoolComponent implements OnInit {
   isLoading = false;
   errorMessage = '';
 
-  stats = [
-    { icon: 'fas fa-school', value: '150+', label: 'Schools', color: '#1abc9c' },
-    { icon: 'fas fa-users', value: '50,000+', label: 'Students', color: '#3498db' },
-    { icon: 'fas fa-chalkboard-teacher', value: '2,000+', label: 'Teachers', color: '#9b59b6' },
-    { icon: 'fas fa-building', value: '25+', label: 'Blocks', color: '#e67e22' }
-  ];
+  stats = app_constants.schoolSearchStats;
 
-  selectSearchType(type: string): void {
+  selectSearchType(type: SearchTypeId): void {
     this.selectedSearchType = type;
     this.showResults = false;
     this.filteredSchools = [];

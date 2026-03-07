@@ -138,12 +138,12 @@
 }
 
 .filter-btn {
-  padding: 12px 28px;
+  padding: 10px 15px;
   border: 2px solid #1F3971;
   background: transparent;
   color: #1F3971;
   font-weight: 600;
-  font-size: 0.95rem;
+  font-size: 14px;
   border-radius: 30px;
   cursor: pointer;
   transition: all 0.3s ease;
@@ -267,19 +267,19 @@
 }
 
 /* Empty State */
-.empty-state {
+.empty-state, .loading-state {
   text-align: center;
   padding: 60px 20px;
   color: #666;
 }
 
-.empty-state i {
+.empty-state i, .loading-state i {
   font-size: 4rem;
   color: #ddd;
   margin-bottom: 20px;
 }
 
-.empty-state h3 {
+.empty-state h3, .loading-state h3 {
   font-size: 1.5rem;
   color: #1F3971;
   margin-bottom: 10px;
@@ -287,6 +287,16 @@
 
 .empty-state p {
   font-size: 1rem;
+}
+
+.loading-state i {
+  color: #1abc9c;
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
 }
 
 /* Lightbox Modal */
@@ -321,9 +331,9 @@
 
 .lightbox-img {
   max-width: 100%;
-  max-height: 70vh;
+  max-height: 84vh;
   object-fit: contain;
-  border-radius: 10px;
+  border-radius: 5px;
   box-shadow: 0 10px 50px rgba(0, 0, 0, 0.5);
 }
 
@@ -331,6 +341,7 @@
   text-align: center;
   color: white;
   margin-top: 20px;
+  width: 100%;
 }
 
 .lightbox-caption h4 {
@@ -341,13 +352,17 @@
 
 .lightbox-caption p {
   font-size: 0.95rem;
-  color: rgba(255, 255, 255, 0.8);
+    color: rgba(255, 255, 255);
+    margin-top: -67px;
+    background-color: #00000075;
+    width: 100%;
+    padding: 10px 0;
 }
 
 .lightbox-close {
   position: absolute;
-  top: -50px;
-  right: 0;
+  top: -16px;
+  right: -39px;
   background: none;
   border: none;
   color: white;
@@ -380,11 +395,11 @@
 }
 
 .lightbox-prev {
-  left: -80px;
+  left: -56px;
 }
 
 .lightbox-next {
-  right: -80px;
+  right: -56px;
 }
 
 .lightbox-thumbnails {

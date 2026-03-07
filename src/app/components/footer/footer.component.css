@@ -73,7 +73,7 @@
 .footer-title {
   color: white;
   font-size: 20px;
-  font-weight: 700;
+  font-weight: 600;
   margin-bottom: 25px;
   position: relative;
   padding-bottom: 15px;
@@ -90,14 +90,14 @@
 }
 
 .footer-text {
-  color: rgba(255, 255, 255, 0.8);
+  color: #ffffff;
   font-size: 14px;
   line-height: 1.8;
   margin-bottom: 20px;
 }
 
 .contact-info {
-  color: rgba(255, 255, 255, 0.8);
+  color: #ffffff;
 }
 
 .contact-info p {
@@ -124,7 +124,7 @@
 }
 
 .footer-links a {
-  color: rgba(255, 255, 255, 0.8);
+  color: #ffffff;
   font-size: 14px;
   transition: all 0.3s ease;
   display: inline-block;

@@ -1,7 +1,7 @@
 import { NgModule } from '@angular/core';
 import { BrowserModule } from '@angular/platform-browser';
 import { HttpClientModule, HTTP_INTERCEPTORS } from '@angular/common/http';
-import { FormsModule } from '@angular/forms';
+import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { RouterModule } from '@angular/router';
 import { AppRoutingModule } from './app.routes';
 import { AuthInterceptor } from './core/interceptors/auth.interceptor';
@@ -28,6 +28,9 @@ import { FooterComponent } from './components/footer/footer.component';
 import { AdminLoginComponent } from './admin/admin-login/admin-login.component';
 import { AdminDashboardComponent } from './admin/admin-dashboard/admin-dashboard.component';
 import { AdminSignupComponent } from './admin/admin-login/admin-signup.component';
+import { AdminGalleryComponent } from './admin/admin-gallery/admin-gallery.component';
+import { AdminDownloadsComponent } from './admin/admin-downloads/admin-downloads.component';
+import { AdminSchoolComponent } from './admin/admin-school/admin-school.component';
 import { AppComponent } from './app.component';
 
 @NgModule({
@@ -53,12 +56,16 @@ import { AppComponent } from './app.component';
     FooterComponent,
     AdminLoginComponent,
     AdminDashboardComponent,
-    AdminSignupComponent
+    AdminSignupComponent,
+    AdminGalleryComponent,
+    AdminDownloadsComponent,
+    AdminSchoolComponent
   ],
   imports: [
     BrowserModule,
     HttpClientModule,
     FormsModule,
+    ReactiveFormsModule,
     RouterModule,
     AppRoutingModule
   ],

@@ -1,4 +1,5 @@
 import { Component } from '@angular/core';
+import { app_constants } from '../../../constant';
 
 @Component({
   selector: 'app-statistics',
@@ -6,10 +7,5 @@ import { Component } from '@angular/core';
   styleUrls: ['./statistics.component.css']
 })
 export class StatisticsComponent {
-  statistics = [
-    { number: '2+', label: 'Years' },
-    { number: '4+', label: 'Campuses' },
-    { number: '1+', label: 'Courses' },
-    { number: '0+', label: 'Country' }
-  ];
+  statistics = app_constants.homepageStatistics;
 }

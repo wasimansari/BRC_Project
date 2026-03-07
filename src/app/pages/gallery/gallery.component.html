@@ -26,12 +26,12 @@
   <div class="container">
     <!-- Filter Tabs -->
     <div class="gallery-filter">
-      <button 
+      <!-- <button 
         class="filter-btn" 
         [class.active]="activeFilter === 'all'"
         (click)="filterGallery('all')">
         All Events
-      </button>
+      </button> -->
       <button 
         class="filter-btn" 
         *ngFor="let filter of filters"
@@ -68,8 +68,14 @@
       </div>
     </div>
 
+    <!-- Loading State -->
+    <div class="loading-state" *ngIf="loading">
+      <i class="fas fa-spinner fa-spin"></i>
+      <h3>Loading gallery...</h3>
+    </div>
+
     <!-- Empty State -->
-    <div class="empty-state" *ngIf="filteredGallery.length === 0">
+    <div class="empty-state" *ngIf="!loading && filteredGallery.length === 0">
       <i class="fas fa-images"></i>
       <h3>No photos available</h3>
       <p>Photos for this category will be uploaded soon!</p>
@@ -88,7 +94,7 @@
     </button>
     <img [src]="currentLightboxImage?.src" [alt]="currentLightboxImage?.alt" class="lightbox-img">
     <div class="lightbox-caption">
-      <h4>{{ currentLightboxImage?.title }}</h4>
+      <!-- <h4>{{ currentLightboxImage?.title }}</h4> -->
       <p>{{ currentLightboxImage?.description }}</p>
     </div>
     <button class="lightbox-nav lightbox-next" (click)="nextImage($event)" *ngIf="currentGalleryImages.length > 1">

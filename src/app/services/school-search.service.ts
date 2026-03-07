@@ -3,6 +3,7 @@ import { HttpClient, HttpParams } from '@angular/common/http';
 import { Observable, of } from 'rxjs';
 import { map, catchError } from 'rxjs/operators';
 import { ApiEndpoints, SearchTypes } from '../core/constants/api-endpoints';
+import { app_constants } from '../../constant';
 
 export interface SchoolDetails {
   udise_code?: string;
@@ -191,6 +192,32 @@ export class SchoolSearchService {
   ];
 
   constructor(private http: HttpClient) { }
+
+  /**
+   * Search schools from local database
+   */
+  searchLocalSchools(filters: { district?: string; block?: string; search?: string } = {}): Observable<SchoolDetails[]> {
+    const params = new HttpParams()
+      .set('district', filters.district || '')
+      .set('block', filters.block || '')
+      .set('search', filters.search || '');
+    
+    return this.http.get<any[]>(app_constants.baseUrl + '/schools', { params }).pipe(
+      map(schools => schools.map(s => ({
+        udise_code: s.udiseCode,
+        school_name: s.schoolName,
+        block_name: s.block,
+        district_name: s.district,
+        principal_name: s.hmHtName,
+        phone_no: s.mobileNo,
+        category_name: s.crc === 'Yes' ? 'CRC' : 'Non-CRC'
+      }))),
+      catchError(error => {
+        console.error('Error fetching local schools:', error);
+        return of([]);
+      })
+    );
+  }
 
   /**
    * Search schools by UDISE code

@@ -6,6 +6,7 @@ import { NewsService, News } from '../../services/news.service';
 import { CourseService, Course } from '../../services/course.service';
 import { AuthService } from '../../services/auth.service';
 import { AboutService, AboutContent, BEOProfile, OrgStructure, StaffMember } from '../../services/about.service';
+import { app_constants } from '../../../constant';
 
 @Component({
   selector: 'app-admin-dashboard',
@@ -13,6 +14,7 @@ import { AboutService, AboutContent, BEOProfile, OrgStructure, StaffMember } fro
   styleUrls: ['./admin-dashboard.component.css']
 })
 export class AdminDashboardComponent implements OnInit {
+  adminDashboard = app_constants.adminDashboard;
   selectedFile: File | null = null;
   eventTitle = '';
   eventDescription = '';
@@ -109,7 +111,7 @@ export class AdminDashboardComponent implements OnInit {
   ) {}
 
   ngOnInit() {
-    if (!localStorage.getItem('isAdminLoggedIn')) {
+    if (!localStorage.getItem(this.adminDashboard.isAdminLoggedIn)) {
       this.router.navigate(['/admin/login']);
     }
     this.loadStoredData();
@@ -139,7 +141,7 @@ export class AdminDashboardComponent implements OnInit {
         // Save to localStorage
         this.aboutService.saveToLocalStorage(data);
       },
-      error: (err) => console.error('Error loading about content:', err)
+      error: (err) => console.error(this.adminDashboard.errorLoading, err)
     });
   }
 
@@ -172,7 +174,7 @@ export class AdminDashboardComponent implements OnInit {
           
           if (Math.abs(width - this.BEO_IMAGE_WIDTH) > widthTolerance || 
               Math.abs(height - this.BEO_IMAGE_HEIGHT) > heightTolerance) {
-            this.beoSizeError = `Image size should be ${this.BEO_IMAGE_WIDTH}x${this.BEO_IMAGE_HEIGHT}px (square photo recommended). Current: ${width}x${height}px`;
+            this.beoSizeError = this.adminDashboard.imgSize+`${this.BEO_IMAGE_WIDTH}x${this.BEO_IMAGE_HEIGHT}px (square photo recommended). Current: ${width}x${height}px`;
             // Clear the file to prevent submission
             this.beoImage = null;
             this.beoImagePreview = null;
@@ -184,7 +186,7 @@ export class AdminDashboardComponent implements OnInit {
         };
         
         img.onerror = () => {
-          this.beoSizeError = 'Unable to load image. Please choose a valid image file.';
+          this.beoSizeError = this.adminDashboard.validImg;
           this.beoImage = null;
           this.beoImagePreview = null;
           event.target.value = '';
@@ -214,7 +216,7 @@ export class AdminDashboardComponent implements OnInit {
           
           if (Math.abs(width - this.STAFF_IMAGE_WIDTH) > widthTolerance || 
               Math.abs(height - this.STAFF_IMAGE_HEIGHT) > heightTolerance) {
-            this.staffSizeError = `Image size should be ${this.STAFF_IMAGE_WIDTH}x${this.STAFF_IMAGE_HEIGHT}px (square photo recommended). Current: ${width}x${height}px`;
+            this.staffSizeError = this.adminDashboard.imgSize+`${this.STAFF_IMAGE_WIDTH}x${this.STAFF_IMAGE_HEIGHT}px (square photo recommended). Current: ${width}x${height}px`;
             // Clear the file to prevent submission
             this.staffImage = null;
             this.staffImagePreview = null;
@@ -226,7 +228,7 @@ export class AdminDashboardComponent implements OnInit {
         };
         
         img.onerror = () => {
-          this.staffSizeError = 'Unable to load image. Please choose a valid image file.';
+          this.staffSizeError = this.adminDashboard.validImg;
           this.staffImage = null;
           this.staffImagePreview = null;
           event.target.value = '';
@@ -245,22 +247,22 @@ export class AdminDashboardComponent implements OnInit {
       next: (response) => {
         this.aboutContent = response;
         this.aboutService.saveToLocalStorage(response);
-        alert('Vision & Mission updated successfully!');
+        alert(this.adminDashboard.visionSuccess);
       },
       error: (err) => {
-        console.error('Error saving vision & mission:', err);
+        console.error(this.adminDashboard.errorVision, err);
         // Save locally anyway
         this.aboutContent.vision = vision;
         this.aboutContent.mission = mission;
         this.aboutService.saveToLocalStorage(this.aboutContent);
-        alert('Vision & Mission saved locally!');
+        alert(this.adminDashboard.visionSaveLocal);
       }
     });
   }
 
   saveBeoProfile() {
     if (!this.beoName || !this.beoQualification) {
-      alert('Please fill in required fields');
+      alert(this.adminDashboard.fillRequired);
       return;
     }
 
@@ -276,7 +278,7 @@ export class AdminDashboardComponent implements OnInit {
 
     // Use FormData to upload image to Cloudinary      // Check dimension validation before saving
       if (this.beoImage && this.beoSizeError) {
-        alert('Please fix the BEO image dimension error before saving');
+        alert(this.adminDashboard.beoImageFix);
         return;
       }
 
@@ -287,10 +289,10 @@ export class AdminDashboardComponent implements OnInit {
         this.beoImagePreview = response.beoProfile?.image || null;
         this.beoImage = null;
         this.aboutService.saveToLocalStorage(response);
-        alert('BEO Profile updated successfully! Image uploaded to Cloudinary.');
+        alert(this.adminDashboard.beoProfileSuccess);
       },
       error: (err) => {
-        console.error('Error saving BEO profile:', err);
+        console.error(this.adminDashboard.beoError, err);
         // Save locally anyway
         this.aboutContent.beoProfile = {
           ...beoProfile,
