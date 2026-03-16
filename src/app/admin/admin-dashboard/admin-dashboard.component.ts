@@ -6,6 +6,7 @@ import { NewsService, News } from '../../services/news.service';
 import { CourseService, Course } from '../../services/course.service';
 import { AuthService } from '../../services/auth.service';
 import { AboutService, AboutContent, BEOProfile, OrgStructure, StaffMember } from '../../services/about.service';
+import { AnnouncementService, Announcement } from '../../services/announcement.service';
 import { app_constants } from '../../../constant';
 
 @Component({
@@ -14,6 +15,8 @@ import { app_constants } from '../../../constant';
   styleUrls: ['./admin-dashboard.component.css']
 })
 export class AdminDashboardComponent implements OnInit {
+  isSidebarCollapsed = false;
+
   adminDashboard = app_constants.adminDashboard;
   selectedFile: File | null = null;
   eventTitle = '';
@@ -100,6 +103,36 @@ export class AdminDashboardComponent implements OnInit {
   // Edit mode for staff
   editingStaffId: string | null = null;
 
+  // Announcement form properties
+  announcements: Announcement[] = [];
+  announcementDay = '';
+  announcementMonth = '';
+  announcementCategory = 'Academic';
+  announcementCategoryClass = 'category-academic';
+  announcementTitle = '';
+  announcementDescription = '';
+  announcementImage: File | null = null;
+  announcementImagePreview: string | null = null;
+  existingAnnouncementImage: string | null = null;
+  announcementLink = '/notices';
+  announcementDisplayOrder = 0;
+  announcementIsActive = true;
+  editingAnnouncementId: string | null = null;
+  announcementSizeError = '';
+  readonly ANNOUNCEMENT_IMAGE_WIDTH = 800;
+  readonly ANNOUNCEMENT_IMAGE_HEIGHT = 500;
+
+  // Category options for announcements
+  categoryOptions = [
+    { value: 'Academic', label: 'Academic', class: 'category-academic' },
+    { value: 'Event', label: 'Event', class: 'category-event' },
+    { value: 'Notice', label: 'Notice', class: 'category-notice' },
+    { value: 'Holiday', label: 'Holiday', class: 'category-holiday' }
+  ];
+
+  // Month options
+  monthOptions = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+
   constructor(
     private router: Router,
     private bannerService: BannerService,
@@ -107,7 +140,8 @@ export class AdminDashboardComponent implements OnInit {
     private newsService: NewsService,
     private courseService: CourseService,
     private authService: AuthService,
-    private aboutService: AboutService
+    private aboutService: AboutService,
+    private announcementService: AnnouncementService
   ) {}
 
   ngOnInit() {
@@ -117,6 +151,242 @@ export class AdminDashboardComponent implements OnInit {
     this.loadStoredData();
     this.loadBanners();
     this.loadAboutContent();
+    this.loadAnnouncements();
+  }
+
+  toggleSidebar() {
+    this.isSidebarCollapsed = !this.isSidebarCollapsed;
+  }
+
+  // Announcement Methods
+  loadAnnouncements() {
+    this.announcementService.getAllAnnouncements().subscribe({
+      next: (data) => {
+        this.announcements = data;
+        this.announcementService.saveToLocalStorage(data);
+      },
+      error: (err) => {
+        console.error('Error loading announcements:', err);
+        // Try localStorage fallback
+        const stored = this.announcementService.getFromLocalStorage();
+        if (stored) {
+          this.announcements = stored;
+        }
+      }
+    });
+  }
+
+  onAnnouncementCategoryChange(category: string) {
+    this.announcementCategory = category;
+    const option = this.categoryOptions.find(c => c.value === category);
+    this.announcementCategoryClass = option?.class || 'category-academic';
+  }
+
+  addAnnouncement() {
+    if (!this.announcementDay || !this.announcementMonth || !this.announcementTitle || !this.announcementDescription) {
+      alert('Please fill in all required fields');
+      return;
+    }
+
+    if (this.announcementImage && this.announcementSizeError) {
+      alert('Please fix the image dimension error before saving');
+      return;
+    }
+
+    if (this.editingAnnouncementId) {
+      this.updateAnnouncement();
+      return;
+    }
+
+    const announcement: Partial<Announcement> = {
+      day: this.announcementDay,
+      month: this.announcementMonth,
+      category: this.announcementCategory,
+      categoryClass: this.announcementCategoryClass,
+      title: this.announcementTitle,
+      description: this.announcementDescription,
+      link: this.announcementLink,
+      displayOrder: this.announcementDisplayOrder,
+      isActive: this.announcementIsActive
+    };
+
+    this.announcementService.createAnnouncement(announcement, this.announcementImage || undefined).subscribe({
+      next: (response) => {
+        this.announcements.push(response);
+        this.announcementService.saveToLocalStorage(this.announcements);
+        this.resetAnnouncementForm();
+        alert('Announcement added successfully!');
+      },
+      error: (err) => {
+        console.error('Error adding announcement:', err);
+        alert('Error adding announcement');
+      }
+    });
+  }
+
+  editAnnouncement(announcement: Announcement) {
+    this.editingAnnouncementId = announcement._id || announcement.id || null;
+    this.announcementDay = announcement.day;
+    this.announcementMonth = announcement.month;
+    this.announcementCategory = announcement.category;
+    this.announcementCategoryClass = announcement.categoryClass;
+    this.announcementTitle = announcement.title;
+    this.announcementDescription = announcement.description;
+    this.announcementLink = announcement.link || '/notices';
+    this.announcementDisplayOrder = announcement.displayOrder || 0;
+    this.announcementIsActive = announcement.isActive ?? true;
+    this.existingAnnouncementImage = announcement.image || null;
+    this.announcementImagePreview = announcement.image || null;
+    this.announcementImage = null;
+    
+    // Scroll to form
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }
+
+  updateAnnouncement() {
+    if (!this.editingAnnouncementId || !this.announcementTitle) {
+      alert('Please fill in all required fields');
+      return;
+    }
+
+    if (this.announcementImage && this.announcementSizeError) {
+      alert('Please fix the image dimension error before saving');
+      return;
+    }
+
+    const announcement: Partial<Announcement> = {
+      day: this.announcementDay,
+      month: this.announcementMonth,
+      category: this.announcementCategory,
+      categoryClass: this.announcementCategoryClass,
+      title: this.announcementTitle,
+      description: this.announcementDescription,
+      image: this.existingAnnouncementImage,
+      link: this.announcementLink,
+      displayOrder: this.announcementDisplayOrder,
+      isActive: this.announcementIsActive
+    };
+
+    const removeImage = !this.announcementImage && !this.existingAnnouncementImage && !!this.announcements.find(a => (a._id || a.id) === this.editingAnnouncementId)?.image;
+
+    this.announcementService.updateAnnouncement(this.editingAnnouncementId, announcement, this.announcementImage || undefined, removeImage).subscribe({
+      next: (response) => {
+        const index = this.announcements.findIndex(a => (a._id || a.id) === this.editingAnnouncementId);
+        if (index >= 0) {
+          this.announcements[index] = response;
+        }
+        this.announcementService.saveToLocalStorage(this.announcements);
+        this.resetAnnouncementForm();
+        alert('Announcement updated successfully!');
+      },
+      error: (err) => {
+        console.error('Error updating announcement:', err);
+        alert('Error updating announcement');
+      }
+    });
+  }
+
+  toggleAnnouncementStatus(announcement: Announcement) {
+    const id = announcement._id || announcement.id;
+    if (!id) return;
+
+    this.announcementService.toggleAnnouncementStatus(id).subscribe({
+      next: (response) => {
+        const index = this.announcements.findIndex(a => (a._id || a.id) === id);
+        if (index >= 0) {
+          this.announcements[index] = response;
+        }
+        this.announcementService.saveToLocalStorage(this.announcements);
+      },
+      error: (err) => console.error('Error toggling announcement:', err)
+    });
+  }
+
+  deleteAnnouncement(id: string | undefined) {
+    if (!id) return;
+    
+    if (confirm('Are you sure you want to delete this announcement?')) {
+      this.announcementService.deleteAnnouncement(id).subscribe({
+        next: () => {
+          this.announcements = this.announcements.filter(a => (a._id || a.id) !== id);
+          this.announcementService.saveToLocalStorage(this.announcements);
+          alert('Announcement deleted successfully!');
+        },
+        error: (err) => {
+          console.error('Error deleting announcement:', err);
+          alert('Error deleting announcement');
+        }
+      });
+    }
+  }
+
+  resetAnnouncementForm() {
+    this.announcementDay = '';
+    this.announcementMonth = '';
+    this.announcementCategory = 'Academic';
+    this.announcementCategoryClass = 'category-academic';
+    this.announcementTitle = '';
+    this.announcementDescription = '';
+    this.announcementImage = null;
+    this.announcementImagePreview = null;
+    this.existingAnnouncementImage = null;
+    this.announcementLink = '/notices';
+    this.announcementDisplayOrder = 0;
+    this.announcementIsActive = true;
+    this.editingAnnouncementId = null;
+    this.announcementSizeError = '';
+  }
+
+  cancelAnnouncementEdit() {
+    this.resetAnnouncementForm();
+  }
+
+  // Handle announcement image selection
+  onAnnouncementImageSelected(event: any) {
+    this.announcementImage = event.target.files[0];
+    this.announcementSizeError = '';
+    
+    if (this.announcementImage) {
+      // Validate image dimensions
+      const reader = new FileReader();
+      reader.onload = (e: any) => {
+        const img = new Image();
+        img.onload = () => {
+          const width = img.width;
+          const height = img.height;
+          
+          // Allow some tolerance (+- 100px) for the dimensions
+          const widthTolerance = 100;
+          const heightTolerance = 100;
+          
+          if (Math.abs(width - this.ANNOUNCEMENT_IMAGE_WIDTH) > widthTolerance || 
+              Math.abs(height - this.ANNOUNCEMENT_IMAGE_HEIGHT) > heightTolerance) {
+            this.announcementSizeError = `Image size should be around ${this.ANNOUNCEMENT_IMAGE_WIDTH}x${this.ANNOUNCEMENT_IMAGE_HEIGHT}px. Current: ${width}x${height}px`;
+            this.announcementImage = null;
+            this.announcementImagePreview = null;
+            event.target.value = '';
+            return;
+          } else {
+            this.announcementImagePreview = e.target.result;
+          }
+        };
+        
+        img.onerror = () => {
+          this.announcementSizeError = 'Unable to load image. Please choose a valid image file.';
+          this.announcementImage = null;
+          this.announcementImagePreview = null;
+          event.target.value = '';
+        };
+        img.src = e.target.result;
+      };
+      reader.readAsDataURL(this.announcementImage);
+    }
+  }
+
+  removeAnnouncementImage() {
+    this.announcementImage = null;
+    this.announcementImagePreview = null;
+    this.existingAnnouncementImage = null;
   }
 
   // About Content Methods

@@ -1,5 +1,15 @@
 <app-header></app-header>
 
+@if (loading) {
+  <div class="loading-container" style="margin-top: 100px;">
+    <div class="spinner">
+      <div class="spinner-ring"></div>
+      <div class="spinner-ring"></div>
+      <div class="spinner-ring"></div>
+    </div>
+    <p class="loading-text">Loading about content...</p>
+  </div>
+} @else {
 <!-- About Banner -->
 <section class="about-banner">
   <div class="about-banner-overlay"></div>
@@ -68,7 +78,7 @@
       </div>
     </div>
     <div class="row justify-content-center">
-      <div class="col-lg-10">
+      <div class="col-lg-12">
         <div class="beo-profile-card">
           <div class="row g-0">
             <div class="col-md-4">
@@ -221,5 +231,6 @@
     </div>
   </div>
 </section>
+}
 
 <!-- <app-footer></app-footer> -->

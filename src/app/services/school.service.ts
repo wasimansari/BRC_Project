@@ -80,6 +80,10 @@ export class SchoolService {
     window.open(this.API_URL + '/export-pdf', '_blank');
   }
 
+  exportToExcel(): void {
+    window.open(this.API_URL + '/export-excel', '_blank');
+  }
+
   getDistricts(): Observable<string[]> {
     return this.http.get<string[]>(this.API_URL + '/districts');
   }

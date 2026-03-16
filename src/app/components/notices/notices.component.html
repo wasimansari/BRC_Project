@@ -1,12 +1,22 @@
 <section class="notices-section">
   <div class="container">
-    <div class="row">
+    <!-- Loading Spinner -->
+    <div class="loading-container" *ngIf="loading">
+      <div class="spinner">
+        <div class="spinner-ring"></div>
+        <div class="spinner-ring"></div>
+        <div class="spinner-ring"></div>
+      </div>
+      <p class="loading-text">Loading announcements...</p>
+    </div>
+
+    <div class="row" *ngIf="!loading">
       <div class="col-lg-12 text-center">
         <h2 class="section-title">Latest Announcements</h2>
         <p class="section-subtitle">Stay updated with the latest news and notices</p>
       </div>
     </div>
-    <div class="row g-4">
+    <div class="row g-4" *ngIf="!loading">
       <div class="col-lg-4 col-md-6" *ngFor="let notice of notices">
         <div class="notice-card">
           <div class="notice-date">
@@ -17,7 +27,7 @@
             <div class="notice-category" [class]="notice.categoryClass">{{ notice.category }}</div>
             <h3 class="notice-title">{{ notice.title }}</h3>
             <p class="notice-description">{{ notice.description }}</p>
-            <a [routerLink]="notice.link" class="read-more">
+            <a href="#" class="read-more" (click)="onReadMore($event, notice)">
               Read More <i class="fas fa-arrow-right"></i>
             </a>
           </div>
@@ -31,3 +41,44 @@
     </div>
   </div>
 </section>
+
+<!-- Announcement Detail Modal -->
+<div class="modal-overlay" *ngIf="showModal" (click)="closeModal()">
+  <div class="modal-content" (click)="$event.stopPropagation()">
+    <button class="modal-close" (click)="closeModal()">
+      <i class="fas fa-times"></i>
+    </button>
+    
+    <div class="modal-body" *ngIf="selectedNotice">
+      <!-- Image -->
+      <div class="modal-image" *ngIf="selectedNotice.image">
+        <img [src]="selectedNotice.image" [alt]="selectedNotice.title">
+      </div>
+      
+      <!-- Date and Category -->
+      <div class="modal-header-info">
+        <div class="modal-date">
+          <span class="day">{{ selectedNotice.day }}</span>
+          <span class="month">{{ selectedNotice.month }}</span>
+        </div>
+        <span class="modal-category" [class]="selectedNotice.categoryClass">{{ selectedNotice.category }}</span>
+      </div>
+      
+      <!-- Title -->
+      <h2 class="modal-title">{{ selectedNotice.title }}</h2>
+      
+      <!-- Description -->
+      <div class="modal-description">
+        <p>{{ selectedNotice.description }}</p>
+      </div>
+      
+      <!-- Footer -->
+      <div class="modal-footer">
+        <button class="btn btn-secondary" (click)="closeModal()">Close</button>
+        <a *ngIf="selectedNotice.link" [routerLink]="selectedNotice.link" class="btn btn-primary" (click)="closeModal()">
+          <i class="fas fa-external-link-alt"></i> View Full Page
+        </a>
+      </div>
+    </div>
+  </div>
+</div>

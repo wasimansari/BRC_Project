@@ -1,10 +1,13 @@
-<div class="admin-dashboard">
+<div class="admin-dashboard" [class.sidebar-collapsed]="isSidebarCollapsed">
   <!-- Header -->
   <div class="dashboard-header">
     <div class="container-fluid">
       <div class="row align-items-center">
-        <div class="col">
-          <h1>Admin Dashboard</h1>
+        <div class="col d-flex align-items-center">
+          <button class="sidebar-toggle-btn" (click)="toggleSidebar()">
+            <i class="fa fa-bars"></i>
+          </button>
+          <h1 class="ms-3 mb-0">Admin Dashboard</h1>
         </div>
         <div class="col-auto">
           <button class="btn btn-danger" (click)="logout()">Logout</button>
@@ -16,9 +19,9 @@
   <!-- Main Content -->
   <div class="dashboard-content">
     <div class="container-fluid">
-      <div class="row">
+      <div class="row g-0">
         <!-- Sidebar -->
-        <div class="col-md-3">
+        <div class="col-md-3 sidebar-container">
           <div class="sidebar">
             <h3>Management</h3>
             <ul class="nav flex-column">
@@ -62,12 +65,17 @@
                   <i class="fas fa-school"></i> Schools
                 </a>
               </li>
+              <li class="nav-item">
+                <a class="nav-link" href="#announcements" data-bs-toggle="pill">
+                  <i class="fas fa-bullhorn"></i> Announcements
+                </a>
+              </li>
             </ul>
           </div>
         </div>
 
         <!-- Content Area -->
-        <div class="col-md-9">
+        <div class="col-md-9 content-container">
           <div class="tab-content">
             <!-- Banner Slider Tab -->
             <div class="tab-pane fade show active" id="banners">
@@ -574,6 +582,148 @@
             <!-- Schools Tab -->
             <div class="tab-pane fade" id="schools" role="tabpanel">
               <app-admin-school></app-admin-school>
+            </div>
+
+            <!-- Announcements Tab -->
+            <div class="tab-pane fade" id="announcements">
+              <div class="content-card">
+                <h2>Manage Latest Announcements</h2>
+                <p class="text-muted">Add, edit, or remove announcements that appear on the home page Latest Announcements section.</p>
+                
+                <!-- Add/Edit Announcement Form -->
+                <div class="banner-form-card" [class.edit-mode]="editingAnnouncementId">
+                  <h4>
+                    <i class="fas" [class.fa-plus-circle]="!editingAnnouncementId" [class.fa-edit]="editingAnnouncementId"></i> 
+                    {{ editingAnnouncementId ? 'Edit Announcement' : 'Add New Announcement' }}
+                  </h4>
+                  <div *ngIf="editingAnnouncementId" class="edit-mode-badge">
+                    <span>You are editing an announcement. </span>
+                    <button type="button" class="btn btn-link btn-sm p-0" (click)="cancelAnnouncementEdit()">Cancel edit</button>
+                  </div>
+                  <form (ngSubmit)="addAnnouncement()">
+                    <div class="row">
+                      <div class="col-md-3">
+                        <div class="form-group">
+                          <label>Day <span class="text-danger">*</span></label>
+                          <input type="text" [(ngModel)]="announcementDay" name="announcementDay" class="form-control" placeholder="e.g., 15" required>
+                        </div>
+                      </div>
+                      <div class="col-md-3">
+                        <div class="form-group">
+                          <label>Month <span class="text-danger">*</span></label>
+                          <select [(ngModel)]="announcementMonth" name="announcementMonth" class="form-select" required>
+                            <option value="" disabled>Select Month</option>
+                            <option *ngFor="let month of monthOptions" [value]="month">{{ month }}</option>
+                          </select>
+                        </div>
+                      </div>
+                      <div class="col-md-3">
+                        <div class="form-group">
+                          <label>Category <span class="text-danger">*</span></label>
+                          <select [(ngModel)]="announcementCategory" name="announcementCategory" class="form-select" (change)="onAnnouncementCategoryChange(announcementCategory)">
+                            <option *ngFor="let cat of categoryOptions" [value]="cat.value">{{ cat.label }}</option>
+                          </select>
+                        </div>
+                      </div>
+                      <div class="col-md-3">
+                        <div class="form-group">
+                          <label>Display Order</label>
+                          <input type="number" [(ngModel)]="announcementDisplayOrder" name="announcementDisplayOrder" class="form-control" placeholder="0" min="0">
+                          <small class="text-muted">Lower numbers appear first</small>
+                        </div>
+                      </div>
+                    </div>
+                    <div class="form-group">
+                      <label>Title <span class="text-danger">*</span></label>
+                      <input type="text" [(ngModel)]="announcementTitle" name="announcementTitle" class="form-control" placeholder="e.g., Mid-Term Examination Schedule" required>
+                    </div>
+                    <div class="form-group">
+                      <label>Description <span class="text-danger">*</span></label>
+                      <textarea [(ngModel)]="announcementDescription" name="announcementDescription" class="form-control" rows="3" placeholder="Enter announcement description..." required></textarea>
+                    </div>
+                    <div class="form-group">
+                      <label>Image (Optional)</label>
+                      <input type="file" (change)="onAnnouncementImageSelected($event)" class="form-control" accept="image/*">
+                      <small class="text-muted d-block">Recommended size: 800 x 500 pixels (optional - adds visual appeal to the announcement popup)</small>
+                      <div *ngIf="announcementSizeError" class="alert alert-danger mt-2 py-2" role="alert">
+                        <i class="fas fa-exclamation-triangle"></i> {{ announcementSizeError }}
+                      </div>
+                      <div *ngIf="announcementImagePreview || existingAnnouncementImage" class="announcement-image-preview mt-2">
+                        <div class="preview-container">
+                          <img [src]="announcementImagePreview || existingAnnouncementImage" alt="Announcement preview" class="img-thumbnail" style="max-height: 150px;">
+                          <button type="button" class="btn btn-sm btn-danger remove-image-btn" (click)="removeAnnouncementImage()">
+                            <i class="fas fa-times"></i> Remove
+                          </button>
+                        </div>
+                      </div>
+                    </div>
+                    <div class="form-group">
+                      <label>Link</label>
+                      <input type="text" [(ngModel)]="announcementLink" name="announcementLink" class="form-control" placeholder="/notices">
+                      <small class="text-muted">The page to navigate to when clicked</small>
+                    </div>
+                    <div class="form-group">
+                      <div class="form-check">
+                        <input type="checkbox" [(ngModel)]="announcementIsActive" name="announcementIsActive" class="form-check-input" id="announcementActive">
+                        <label class="form-check-label" for="announcementActive">Active (show on website)</label>
+                      </div>
+                    </div>
+                    <button type="submit" class="btn btn-primary" [disabled]="!announcementDay || !announcementMonth || !announcementTitle || !announcementDescription">
+                      <i class="fas" [class.fa-plus]="!editingAnnouncementId" [class.fa-save]="editingAnnouncementId"></i>
+                      {{ editingAnnouncementId ? 'Update Announcement' : 'Add Announcement' }}
+                    </button>
+                  </form>
+                </div>
+
+                <!-- Existing Announcements -->
+                <h4 class="mt-4"><i class="fas fa-bullhorn"></i> Existing Announcements ({{announcements.length}})</h4>
+                <div *ngIf="announcements.length === 0" class="alert alert-info">
+                  <i class="fas fa-info-circle"></i> No announcements found. Add your first announcement above!
+                </div>
+                <div class="table-responsive" *ngIf="announcements.length > 0">
+                  <table class="table">
+                    <thead>
+                      <tr>
+                        <th>Date</th>
+                        <th>Category</th>
+                        <th>Title</th>
+                        <th>Description</th>
+                        <th>Status</th>
+                        <th>Actions</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      <tr *ngFor="let announcement of announcements" [class.inactive-row]="!announcement.isActive">
+                        <td>
+                          <span class="date-badge">{{ announcement.day }} {{ announcement.month }}</span>
+                        </td>
+                        <td>
+                          <span class="category-badge" [class]="announcement.categoryClass">{{ announcement.category }}</span>
+                        </td>
+                        <td>{{ announcement.title }}</td>
+                        <td>{{ announcement.description | slice:0:50 }}{{ announcement.description.length > 50 ? '...' : '' }}</td>
+                        <td>
+                          <span class="badge" [class.bg-success]="announcement.isActive" [class.bg-secondary]="!announcement.isActive">
+                            {{ announcement.isActive ? 'Active' : 'Inactive' }}
+                          </span>
+                        </td>
+                        <td>
+                          <button class="btn btn-sm btn-primary me-1" (click)="editAnnouncement(announcement)">
+                            <i class="fas fa-edit"></i>
+                          </button>
+                          <button class="btn btn-sm" [class.btn-success]="!announcement.isActive" [class.btn-warning]="announcement.isActive" (click)="toggleAnnouncementStatus(announcement)">
+                            <i class="fas" [class.fa-eye]="!announcement.isActive" [class.fa-eye-slash]="announcement.isActive"></i>
+                            {{ announcement.isActive ? 'Deactivate' : 'Activate' }}
+                          </button>
+                          <button class="btn btn-sm btn-danger ms-1" (click)="deleteAnnouncement(announcement._id || announcement.id)">
+                            <i class="fas fa-trash"></i>
+                          </button>
+                        </td>
+                      </tr>
+                    </tbody>
+                  </table>
+                </div>
+              </div>
             </div>
           </div>
         </div>

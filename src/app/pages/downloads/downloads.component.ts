@@ -117,24 +117,14 @@ export class DownloadsPageComponent implements OnInit {
   }
 
   downloadFile(file: DownloadFile) {
-    if (file.url) {
-      // For PDFs, use a download link with proper filename
-      if (file.type === 'pdf') {
-        // Ensure filename doesn't have duplicate .pdf extension
-        const filename = file.name.endsWith('.pdf') ? file.name : file.name + '.pdf';
-        const link = document.createElement('a');
-        link.href = file.url;
-        link.target = '_blank';
-        link.rel = 'noopener noreferrer';
-        link.setAttribute('download', filename);
-        document.body.appendChild(link);
-        link.click();
-        document.body.removeChild(link);
-      } else {
-        // For images, open in new tab
-        window.open(file.url, '_blank');
-      }
-    }
+    // Open direct Cloudinary URL in new tab
+    // User confirmed PDF opens correctly in Cloudinary
+    // if (file.url) {
+    //   window.open(file.url, '_blank');
+    // }
+  const url = `https://your-api-domain/api/downloads/${file.id}/download`;
+  window.open(url, '_blank');
+
   }
 
   private formatFileSize(bytes: number): string {

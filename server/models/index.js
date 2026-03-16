@@ -115,6 +115,19 @@ const schoolSchema = new mongoose.Schema({
   isActive: { type: Boolean, default: true }
 }, { timestamps: true });
 
+// Announcement Schema
+const announcementSchema = new mongoose.Schema({
+  day: { type: String, required: true },
+  month: { type: String, required: true },
+  category: { type: String, required: true, enum: ['Academic', 'Event', 'Notice', 'Holiday'] },
+  categoryClass: { type: String, required: true, enum: ['category-academic', 'category-event', 'category-notice', 'category-holiday'] },
+  title: { type: String, required: true },
+  description: { type: String, required: true },
+  link: { type: String, default: '/notices' },
+  isActive: { type: Boolean, default: true },
+  displayOrder: { type: Number, default: 0 }
+}, { timestamps: true });
+
 // Create and export models
 const Event = mongoose.model('Event', eventSchema);
 const News = mongoose.model('News', newsSchema);
@@ -126,6 +139,7 @@ const About = mongoose.model('About', aboutSchema);
 const Gallery = mongoose.model('Gallery', gallerySchema);
 const Download = mongoose.model('Download', downloadSchema);
 const School = mongoose.model('School', schoolSchema);
+const Announcement = mongoose.model('Announcement', announcementSchema);
 
 module.exports = {
   Event,
@@ -137,5 +151,6 @@ module.exports = {
   About,
   Gallery,
   Download,
-  School
+  School,
+  Announcement
 };

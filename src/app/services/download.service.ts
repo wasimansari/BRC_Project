@@ -58,6 +58,14 @@ export class DownloadService {
     return this.http.delete(`${this.apiUrl}/${id}`);
   }
 
+  // Download file via proxy endpoint (avoids CORS issues with PDFs)
+  downloadFile(id: string): void {
+    // Use backend proxy to fetch from Cloudinary and stream to browser
+    const baseUrl = this.apiUrl.replace('/downloads', '');
+    const downloadUrl = `${baseUrl}/downloads/${id}/download`;
+    window.open(downloadUrl, '_blank');
+  }
+
   // Get categories from server or return defaults
   getDefaultCategories(): DownloadCategory[] {
     return [

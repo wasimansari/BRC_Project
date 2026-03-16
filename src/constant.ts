@@ -29,6 +29,7 @@ export const app_constants = {
   banners: { getAll: '/banners', getActive: '/banners', create: '/banners', update: '/banners', delete: '/banners' },
   about: { get: '/about', update: '/about', addStaff: '/about/staff', deleteStaff: '/about/staff' },
   gallery: { getAll: '/gallery', getByCategory: '/gallery/category', create: '/gallery', update: '/gallery', delete: '/gallery' },
+  announcements: { getAll: '/announcements', getAllAdmin: '/announcements/all', create: '/announcements', update: '/announcements', delete: '/announcements', toggle: '/announcements' },
   schools: { getAll: '/schools', uploadExcel: '/schools/upload-excel', exportPdf: '/schools/export-pdf', stats: '/schools/stats' },
   searchTypes: { BY_SCHOOL_NAME: '1', BY_UDISE_CODE: '3', BY_DISTRICT: '4', BY_BLOCK: '5' },
   searchTypeId: ['udise', 'school', 'district', 'block'] as const,

@@ -3,11 +3,6 @@
   <div class="content-card mb-4">
     <div class="d-flex justify-content-between align-items-center mb-3">
       <h3><i class="fas fa-school"></i> School Details Management</h3>
-      <div>
-        <button class="btn btn-success me-2" (click)="exportToPdf()">
-          <i class="fas fa-file-pdf"></i> Download PDF
-        </button>
-      </div>
     </div>
 
     <!-- Stats -->
@@ -217,6 +212,11 @@
 
     <!-- Schools Table -->
     <div class="table-responsive">
+      <div class="float-end">
+        <button class="btn btn-info text-white" (click)="exportToExcel()">
+          <i class="fas fa-file-excel"></i> Download Excel
+        </button>
+      </div>
       <table class="table table-hover">
         <thead>
           <tr>

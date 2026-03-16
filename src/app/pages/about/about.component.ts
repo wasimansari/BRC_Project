@@ -7,6 +7,7 @@ import { AboutService, AboutContent } from '../../services/about.service';
   styleUrls: ['./about.component.css']
 })
 export class AboutComponent implements OnInit {
+  loading = true;
   // Default fallback data
   defaultAbout: AboutContent = {
     vision: 'To be a leading educational institution that nurtures creativity, critical thinking, and lifelong learning among students, preparing them for success in an ever-changing world.',
@@ -51,25 +52,28 @@ export class AboutComponent implements OnInit {
   }
 
   loadAboutContent() {
-    // First try to get from localStorage (set by admin dashboard)
-    const stored = localStorage.getItem('aboutContent');
-    if (stored) {
-      try {
-        this.aboutContent = JSON.parse(stored);
-      } catch (e) {
-        console.error('Error parsing stored about content:', e);
-      }
-    }
-
-    // Then try to fetch from API
+    this.loading = true;
     this.aboutService.getAbout().subscribe({
       next: (data) => {
         if (data && (data.vision || data.beoProfile?.name || data.staffDetails?.length)) {
           this.aboutContent = data;
           this.aboutService.saveToLocalStorage(data);
         }
+        this.loading = false;
       },
-      error: (err) => console.error('Error loading about content:', err)
+      error: (err) => {
+        console.error('Error loading about content:', err);
+        // Fallback to localStorage on API error
+        const stored = localStorage.getItem('aboutContent');
+        if (stored) {
+          try {
+            this.aboutContent = JSON.parse(stored);
+          } catch (e) {
+            console.error('Error parsing stored about content:', e);
+          }
+        }
+        this.loading = false;
+      }
     });
   }
 

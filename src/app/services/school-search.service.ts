@@ -77,6 +77,42 @@ export interface SchoolProfileDetail {
   typeName?: string;
   totalTeachers?: number;
   totalStudents?: number;
+  // Additional fields from profile API
+  headMasterName?: string;
+  respName?: string;
+  website?: string;
+  email?: string;
+  phone?: string;
+  boardSec?: number;
+  boardHighSec?: number;
+  boardSecName?: string;
+  boardHighSecName?: string;
+  recogYearPri?: string;
+  recogYearUpr?: string;
+  recogYearSec?: string;
+  recogYearHsec?: string;
+  cwsnSchYn?: number;
+  cwsnSchYnDesc?: string;
+  shiftSchYn?: number;
+  shiftSchYnDesc?: string;
+  resiSchYn?: number;
+  resiSchDesc?: string;
+  resiSchTypeName?: string;
+  mediumOfInstrName1?: string;
+  mediumOfInstrName2?: string;
+  mediumOfInstrName3?: string;
+  mediumOfInstrName4?: string;
+  minorityYn?: number;
+  minorityYnDesc?: string;
+  anganwadiYn?: number;
+  anganwadiYnDesc?: string;
+  cceYn?: number;
+  cceYnDesc?: string;
+  smcYn?: number;
+  smcYnDesc?: string;
+  smdcYn?: number;
+  smdcYnDesc?: string;
+  approachRoadYnDesc?: string;
 }
 
 export interface SchoolEnrollmentDetail {
@@ -132,6 +168,42 @@ export interface SchoolCompleteDetails {
   typeName?: string;
   latitude?: number;
   longitude?: number;
+  // Additional profile fields
+  headMasterName?: string;
+  respName?: string;
+  website?: string | null;
+  email?: string | null;
+  phone?: string;
+  boardSec?: number;
+  boardHighSec?: number;
+  boardSecName?: string;
+  boardHighSecName?: string;
+  recogYearPri?: string;
+  recogYearUpr?: string;
+  recogYearSec?: string;
+  recogYearHsec?: string;
+  cwsnSchYn?: number;
+  cwsnSchYnDesc?: string;
+  shiftSchYn?: number;
+  shiftSchYnDesc?: string;
+  resiSchYn?: number;
+  resiSchDesc?: string;
+  resiSchTypeName?: string;
+  mediumOfInstrName1?: string;
+  mediumOfInstrName2?: string;
+  mediumOfInstrName3?: string;
+  mediumOfInstrName4?: string;
+  minorityYn?: number;
+  minorityYnDesc?: string;
+  anganwadiYn?: number;
+  anganwadiYnDesc?: string;
+  cceYn?: number;
+  cceYnDesc?: string;
+  smcYn?: number;
+  smcYnDesc?: string;
+  smdcYn?: number;
+  smdcYnDesc?: string;
+  approachRoadYnDesc?: string;
   
   // Enrollment Detail Data (API 3)
   totalStudents?: number;
@@ -156,6 +228,13 @@ export interface SchoolCompleteDetails {
   class10?: number;
   class11?: number;
   class12?: number;
+
+  // Container for all three raw API responses
+  completed?: {
+    reportCard: SchoolReportCard | null;
+    profile: SchoolProfileDetail | null;
+    enrollment: SchoolEnrollmentDetail | null;
+  };
 }
 
 @Injectable({
@@ -606,7 +685,7 @@ export class SchoolSearchService {
   private mapProfileResponse(data: any): SchoolProfileDetail {
     return {
       schoolId: data.schoolId || data.school_id || '',
-      schoolName: data.schoolName || data.school_name || '',
+      schoolName: data.schoolName || data.school_name || data.respName || '',
       stateName: data.stateName || data.state_name || '',
       districtName: data.districtName || data.district_name || '',
       blockName: data.blockName || data.block_name || '',
@@ -619,7 +698,43 @@ export class SchoolSearchService {
       estdYear: data.estdYear || data.established_year || '',
       managementName: data.managementName || data.management_name || '',
       categoryName: data.categoryName || data.category_name || '',
-      typeName: data.typeName || data.type_name || ''
+      typeName: data.typeName || data.type_name || '',
+      // Additional fields from profile API
+      headMasterName: data.headMasterName || data.respName || '',
+      respName: data.respName || data.headMasterName || '',
+      website: data.website || null,
+      email: data.email || null,
+      phone: data.schPhone || data.phone || '',
+      boardSec: data.boardSec || 0,
+      boardHighSec: data.boardHighSec || 0,
+      boardSecName: data.boardSecName || '',
+      boardHighSecName: data.boardHighSecName || '',
+      recogYearPri: data.recogYearPri || null,
+      recogYearUpr: data.recogYearUpr || null,
+      recogYearSec: data.recogYearSec || null,
+      recogYearHsec: data.recogYearHsec || null,
+      cwsnSchYn: data.cwsnSchYn || 0,
+      cwsnSchYnDesc: data.cwsnSchYnDesc || '',
+      shiftSchYn: data.shiftSchYn || 0,
+      shiftSchYnDesc: data.shiftSchYnDesc || '',
+      resiSchYn: data.resiSchYn || 0,
+      resiSchDesc: data.resiSchDesc || '',
+      resiSchTypeName: data.resiSchTypeName || '',
+      mediumOfInstrName1: data.mediumOfInstrName1 || '',
+      mediumOfInstrName2: data.mediumOfInstrName2 || '',
+      mediumOfInstrName3: data.mediumOfInstrName3 || '',
+      mediumOfInstrName4: data.mediumOfInstrName4 || '',
+      minorityYn: data.minorityYn || 0,
+      minorityYnDesc: data.minorityYnDesc || '',
+      anganwadiYn: data.anganwadiYn || 0,
+      anganwadiYnDesc: data.anganwadiYnDesc || '',
+      cceYn: data.cceYn || 0,
+      cceYnDesc: data.cceYnDesc || '',
+      smcYn: data.smcYn || 0,
+      smcYnDesc: data.smcYnDesc || '',
+      smdcYn: data.smdcYn || 0,
+      smdcYnDesc: data.smdcYnDesc || '',
+      approachRoadYnDesc: data.approachRoadYnDesc || ''
     };
   }
 
@@ -682,9 +797,18 @@ export class SchoolSearchService {
 
   /**
    * Helper to check if API response status is successful
+   * Also returns true if response has data (for APIs that return raw data without status)
    */
   private isApiSuccess(response: any): boolean {
-    return response && (response.status === true || response.status === 'success' || response.status === 'true');
+    // Check for explicit success status
+    if (response && (response.status === true || response.status === 'success' || response.status === 'true')) {
+      return true;
+    }
+    // Check if response has data (for APIs that return raw data without status wrapper)
+    if (response && (response.data || Object.keys(response).length > 0)) {
+      return true;
+    }
+    return false;
   }
 
   /**
@@ -794,6 +918,42 @@ export class SchoolSearchService {
       typeName: profile?.typeName || '',
       latitude: profile?.latitude || 0,
       longitude: profile?.longitude || 0,
+      // Additional profile fields from API
+      headMasterName: profile?.headMasterName || '',
+      respName: profile?.respName || '',
+      website: profile?.website || undefined,
+      email: profile?.email || undefined,
+      phone: profile?.phone || '',
+      boardSec: profile?.boardSec || 0,
+      boardHighSec: profile?.boardHighSec || 0,
+      boardSecName: profile?.boardSecName || '',
+      boardHighSecName: profile?.boardHighSecName || '',
+      recogYearPri: profile?.recogYearPri || undefined,
+      recogYearUpr: profile?.recogYearUpr || undefined,
+      recogYearSec: profile?.recogYearSec || undefined,
+      recogYearHsec: profile?.recogYearHsec || undefined,
+      cwsnSchYn: profile?.cwsnSchYn || 0,
+      cwsnSchYnDesc: profile?.cwsnSchYnDesc || '',
+      shiftSchYn: profile?.shiftSchYn || 0,
+      shiftSchYnDesc: profile?.shiftSchYnDesc || '',
+      resiSchYn: profile?.resiSchYn || 0,
+      resiSchDesc: profile?.resiSchDesc || '',
+      resiSchTypeName: profile?.resiSchTypeName || '',
+      mediumOfInstrName1: profile?.mediumOfInstrName1 || '',
+      mediumOfInstrName2: profile?.mediumOfInstrName2 || '',
+      mediumOfInstrName3: profile?.mediumOfInstrName3 || '',
+      mediumOfInstrName4: profile?.mediumOfInstrName4 || '',
+      minorityYn: profile?.minorityYn || 0,
+      minorityYnDesc: profile?.minorityYnDesc || '',
+      anganwadiYn: profile?.anganwadiYn || 0,
+      anganwadiYnDesc: profile?.anganwadiYnDesc || '',
+      cceYn: profile?.cceYn || 0,
+      cceYnDesc: profile?.cceYnDesc || '',
+      smcYn: profile?.smcYn || 0,
+      smcYnDesc: profile?.smcYnDesc || '',
+      smdcYn: profile?.smdcYn || 0,
+      smdcYnDesc: profile?.smdcYnDesc || '',
+      approachRoadYnDesc: profile?.approachRoadYnDesc || '',
       
       // Enrollment Detail Data (API 3 - enrollment)
       totalStudents: enrollment?.totalStudents || 0,
@@ -817,7 +977,14 @@ export class SchoolSearchService {
       class9: enrollment?.class9 || 0,
       class10: enrollment?.class10 || 0,
       class11: enrollment?.class11 || 0,
-      class12: enrollment?.class12 || 0
+      class12: enrollment?.class12 || 0,
+
+      // Store all three raw API responses in completed object
+      completed: {
+        reportCard: reportCard,
+        profile: profile,
+        enrollment: enrollment
+      }
     };
   }
 

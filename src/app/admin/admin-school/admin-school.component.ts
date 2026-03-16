@@ -10,6 +10,7 @@ import { app_constants } from '../../../constant';
 export class AdminSchoolComponent implements OnInit {
   schools: School[] = [];
   filteredSchools: School[] = [];
+  loading = true;
   
   // Stats
   stats: SchoolStats = {
@@ -64,12 +65,17 @@ export class AdminSchoolComponent implements OnInit {
   }
 
   loadSchools(): void {
+    this.loading = true;
     this.schoolService.getAllSchools().subscribe({
       next: (data) => {
         this.schools = data;
         this.applyFilters();
+        this.loading = false;
       },
-      error: (err) => console.error('Error loading schools:', err)
+      error: (err) => {
+        console.error('Error loading schools:', err);
+        this.loading = false;
+      }
     });
   }
 
@@ -248,7 +254,7 @@ export class AdminSchoolComponent implements OnInit {
     }
   }
 
-  exportToPdf(): void {
-    this.schoolService.exportToPdf();
+  exportToExcel(): void {
+    this.schoolService.exportToExcel();
   }
 }

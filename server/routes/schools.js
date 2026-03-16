@@ -39,6 +39,60 @@ router.get('/', async (req, res) => {
   }
 });
 
+// @route   GET /api/schools/export-excel
+// @desc    Export schools to Excel
+// @access  Public
+router.get('/export-excel', async (req, res) => {
+  try {
+    const schools = await School.find({ isActive: true }).sort({ srNo: 1 });
+    
+    // Prepare data for Excel
+    const excelData = schools.map(school => ({
+      'Sr No': school.srNo,
+      'District': school.district || '',
+      'Block': school.block || '',
+      'UDISE Code': school.udiseCode || '',
+      'School Name': school.schoolName || '',
+      'HM/HT Name': school.hmHtName || '',
+      'Mobile No': school.mobileNo || '',
+      'CRC': school.crc || '',
+      'CRC Name': school.crcName || '',
+      'Status': school.isActive ? 'Active' : 'Inactive'
+    }));
+    
+    // Create workbook and worksheet
+    const workbook = xlsx.utils.book_new();
+    const worksheet = xlsx.utils.json_to_sheet(excelData);
+    
+    // Set column widths
+    worksheet['!cols'] = [
+      { wch: 8 },   // Sr No
+      { wch: 20 },  // District
+      { wch: 20 },  // Block
+      { wch: 15 },  // UDISE Code
+      { wch: 35 },  // School Name
+      { wch: 20 },  // HM/HT Name
+      { wch: 15 },  // Mobile No
+      { wch: 10 },  // CRC
+      { wch: 20 },  // CRC Name
+      { wch: 10 }   // Status
+    ];
+    
+    xlsx.utils.book_append_sheet(workbook, worksheet, 'Schools');
+    
+    // Generate buffer
+    const buffer = xlsx.write(workbook, { type: 'buffer', bookType: 'xlsx' });
+    
+    // Set response headers
+    res.setHeader('Content-Type', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
+    res.setHeader('Content-Disposition', 'attachment; filename=school-details.xlsx');
+    
+    res.send(buffer);
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+});
+
 // @route   GET /api/schools/export-pdf
 // @desc    Export schools to PDF
 // @access  Public
