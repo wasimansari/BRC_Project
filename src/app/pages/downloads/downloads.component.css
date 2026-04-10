@@ -5,7 +5,7 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  background-image: url('/assets/images/events/cultural-festival.webp');
+  /* background-image: url('/assets/images/events/cultural-festival.webp'); */
   background-size: cover;
   background-position: center;
   background-repeat: no-repeat;
@@ -18,7 +18,7 @@
   left: 0;
   width: 100%;
   height: 100%;
-  background: linear-gradient(135deg, rgba(26, 188, 156, 0.92) 0%, rgba(31, 57, 113, 0.88) 100%);
+  background: linear-gradient(135deg, rgba(22, 160, 133, 0.92) 0%, rgba(13, 115, 119, 0.88) 100%);
 }
 
 .download-banner-content {
@@ -76,7 +76,7 @@
 }
 
 .download-banner .breadcrumb-item a:hover {
-  color: #1abc9c;
+  color: var(--primary-color);
 }
 
 .download-banner .breadcrumb-item + .breadcrumb-item::before {
@@ -139,9 +139,9 @@
 
 .download-filter .filter-btn {
   padding: 10px 15px;
-  border: 2px solid #1F3971;
+  border: 2px solid var(--primary-color);
   background: transparent;
-  color: #1F3971;
+  color: var(--primary-color);
   font-weight: normal;
   font-size: 14px;
   border-radius: 30px;
@@ -158,10 +158,10 @@
 }
 
 .download-filter .filter-btn.active {
-  background: linear-gradient(135deg, #1F3971 0%, #2c5282 100%);
+  background: linear-gradient(135deg, var(--primary-color) 0%, #0d7377 100%);
   color: white;
   border-color: transparent;
-  box-shadow: 0 5px 20px rgba(31, 57, 113, 0.3);
+  box-shadow: 0 5px 20px rgba(22, 160, 133, 0.3);
 }
 
 .download-filter .filter-btn i {
@@ -235,13 +235,13 @@
 
 .file-meta i {
   font-size: 12px;
-  color: #1abc9c;
+  color: var(--primary-color);
 }
 
 .download-btn {
   width: 100%;
   padding: 14px;
-  background: linear-gradient(135deg, #1F3971 0%, #2c5282 100%);
+  background: linear-gradient(135deg, var(--primary-color) 0%, #0d7377 100%);
   color: white;
   border: none;
   border-radius: 12px;
@@ -291,7 +291,7 @@
   transform: translateX(-50%);
   width: 60px;
   height: 4px;
-  background: linear-gradient(90deg, #1abc9c, #1F3971);
+  background: linear-gradient(90deg, var(--primary-color), #0d7377);
   border-radius: 2px;
 }
 
@@ -352,7 +352,7 @@
   width: 45px;
   height: 45px;
   border-radius: 50%;
-  background: #1F3971;
+  background: var(--primary-color);
   color: white;
   border: none;
   display: flex;

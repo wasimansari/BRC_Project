@@ -1,5 +1,6 @@
+/* Hero Section - Premium Autoguru Style */
 .hero-section {
-  height: 750px;
+  height: 850px;
   position: relative;
   display: flex;
   align-items: center;
@@ -11,9 +12,37 @@
   left: 0;
 }
 
+/* Animated Background Shapes */
+.hero-section::before {
+  content: '';
+  position: absolute;
+  top: -20%;
+  right: -10%;
+  width: 600px;
+  height: 600px;
+  background: radial-gradient(circle, rgba(26, 188, 156, 0.3) 0%, transparent 70%);
+  border-radius: 50%;
+  animation: float 6s ease-in-out infinite;
+  z-index: 1;
+}
+
+.hero-section::after {
+  content: '';
+  position: absolute;
+  bottom: -10%;
+  left: -5%;
+  width: 400px;
+  height: 400px;
+  background: radial-gradient(circle, rgba(22, 160, 133, 0.25) 0%, transparent 70%);
+  border-radius: 50%;
+  animation: float 8s ease-in-out infinite reverse;
+  z-index: 1;
+}
+
 #heroCarousel {
   width: 100%;
   height: 100%;
+  position: relative;
 }
 
 .carousel-inner {
@@ -25,15 +54,48 @@
   background-size: cover;
   background-position: center;
   background-repeat: no-repeat;
+  position: relative;
+  background-attachment: fixed;
+  transform: translateZ(0);
+  -webkit-transform: translateZ(0);
+  backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
 }
 
+/* Mobile parallax fallback - fixed not supported on iOS */
+@media (max-width: 991px) {
+  .carousel-item {
+    background-attachment: scroll;
+  }
+}
+
+/* Premium Gradient Overlay */
 .carousel-overlay {
   position: absolute;
   top: 0;
   left: 0;
   width: 100%;
   height: 100%;
-  background: linear-gradient(to right, rgb(9 164 133 / 92%) 0%, rgb(27 124 105 / 75%) 50%, rgb(19 90 76 / 70%) 100%)
+  background: linear-gradient(135deg, 
+    rgba(22, 160, 133, 0.92) 0%, 
+    rgba(26, 188, 156, 0.85) 30%, 
+    rgba(22, 160, 133, 0.75) 70%,
+    rgba(15, 100, 80, 0.8) 100%
+  );
+  z-index: 5;
+}
+
+/* Diagonal Line Pattern Overlay */
+.carousel-overlay::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-image: url("data:image/svg+xml,%3Csvg width='100' height='100' viewBox='0 0 100 100' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M0 0 L100 100 M100 0 L0 100' stroke='%23ffffff' stroke-width='0.5' stroke-opacity='0.03'/%3E%3C/svg%3E");
+  background-size: 50px 50px;
+  pointer-events: none;
 }
 
 .carousel-caption-custom {
@@ -49,46 +111,48 @@
   padding-top: 70px;
 }
 
-/* Bootstrap carousel indicators */
+/* Premium Carousel Indicators */
 .carousel-indicators {
   z-index: 20;
-  bottom: 40px;
+  bottom: 50px;
+  gap: 10px;
 }
 
 .carousel-indicators button {
-  width: 12px;
-  height: 12px;
-  border-radius: 50%;
-  background-color: rgba(255, 255, 255, 0.4);
+  width: 40px;
+  height: 6px;
+  border-radius: 3px;
+  background-color: rgba(255, 255, 255, 0.3);
   border: none;
-  margin: 0 6px;
-  transition: all 0.3s ease;
+  margin: 0;
+  transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 .carousel-indicators button:hover {
-  background-color: rgba(255, 255, 255, 0.7);
+  background-color: rgba(255, 255, 255, 0.6);
+  width: 50px;
 }
 
 .carousel-indicators button.active {
   background-color: white;
-  width: 35px;
-  border-radius: 6px;
+  width: 60px;
+  box-shadow: 0 2px 10px rgba(255, 255, 255, 0.3);
 }
 
-/* Bootstrap carousel controls */
+/* Premium Carousel Controls */
 .carousel-control-prev,
 .carousel-control-next {
   z-index: 20;
-  width: 60px;
-  height: 60px;
+  width: 65px;
+  height: 65px;
   top: 50%;
   transform: translateY(-50%);
-  background: rgba(255, 255, 255, 0.25);
-  border: 2px solid rgba(255, 255, 255, 0.6);
+  background: rgba(255, 255, 255, 0.15);
+  border: 2px solid rgba(255, 255, 255, 0.4);
   border-radius: 50%;
-  backdrop-filter: blur(8px);
-  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
-  transition: all 0.3s ease;
+  backdrop-filter: blur(10px);
+  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+  transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 .carousel-control-prev {
@@ -101,8 +165,10 @@
 
 .carousel-control-prev:hover,
 .carousel-control-next:hover {
-  background: #1abc9c;
-  border-color: #1abc9c;
+  background: #16a085;
+  border-color: #16a085;
+  transform: translateY(-50%) scale(1.1);
+  box-shadow: 0 12px 35px rgba(22, 160, 133, 0.4);
 }
 
 .carousel-control-prev-icon,
@@ -118,14 +184,23 @@
   font-family: 'Font Awesome 6 Free';
   font-weight: 900;
   color: white;
-  font-size: 24px;
+  font-size: 26px;
   display: flex;
   align-items: center;
   justify-content: center;
+  transition: transform 0.3s ease;
 }
 
 .carousel-control-next-icon::before {
   content: '\f105';
+}
+
+.carousel-control-prev:hover .carousel-control-prev-icon::before {
+  transform: translateX(-3px);
+}
+
+.carousel-control-next:hover .carousel-control-next-icon::before {
+  transform: translateX(3px);
 }
 
 .visually-hidden {
@@ -139,57 +214,179 @@
   border: 0;
 }
 
-/* Hero content styles */
-.hero-title {
-  font-size: 60px;
-  font-weight: 800;
-  margin-bottom: 25px;
-  line-height: 1.2;
-  text-shadow: 0 2px 10px rgba(0,0,0,0.1);
-  color: white;
+/* Hero Content - Animated */
+.hero-content-wrapper {
   opacity: 0;
-  transform: translateY(40px);
-  animation: fadeInUp 1s cubic-bezier(0.215, 0.61, 0.355, 1) forwards;
+  transform: translateY(50px);
+  animation: heroContentFadeIn 1s cubic-bezier(0.215, 0.61, 0.355, 1) forwards;
+  animation-delay: 0.2s;
 }
 
-.hero-description {
-  font-size: 18px;
-  margin-bottom: 35px;
-  line-height: 1.8;
-  opacity: 0.95;
-  max-width: 550px;
-  color: white;
-  opacity: 0;
-  transform: translateY(40px);
-  animation: fadeInUp 1s cubic-bezier(0.215, 0.61, 0.355, 1) forwards;
-  animation-delay: 0.3s;
-}
-
-.hero-buttons {
-  display: flex;
-  gap: 15px;
-  flex-wrap: wrap;
-  opacity: 0;
-  transform: translateY(40px);
-  animation: fadeInUp 1s cubic-bezier(0.215, 0.61, 0.355, 1) forwards;
-  animation-delay: 0.5s;
-}
-
-@keyframes fadeInUp {
-  from {
-    opacity: 0;
-    transform: translateY(40px);
-  }
+@keyframes heroContentFadeIn {
   to {
     opacity: 1;
     transform: translateY(0);
   }
 }
 
+.hero-title {
+  font-size: 65px;
+  font-weight: 800;
+  margin-bottom: 25px;
+  line-height: 1.15;
+  color: white;
+  text-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+  position: relative;
+}
+
+.hero-title span {
+  position: relative;
+  display: inline-block;
+}
+
+/* Animated underline for title */
+.hero-title span::after {
+  content: '';
+  position: absolute;
+  bottom: 5px;
+  left: 0;
+  width: 100%;
+  height: 8px;
+  background: rgba(255, 174, 39, 0.4);
+  border-radius: 4px;
+  z-index: -1;
+  transform: scaleX(0);
+  transform-origin: left;
+  animation: titleUnderline 0.8s ease forwards;
+  animation-delay: 0.8s;
+}
+
+@keyframes titleUnderline {
+  to {
+    transform: scaleX(1);
+  }
+}
+
+.hero-description {
+  font-size: 20px;
+  margin-bottom: 40px;
+  line-height: 1.9;
+  opacity: 0.95;
+  max-width: 600px;
+  color: rgba(255, 255, 255, 0.9);
+  font-weight: 400;
+}
+
+.hero-buttons {
+  display: flex;
+  gap: 20px;
+  flex-wrap: wrap;
+  align-items: center;
+}
+
+/* Premium Button Styles */
+.hero-buttons .btn-primary {
+  background: linear-gradient(135deg, #ffae27, #f39c12);
+  color: #1a1a2e;
+  padding: 16px 40px;
+  font-size: 14px;
+  font-weight: 700;
+  border-radius: 50px;
+  box-shadow: 0 8px 30px rgba(255, 174, 39, 0.4);
+  position: relative;
+  overflow: hidden;
+}
+
+.hero-buttons .btn-primary::before {
+  background: linear-gradient(135deg, #f39c12, #ffae27);
+}
+
+.hero-buttons .btn-primary:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 15px 40px rgba(255, 174, 39, 0.5);
+  color: #1a1a2e;
+}
+
+.hero-buttons .btn-secondary {
+  background: transparent;
+  color: white;
+  padding: 16px 40px;
+  font-size: 14px;
+  font-weight: 600;
+  border-radius: 50px;
+  border: 2px solid rgba(255, 255, 255, 0.5);
+  backdrop-filter: blur(5px);
+  transition: all 0.4s ease;
+}
+
+.hero-buttons .btn-secondary:hover {
+  background: rgba(255, 255, 255, 0.15);
+  border-color: white;
+  transform: translateY(-4px);
+  color: white;
+}
+
+/* Scroll Down Indicator */
+.scroll-down {
+  position: absolute;
+  bottom: 30px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 20;
+  animation: bounce 2s ease-in-out infinite;
+}
+
+.scroll-down a {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  color: rgba(255, 255, 255, 0.7);
+  font-size: 12px;
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 2px;
+  cursor: pointer;
+  transition: color 0.3s ease;
+}
+
+.scroll-down a:hover {
+  color: white;
+}
+
+.scroll-down i {
+  font-size: 24px;
+  margin-top: 8px;
+  animation: mouseScroll 2s ease-in-out infinite;
+}
+
+@keyframes bounce {
+  0%, 100% { transform: translateX(-50%) translateY(0); }
+  50% { transform: translateX(-50%) translateY(10px); }
+}
+
+@keyframes mouseScroll {
+  0%, 100% { transform: translateY(0); opacity: 1; }
+  50% { transform: translateY(5px); opacity: 0.5; }
+}
+
 /* Responsive */
+@media (max-width: 1199px) {
+  .hero-section {
+    height: 750px;
+  }
+  
+  .hero-title {
+    font-size: 52px;
+  }
+  
+  .hero-description {
+    font-size: 18px;
+  }
+}
+
 @media (max-width: 991px) {
   .hero-section {
-    height: 600px;
+    height: 650px;
   }
   
   .hero-title {
@@ -198,16 +395,17 @@
   
   .hero-description {
     font-size: 16px;
+    max-width: 500px;
   }
   
   .carousel-caption-custom {
-    padding-top: 60px;
+    padding-top: 80px;
   }
   
   .carousel-control-prev,
   .carousel-control-next {
-    width: 45px;
-    height: 45px;
+    width: 50px;
+    height: 50px;
   }
   
   .carousel-control-prev {
@@ -217,11 +415,15 @@
   .carousel-control-next {
     right: 15px;
   }
+  
+  .hero-buttons {
+    gap: 15px;
+  }
 }
 
 @media (max-width: 768px) {
   .hero-section {
-    height: 550px;
+    height: 600px;
   }
   
   .hero-title {
@@ -230,20 +432,36 @@
   
   .hero-description {
     font-size: 15px;
+    margin-bottom: 30px;
   }
   
   .carousel-caption-custom {
-    padding-top: 60px;
+    padding-top: 80px;
+  }
+  
+  .carousel-indicators {
+    bottom: 30px;
   }
   
   .carousel-control-prev,
   .carousel-control-next {
-    width: 40px;
-    height: 40px;
+    width: 42px;
+    height: 42px;
   }
   
   .carousel-control-prev-icon::before,
   .carousel-control-next-icon::before {
-    font-size: 16px;
+    font-size: 18px;
+  }
+  
+  .hero-buttons .btn-primary,
+  .hero-buttons .btn-secondary {
+    padding: 14px 28px;
+    font-size: 13px;
+  }
+  
+  .hero-section::before,
+  .hero-section::after {
+    display: none;
   }
 }

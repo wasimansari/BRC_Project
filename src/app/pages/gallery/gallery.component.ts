@@ -1,5 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { GalleryService, GalleryImage, GallerySettings } from '../../services/gallery.service';
+import { PageBackgroundService, PageBackground } from '../../services/page-background.service';
 import { galleryCategories, GalleryCategory } from '../../../constant';
 
 interface GalleryPhoto {
@@ -34,6 +35,10 @@ export class GalleryPageComponent implements OnInit {
   currentGalleryImages: GalleryPhoto[] = [];
   loading: boolean = true;
   galleryImages: GalleryImage[] = [];
+  
+  // Page background properties
+  pageBackground: PageBackground | null = null;
+  pageBackgroundLoading = true;
 
   get filters(): Filter[] {
     // Use dynamic categories from server, fallback to constants
@@ -49,11 +54,29 @@ export class GalleryPageComponent implements OnInit {
   
   galleryData: GalleryDateGroup[] = [];
 
-  constructor(private galleryService: GalleryService) {}
+  constructor(
+    private galleryService: GalleryService,
+    private pageBackgroundService: PageBackgroundService
+  ) {}
 
   ngOnInit(): void {
     this.loadCategoriesFromServer();
     this.loadGalleryImages();
+    this.loadPageBackground();
+  }
+
+  loadPageBackground() {
+    this.pageBackgroundLoading = true;
+    this.pageBackgroundService.getPageBackground('gallery').subscribe({
+      next: (data) => {
+        this.pageBackground = data;
+        this.pageBackgroundLoading = false;
+      },
+      error: (err) => {
+        console.error('Error loading page background:', err);
+        this.pageBackgroundLoading = false;
+      }
+    });
   }
 
   loadCategoriesFromServer(): void {
@@ -124,15 +147,8 @@ export class GalleryPageComponent implements OnInit {
     if (this.activeFilter === 'all') {
       return this.galleryData;
     }
-    // Map filter IDs to category values
-    const categoryMap: { [key: string]: string } = {
-      'science': 'science-fair',
-      'sports': 'sports-day',
-      'cultural': 'cultural-festival',
-      'academic': 'academic-event'
-    };
-    const mappedCategory = categoryMap[this.activeFilter] || this.activeFilter;
-    return this.galleryData.filter(group => group.category === mappedCategory);
+    // Map filter IDs to category values - use actual category values from filters
+    return this.galleryData.filter(group => group.category === this.activeFilter);
   }
 
   filterGallery(filterId: string): void {

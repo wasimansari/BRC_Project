@@ -1,12 +1,12 @@
-<div class="admin-dashboard" [class.sidebar-collapsed]="isSidebarCollapsed">
+<div class="admin-dashboard" [class.sidebar-collapsed]="isSidebarCollapsed" [class.sidebar-animating]="isAnimating">
   <!-- Header -->
-  <div class="dashboard-header">
+  <div class="dashboard-header" [class.header-expanded]="!isSidebarCollapsed">
     <div class="container-fluid">
       <div class="row align-items-center">
         <div class="col d-flex align-items-center">
-          <button class="sidebar-toggle-btn" (click)="toggleSidebar()">
-            <i class="fa fa-bars"></i>
-          </button>
+          <!-- <button class="sidebar-toggle-btn" (click)="toggleSidebar()">
+            <i class="fas fa-bars"></i>
+          </button> -->
           <h1 class="ms-3 mb-0">Admin Dashboard</h1>
         </div>
         <div class="col-auto">
@@ -26,48 +26,53 @@
             <h3>Management</h3>
             <ul class="nav flex-column">
               <li class="nav-item">
-                <a class="nav-link active" href="#banners" data-bs-toggle="pill">
-                  <i class="fas fa-images"></i> Banner Slider
+                <a class="nav-link active" href="#banners" data-bs-toggle="pill" appSmoothScroll (click)="setActiveTab('banners')">
+                  <i class="fas fa-images"></i> <span class="nav-text">Banner Slider</span>
                 </a>
               </li>
               <li class="nav-item">
-                <a class="nav-link" href="#events" data-bs-toggle="pill">
-                  <i class="fas fa-calendar-alt"></i> Events
+                <a class="nav-link" href="#events" data-bs-toggle="pill" appSmoothScroll [scrollOffset]="80" (click)="setActiveTab('events')">
+                  <i class="fas fa-calendar-alt"></i> <span class="nav-text">Events</span>
                 </a>
               </li>
               <li class="nav-item">
-                <a class="nav-link" href="#news" data-bs-toggle="pill">
-                  <i class="fas fa-newspaper"></i> News
+                <a class="nav-link" href="#news" data-bs-toggle="pill" appSmoothScroll [scrollOffset]="80" (click)="setActiveTab('news')">
+                  <i class="fas fa-newspaper"></i> <span class="nav-text">News</span>
                 </a>
               </li>
               <li class="nav-item">
-                <a class="nav-link" href="#courses" data-bs-toggle="pill">
-                  <i class="fas fa-book"></i> Courses
+                <a class="nav-link" href="#courses" data-bs-toggle="pill" appSmoothScroll [scrollOffset]="80" (click)="setActiveTab('courses')">
+                  <i class="fas fa-book"></i> <span class="nav-text">Courses</span>
                 </a>
               </li>
               <li class="nav-item">
-                <a class="nav-link" href="#about" data-bs-toggle="pill">
-                  <i class="fas fa-info-circle"></i> About Page
+                <a class="nav-link" href="#about" data-bs-toggle="pill" appSmoothScroll [scrollOffset]="80" (click)="setActiveTab('about')">
+                  <i class="fas fa-info-circle"></i> <span class="nav-text">About Page</span>
                 </a>
               </li>
               <li class="nav-item">
-                <a class="nav-link" href="#gallery" data-bs-toggle="pill">
-                  <i class="fas fa-images"></i> Gallery
+                <a class="nav-link" href="#gallery" data-bs-toggle="pill" appSmoothScroll [scrollOffset]="80" (click)="setActiveTab('gallery')">
+                  <i class="fas fa-images"></i> <span class="nav-text">Gallery</span>
                 </a>
               </li>
               <li class="nav-item">
-                <a class="nav-link" href="#downloads" data-bs-toggle="pill">
-                  <i class="fas fa-download"></i> Downloads
+                <a class="nav-link" href="#downloads" data-bs-toggle="pill" appSmoothScroll [scrollOffset]="80" (click)="setActiveTab('downloads')">
+                  <i class="fas fa-download"></i> <span class="nav-text">Downloads</span>
                 </a>
               </li>
               <li class="nav-item">
-                <a class="nav-link" href="#schools" data-bs-toggle="pill">
-                  <i class="fas fa-school"></i> Schools
+                <a class="nav-link" href="#schools" data-bs-toggle="pill" appSmoothScroll [scrollOffset]="80" (click)="setActiveTab('schools')">
+                  <i class="fas fa-school"></i> <span class="nav-text">Schools</span>
                 </a>
               </li>
               <li class="nav-item">
-                <a class="nav-link" href="#announcements" data-bs-toggle="pill">
-                  <i class="fas fa-bullhorn"></i> Announcements
+                <a class="nav-link" href="#announcements" data-bs-toggle="pill" appSmoothScroll [scrollOffset]="80" (click)="setActiveTab('announcements')">
+                  <i class="fas fa-bullhorn"></i> <span class="nav-text">Announcements</span>
+                </a>
+              </li>
+              <li class="nav-item">
+                <a class="nav-link" href="#pageBackgrounds" data-bs-toggle="pill" appSmoothScroll [scrollOffset]="80" (click)="setActiveTab('pageBackgrounds')">
+                  <i class="fas fa-image"></i> <span class="nav-text">Page Backgrounds</span>
                 </a>
               </li>
             </ul>
@@ -76,7 +81,10 @@
 
         <!-- Content Area -->
         <div class="col-md-9 content-container">
-          <div class="tab-content">
+          <button class="sidebar-toggle-btn desktop-toggle" (click)="toggleSidebar()" [class.collapsed]="isSidebarCollapsed">
+            <i class="fas" [class.fa-bars]="isSidebarCollapsed" [class.fa-times]="!isSidebarCollapsed"></i>
+          </button>
+          <div class="tab-content" [class.content-animated]="!isAnimating">
             <!-- Banner Slider Tab -->
             <div class="tab-pane fade show active" id="banners">
               <div class="content-card">
@@ -183,7 +191,7 @@
             </div>
 
             <!-- Events Tab -->
-            <div class="tab-pane fade" id="events">
+            <div class="tab-pane fade" id="events" [class.tab-active]="activeTab === 'events'">
               <div class="content-card">
                 <h2>Add New Event</h2>
                 <form (ngSubmit)="addEvent()">
@@ -239,7 +247,7 @@
             </div>
 
             <!-- News Tab -->
-            <div class="tab-pane fade" id="news">
+            <div class="tab-pane fade" id="news" [class.tab-active]="activeTab === 'news'">
               <div class="content-card">
                 <h2>Manage News</h2>
                 <button class="btn btn-primary mb-3" (click)="addNews()">Add News</button>
@@ -268,7 +276,7 @@
             </div>
 
             <!-- Courses Tab -->
-            <div class="tab-pane fade" id="courses">
+            <div class="tab-pane fade" id="courses" [class.tab-active]="activeTab === 'courses'">
               <div class="content-card">
                 <h2>Manage Courses</h2>
                 <button class="btn btn-primary mb-3" (click)="addCourse()">Add Course</button>
@@ -299,7 +307,7 @@
             </div>
 
             <!-- About Page Tab -->
-            <div class="tab-pane fade" id="about">
+            <div class="tab-pane fade" id="about" [class.tab-active]="activeTab === 'about'">
               <div class="content-card">
                 <h2>Manage About Page</h2>
                 <p class="text-muted">Manage all content displayed on the About page including vision, mission, BEO profile, organization structure, and staff details.</p>
@@ -570,22 +578,153 @@
             </div>
 
             <!-- Gallery Tab -->
-            <div class="tab-pane fade" id="gallery" role="tabpanel">
+            <div class="tab-pane fade" id="gallery" role="tabpanel" [class.tab-active]="activeTab === 'gallery'">
               <app-admin-gallery></app-admin-gallery>
             </div>
 
             <!-- Downloads Tab -->
-            <div class="tab-pane fade" id="downloads" role="tabpanel">
+            <div class="tab-pane fade" id="downloads" role="tabpanel" [class.tab-active]="activeTab === 'downloads'">
               <app-admin-downloads></app-admin-downloads>
             </div>
 
             <!-- Schools Tab -->
-            <div class="tab-pane fade" id="schools" role="tabpanel">
+            <div class="tab-pane fade" id="schools" role="tabpanel" [class.tab-active]="activeTab === 'schools'">
               <app-admin-school></app-admin-school>
             </div>
 
+            <!-- Page Backgrounds Tab -->
+            <div class="tab-pane fade" id="pageBackgrounds" [class.tab-active]="activeTab === 'pageBackgrounds'">
+              <div class="content-card">
+                <h2>Manage Page Background Images</h2>
+                <p class="text-muted">Upload background images for different pages (About, Contact, Courses, Events, Blog, Gallery, Search School, Downloads). These backgrounds will appear as banner sections on each page similar to the home page slider.</p>
+
+                <!-- Page Selection -->
+                <div class="page-bg-form-card" [class.edit-mode]="editingPageBackgroundId">
+                  <h4>
+                    <i class="fas" [class.fa-plus-circle]="!editingPageBackgroundId" [class.fa-edit]="editingPageBackgroundId"></i> 
+                    {{ editingPageBackgroundId ? 'Edit Background' : 'Upload Background Image' }}
+                  </h4>
+                  <div *ngIf="editingPageBackgroundId" class="edit-mode-badge">
+                    <span>You are editing a background. </span>
+                    <button type="button" class="btn btn-link btn-sm p-0" (click)="resetPageBackgroundForm()">Cancel edit</button>
+                  </div>
+                  
+                  <div class="form-group mb-4">
+                    <label>Select Page <span class="text-danger">*</span></label>
+                    <select class="form-select" [value]="selectedPageName" (change)="onPageChange($event)" [disabled]="editingPageBackgroundId">
+                      <option *ngFor="let page of pageOptions" [value]="page.value">
+                        {{ page.label }}
+                      </option>
+                    </select>
+                    <small class="text-muted">Choose which page you want to set the background image for</small>
+                  </div>
+
+                  <!-- Current Background Preview -->
+                  <div *ngIf="pageBackgroundImagePreview || existingPageBackgroundImage" class="current-bg-preview mb-4">
+                    <label>Current Background:</label>
+                    <div class="bg-preview-container">
+                      <img [src]="pageBackgroundImagePreview || existingPageBackgroundImage" alt="Current background" class="img-thumbnail" style="max-height: 200px; width: 100%; object-fit: cover;">
+                      <button type="button" class="btn btn-sm btn-danger remove-bg-btn" (click)="clearPageBackgroundImage()">
+                        <i class="fas fa-times"></i> Remove
+                      </button>
+                    </div>
+                  </div>
+
+                  <!-- Title and Subtitle -->
+                  <div class="row">
+                    <div class="col-md-6">
+                      <div class="form-group mb-3">
+                        <label>Banner Title</label>
+                        <input type="text" [(ngModel)]="pageBackgroundTitle" class="form-control" placeholder="e.g., About Our School">
+                      </div>
+                    </div>
+                    <div class="col-md-6">
+                      <div class="form-group mb-3">
+                        <label>Banner Subtitle</label>
+                        <input type="text" [(ngModel)]="pageBackgroundSubtitle" class="form-control" placeholder="e.g., Excellence in Education">
+                      </div>
+                    </div>
+                  </div>
+
+                  <!-- Image Upload -->
+                  <div class="form-group mb-3">
+                    <label>Background Image <span class="text-danger">*</span></label>
+                    <input type="file" (change)="onPageBackgroundImageSelected($event)" class="form-control" accept="image/*">
+                    <div class="page-bg-size-note mt-2">
+                      <i class="fas fa-info-circle"></i>
+                      <strong> Recommended size: {{ PAGE_BACKGROUND_WIDTH }} x {{ PAGE_BACKGROUND_HEIGHT }} pixels (16:10 ratio)</strong>
+                    </div>
+                    <small class="text-muted d-block">Leave empty to keep the current image</small>
+                    <div *ngIf="pageBackgroundSizeError" class="alert alert-danger mt-2 py-2" role="alert">
+                      <i class="fas fa-exclamation-triangle"></i> {{ pageBackgroundSizeError }}
+                    </div>
+                  </div>
+
+                  <button class="btn btn-primary" (click)="savePageBackground()">
+                    <i class="fas" [class.fa-plus]="!editingPageBackgroundId" [class.fa-save]="editingPageBackgroundId"></i>
+                    {{ editingPageBackgroundId ? 'Update Background' : 'Save Background' }}
+                  </button>
+                </div>
+
+                <!-- Existing Page Backgrounds -->
+                <h4 class="mt-4"><i class="fas fa-layer-group"></i> Configured Page Backgrounds ({{pageBackgrounds.length}})</h4>
+                <div *ngIf="pageBackgrounds.length === 0" class="alert alert-info">
+                  <i class="fas fa-info-circle"></i> No page backgrounds configured yet. Upload backgrounds for pages above!
+                </div>
+                <div class="table-responsive" *ngIf="pageBackgrounds.length > 0">
+                  <table class="table">
+                    <thead>
+                      <tr>
+                        <th>Page</th>
+                        <th>Title</th>
+                        <th>Subtitle</th>
+                        <th>Background Image</th>
+                        <th>Status</th>
+                        <th>Actions</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      <tr *ngFor="let pb of pageBackgrounds" [class.inactive-row]="!pb.isActive">
+                        <td>
+                          <span class="page-badge">
+                            <i class="fas" [class]="getPageIcon(pb.pageName)"></i>
+                            {{ pb.pageName | titlecase }}
+                          </span>
+                        </td>
+                        <td>{{ pb.title || '-' }}</td>
+                        <td>{{ pb.subtitle || '-' }}</td>
+                        <td>
+                          <div class="bg-thumb">
+                            <img *ngIf="pb.backgroundImage" [src]="pb.backgroundImage" alt="Background" style="max-height: 50px;">
+                            <span *ngIf="!pb.backgroundImage" class="text-muted">No image</span>
+                          </div>
+                        </td>
+                        <td>
+                          <span class="badge" [class.bg-success]="pb.isActive" [class.bg-secondary]="!pb.isActive">
+                            {{ pb.isActive ? 'Active' : 'Inactive' }}
+                          </span>
+                        </td>
+                        <td>
+                          <button class="btn btn-sm btn-primary me-1" (click)="editPageBackground(pb)">
+                            <i class="fas fa-edit"></i>
+                          </button>
+                          <button class="btn btn-sm" [class.btn-success]="!pb.isActive" [class.btn-warning]="pb.isActive" (click)="togglePageBackgroundStatus(pb)">
+                            <i class="fas" [class.fa-eye]="!pb.isActive" [class.fa-eye-slash]="pb.isActive"></i>
+                            {{ pb.isActive ? 'Deactivate' : 'Activate' }}
+                          </button>
+                          <button class="btn btn-sm btn-danger ms-1" (click)="deletePageBackground(pb._id || pb.pageName)">
+                            <i class="fas fa-trash"></i>
+                          </button>
+                        </td>
+                      </tr>
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+            </div>
+
             <!-- Announcements Tab -->
-            <div class="tab-pane fade" id="announcements">
+            <div class="tab-pane fade" id="announcements" [class.tab-active]="activeTab === 'announcements'">
               <div class="content-card">
                 <h2>Manage Latest Announcements</h2>
                 <p class="text-muted">Add, edit, or remove announcements that appear on the home page Latest Announcements section.</p>

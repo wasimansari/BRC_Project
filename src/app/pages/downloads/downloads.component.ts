@@ -1,5 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { DownloadService } from '../../services/download.service';
+import { PageBackgroundService, PageBackground } from '../../services/page-background.service';
 import { HeaderComponent } from '../../components/header/header.component';
 import { FooterComponent } from '../../components/footer/footer.component';
 
@@ -34,12 +35,34 @@ export class DownloadsPageComponent implements OnInit {
   activeCategory = 'all';
   loading = true;
   error = '';
+  
+  // Page background properties
+  pageBackground: PageBackground | null = null;
+  pageBackgroundLoading = true;
 
-  constructor(private downloadService: DownloadService) {}
+  constructor(
+    private downloadService: DownloadService,
+    private pageBackgroundService: PageBackgroundService
+  ) {}
 
   ngOnInit() {
     this.loadDownloads();
     this.loadCategories();
+    this.loadPageBackground();
+  }
+
+  loadPageBackground() {
+    this.pageBackgroundLoading = true;
+    this.pageBackgroundService.getPageBackground('downloads').subscribe({
+      next: (data) => {
+        this.pageBackground = data;
+        this.pageBackgroundLoading = false;
+      },
+      error: (err) => {
+        console.error('Error loading page background:', err);
+        this.pageBackgroundLoading = false;
+      }
+    });
   }
 
   loadDownloads() {

@@ -1,6 +1,7 @@
 .admin-dashboard {
   min-height: 100vh;
   background-color: #f8f9fa;
+  
 }
 
 .dashboard-header {
@@ -26,6 +27,8 @@
   padding: 25px;
   box-shadow: 0 5px 15px rgba(0,0,0,0.1);
   margin-bottom: 20px;
+  /* Prevent content from squishing during collapse animation */
+  min-width: 250px;
 }
 
 .sidebar h3 {
@@ -358,4 +361,506 @@
 
 .input-group .btn {
   border-radius: 0 8px 8px 0;
+}
+
+/* Sidebar Toggle Functionality */
+.sidebar-toggle-btn {
+  background: transparent;
+  border: none;
+  color: #005fc5;
+  font-size: 1.5rem;
+  cursor: pointer;
+  padding: 0 10px 0 0;
+  line-height: 1;
+  transition: transform 0.3s ease;
+  z-index: 10;
+  position: absolute;
+  margin: 5px 0 0 5px;
+}
+
+.sidebar-toggle-btn:hover {
+  transform: scale(1.1);
+}
+
+.sidebar-toggle-btn i {
+  transition: transform 0.4s cubic-bezier(0.68, -0.55, 0.27, 1.55);
+}
+
+.admin-dashboard.sidebar-collapsed .sidebar-toggle-btn i {
+  transform: rotate(90deg);
+}
+
+.dashboard-header h1 {
+  font-size: 1.6rem;
+  transition: all 0.35s ease-in-out;
+}
+
+/* Container wrappers for transition */
+.sidebar-container, .content-container {
+  transition: max-width 0.4s ease-in-out, flex 0.4s ease-in-out, opacity 0.25s linear;
+}
+
+/* Collapsed state */
+.admin-dashboard.sidebar-collapsed .sidebar-container {
+  flex: 0 0 0;
+  max-width: 0;
+  padding: 0;
+  margin: 0;
+  overflow: hidden;
+  opacity: 0;
+  border: none;
+}
+
+.admin-dashboard.sidebar-collapsed .content-container {
+  flex: 0 0 100%;
+  max-width: 100%;
+}
+
+/* Ensure row doesn't have negative margins that cause overflow */
+.dashboard-content > .row {
+  margin-right: 0;
+  margin-left: 0;
+}
+
+/* ========== ENHANCED ANIMATIONS ========== */
+
+/* Sidebar toggle button */
+.sidebar-toggle-btn.desktop-toggle {
+  position: absolute;
+  top: 15px;
+  left: 15px;
+  z-index: 100;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  border: none;
+  width: 40px;
+  height: 40px;
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
+  transition: all 0.3s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+}
+
+.sidebar-toggle-btn.desktop-toggle:hover {
+  transform: scale(1.1) rotate(5deg);
+  box-shadow: 0 6px 20px rgba(102, 126, 234, 0.6);
+}
+
+.sidebar-toggle-btn.desktop-toggle.collapsed {
+  left: 15px;
+}
+
+.sidebar-toggle-btn.desktop-toggle i {
+  transition: transform 0.4s cubic-bezier(0.68, -0.55, 0.27, 1.55);
+}
+
+.sidebar-toggle-btn.desktop-toggle.collapsed i {
+  transform: rotate(0deg);
+}
+
+.sidebar-toggle-btn.desktop-toggle:not(.collapsed) i {
+  transform: rotate(90deg);
+}
+
+/* Header animation */
+.dashboard-header {
+  transition: all 0.4s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+}
+
+.dashboard-header.header-expanded {
+  padding-left: 20px;
+}
+
+/* Tab content animation */
+.tab-content {
+  transition: all 0.4s ease-in-out;
+  opacity: 1;
+}
+
+.tab-content.content-animated {
+  animation: fadeInContent 0.5s ease-out;
+}
+
+@keyframes fadeInContent {
+  from {
+    opacity: 0;
+    transform: translateX(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+/* Tab pane active animation */
+.tab-pane {
+  opacity: 0;
+  transform: translateY(15px);
+  transition: all 0.4s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+}
+
+.tab-pane.tab-active {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.tab-pane.show.active {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+/* Content card entrance animation */
+.content-card {
+  animation: cardEntrance 0.5s ease-out;
+  opacity: 1;
+}
+
+@keyframes cardEntrance {
+  from {
+    opacity: 0;
+    transform: translateY(30px) scale(0.95);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+/* Card hover effects */
+.content-card {
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.content-card:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.15) !important;
+}
+
+/* Sidebar nav link animations */
+.sidebar .nav-link {
+  position: relative;
+  overflow: hidden;
+  transition: all 0.3s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+}
+
+.sidebar .nav-link::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
+  transition: left 0.5s ease;
+}
+
+.sidebar .nav-link:hover::before {
+  left: 100%;
+}
+
+.sidebar .nav-link .nav-text {
+  display: inline;
+  transition: all 0.3s ease;
+}
+
+.admin-dashboard.sidebar-collapsed .sidebar .nav-link .nav-text {
+  display: none;
+  opacity: 0;
+  width: 0;
+}
+
+/* Sidebar collapse animation */
+.sidebar-container {
+  transition: all 0.4s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+  overflow: hidden;
+}
+
+.admin-dashboard.sidebar-animating .sidebar-container {
+  transition: all 0.5s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+}
+
+/* Content container animation */
+.content-container {
+  transition: all 0.4s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+}
+
+.admin-dashboard.sidebar-animating .content-container {
+  transition: all 0.5s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+}
+
+/* Form card entrance animation */
+.banner-form-card,
+.about-section-card {
+  animation: slideInForm 0.5s ease-out;
+}
+
+@keyframes slideInForm {
+  from {
+    opacity: 0;
+    transform: translateX(-20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+/* Banner cards staggered animation */
+.banner-card {
+  animation: staggerFadeIn 0.5s ease-out backwards;
+}
+
+.banner-card:nth-child(1) { animation-delay: 0.1s; }
+.banner-card:nth-child(2) { animation-delay: 0.2s; }
+.banner-card:nth-child(3) { animation-delay: 0.3s; }
+.banner-card:nth-child(4) { animation-delay: 0.4s; }
+.banner-card:nth-child(5) { animation-delay: 0.5s; }
+.banner-card:nth-child(6) { animation-delay: 0.6s; }
+
+@keyframes staggerFadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Table row hover animation */
+.table tbody tr {
+  transition: all 0.3s ease;
+}
+
+.table tbody tr:hover {
+  background: linear-gradient(90deg, rgba(102, 126, 234, 0.05) 0%, rgba(118, 75, 162, 0.05) 100%);
+  transform: translateX(5px);
+}
+
+/* Button hover effects */
+.btn {
+  transition: all 0.3s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+}
+
+.btn:hover {
+  transform: translateY(-2px);
+}
+
+.btn:active {
+  transform: translateY(0);
+}
+
+/* Form controls focus animation */
+.form-control:focus,
+.form-select:focus {
+  animation: inputFocus 0.3s ease;
+}
+
+@keyframes inputFocus {
+  0% {
+    box-shadow: 0 0 0 3px rgba(0, 123, 255, 0.1);
+  }
+  50% {
+    box-shadow: 0 0 0 5px rgba(0, 123, 255, 0.2);
+  }
+  100% {
+    box-shadow: 0 0 0 3px rgba(0, 123, 255, 0.1);
+  }
+}
+
+/* Success/Error message animations */
+.alert {
+  animation: alertSlide 0.4s ease-out;
+}
+
+@keyframes alertSlide {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Staff avatar animation */
+.staff-avatar-small {
+  transition: transform 0.3s ease;
+}
+
+.staff-avatar-small:hover {
+  transform: scale(1.1);
+}
+
+/* Badge pulse animation */
+.badge {
+  animation: badgePulse 2s infinite;
+}
+
+@keyframes badgePulse {
+  0%, 100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.8;
+  }
+}
+
+/* Responsive mobile toggle */
+@media (max-width: 768px) {
+  .sidebar-toggle-btn.desktop-toggle {
+    display: flex;
+    top: 10px;
+    left: 10px;
+    width: 36px;
+    height: 36px;
+    font-size: 14px;
+  }
+  
+  .dashboard-header {
+    padding: 15px;
+  }
+  
+  .dashboard-header h1 {
+    font-size: 1.3rem;
+  }
+  
+  .content-card {
+    padding: 15px;
+  }
+  
+  .content-card h2 {
+    font-size: 1.2rem;
+  }
+}
+
+/* ========== Page Background Management Styles ========== */
+.page-bg-form-card {
+  background: white;
+  border-radius: 15px;
+  padding: 25px;
+  box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+  margin-bottom: 20px;
+}
+
+.page-bg-form-card h4 {
+  color: #2c3e50;
+  margin-bottom: 20px;
+  font-weight: 600;
+}
+
+.page-bg-form-card h4 i {
+  color: #16a085;
+  margin-right: 10px;
+}
+
+.page-bg-size-note {
+  background: #e8f5e9;
+  color: #2e7d32;
+  padding: 8px 12px;
+  border-radius: 8px;
+  font-size: 13px;
+}
+
+.page-bg-size-note i {
+  margin-right: 8px;
+}
+
+.current-bg-preview {
+  background: #f8f9fa;
+  padding: 15px;
+  border-radius: 10px;
+  border: 2px dashed #dee2e6;
+}
+
+.current-bg-preview label {
+  font-weight: 600;
+  color: #495057;
+  margin-bottom: 10px;
+  display: block;
+}
+
+.bg-preview-container {
+  position: relative;
+  display: inline-block;
+}
+
+.bg-preview-container img {
+  border-radius: 8px;
+}
+
+.remove-bg-btn {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+}
+
+.page-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  background: linear-gradient(135deg, #16a085, #1abc9c);
+  color: white;
+  padding: 6px 12px;
+  border-radius: 20px;
+  font-size: 13px;
+  font-weight: 500;
+}
+
+.page-badge i {
+  font-size: 12px;
+}
+
+.bg-thumb {
+  width: 80px;
+  height: 50px;
+  overflow: hidden;
+  border-radius: 6px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #f8f9fa;
+}
+
+.bg-thumb img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.table .page-badge {
+  font-size: 12px;
+  padding: 4px 10px;
+}
+
+/* Form select for page selection */
+.page-bg-form-card .form-select {
+  border: 2px solid #e9ecef;
+  border-radius: 10px;
+  padding: 12px 15px;
+  font-size: 15px;
+  transition: all 0.3s ease;
+}
+
+.page-bg-form-card .form-select:focus {
+  border-color: #16a085;
+  box-shadow: 0 0 0 3px rgba(22, 160, 133, 0.1);
+}
+
+/* Input styling */
+.page-bg-form-card .form-control {
+  border: 2px solid #e9ecef;
+  border-radius: 10px;
+  padding: 12px 15px;
+  transition: all 0.3s ease;
+}
+
+.page-bg-form-card .form-control:focus {
+  border-color: #16a085;
+  box-shadow: 0 0 0 3px rgba(22, 160, 133, 0.1);
 }

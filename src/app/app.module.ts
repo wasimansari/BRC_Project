@@ -1,4 +1,6 @@
 import { NgModule } from '@angular/core';
+import { ScrollAnimateDirective } from './core/directives/scroll-animate.directive';
+import { SmoothScrollDirective } from './core/directives/smooth-scroll.directive';
 import { BrowserModule } from '@angular/platform-browser';
 import { HttpClientModule, HTTP_INTERCEPTORS } from '@angular/common/http';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
@@ -59,7 +61,9 @@ import { AppComponent } from './app.component';
     AdminSignupComponent,
     AdminGalleryComponent,
     AdminDownloadsComponent,
-    AdminSchoolComponent
+    AdminSchoolComponent,
+    ScrollAnimateDirective,
+    SmoothScrollDirective
   ],
   imports: [
     BrowserModule,

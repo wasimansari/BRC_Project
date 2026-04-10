@@ -1,57 +1,214 @@
-.events-section {
-  background-color: #f9fbfd;
+/* Events Banner Styles */
+.events-banner {
+  position: relative;
+  min-height: 450px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-image: url('/assets/images/events/cultural-festival.webp');
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+  margin-top: 70px;
+  overflow: hidden;
 }
 
-.section-title {
-  font-size: 36px;
+/* Animated background shapes */
+.events-banner::before {
+  content: '';
+  position: absolute;
+  top: -20%;
+  right: -10%;
+  width: 500px;
+  height: 500px;
+  background: radial-gradient(circle, rgba(26, 188, 156, 0.3) 0%, transparent 70%);
+  border-radius: 50%;
+  animation: float 6s ease-in-out infinite;
+}
+
+.events-banner::after {
+  content: '';
+  position: absolute;
+  bottom: -15%;
+  left: -5%;
+  width: 400px;
+  height: 400px;
+  background: radial-gradient(circle, rgba(22, 160, 133, 0.25) 0%, transparent 70%);
+  border-radius: 50%;
+  animation: float 8s ease-in-out infinite reverse;
+}
+
+.events-banner-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(135deg, rgba(22, 160, 133, 0.92) 0%, rgba(14, 111, 92, 0.88) 100%);
+}
+
+.events-banner-content {
+  position: relative;
+  z-index: 10;
+  padding: 60px 20px;
+  text-align: center;
+}
+
+.events-banner-title {
+  font-size: 3.5rem;
+  font-weight: 800;
+  color: white;
+  margin-bottom: 15px;
+  text-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+  opacity: 0;
+  transform: translateY(30px);
+  animation: fadeInUp 0.8s cubic-bezier(0.215, 0.61, 0.355, 1) forwards;
+}
+
+.events-banner-subtitle {
+  font-size: 1.3rem;
+  color: rgba(255, 255, 255, 0.95);
+  margin-bottom: 30px;
+  max-width: 600px;
+  margin-left: auto;
+  margin-right: auto;
+  opacity: 0;
+  transform: translateY(30px);
+  animation: fadeInUp 0.8s cubic-bezier(0.215, 0.61, 0.355, 1) forwards;
+  animation-delay: 0.2s;
+}
+
+.events-banner .breadcrumb {
+  background: rgba(255, 255, 255, 0.15);
+  padding: 12px 25px;
+  border-radius: 30px;
+  display: inline-flex;
+  backdrop-filter: blur(10px);
+  opacity: 0;
+  transform: translateY(30px);
+  animation: fadeInUp 0.8s cubic-bezier(0.215, 0.61, 0.355, 1) forwards;
+  animation-delay: 0.4s;
+}
+
+.events-banner .breadcrumb-item {
+  font-size: 1rem;
+  color: rgba(255, 255, 255, 0.9);
+}
+
+.events-banner .breadcrumb-item a {
+  color: white;
+  text-decoration: none;
+  transition: color 0.3s ease;
+}
+
+.events-banner .breadcrumb-item a:hover {
+  color: #ffae27;
+}
+
+.events-banner .breadcrumb-item + .breadcrumb-item::before {
+  content: "\f105";
+  font-family: 'Font Awesome 6 Free';
+  font-weight: 900;
+  color: rgba(255, 255, 255, 0.7);
+  padding: 0 12px;
+}
+
+.events-banner .breadcrumb-item.active {
+  color: white;
+  font-weight: 600;
+}
+
+/* Events Section - Premium Autoguru Style */
+.events-section {
+  background-color: #f8f9fa;
+  position: relative;
+  overflow: hidden;
+}
+
+.events-section::before {
+  content: '';
+  position: absolute;
+  bottom: -20%;
+  left: -10%;
+  width: 400px;
+  height: 400px;
+  background: radial-gradient(circle, rgba(22, 160, 133, 0.08) 0%, transparent 70%);
+  border-radius: 50%;
+}
+
+.events-section .section-title {
+  font-size: 2.5rem;
   font-weight: 700;
-  color: #333;
+  color: #2c3e50;
   margin-bottom: 15px;
   position: relative;
   display: inline-block;
 }
 
-.section-title::after {
+.events-section .section-title::after {
   content: '';
   position: absolute;
-  bottom: -10px;
+  bottom: -12px;
   left: 50%;
   transform: translateX(-50%);
   width: 60px;
-  height: 3px;
-  background: linear-gradient(to right, #16a085, #1abc9c);
+  height: 4px;
+  background: linear-gradient(90deg, #16a085, #1abc9c);
+  border-radius: 2px;
 }
 
-.section-subtitle {
+.events-section .section-subtitle {
   font-size: 16px;
-  color: #777;
+  color: #6c757d;
   margin-bottom: 50px;
 }
 
 .event-card {
   background: white;
-  border-radius: 15px;
+  border-radius: 20px;
   overflow: hidden;
-  box-shadow: 0 10px 40px rgba(0,0,0,0.08);
-  transition: all 0.4s ease;
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.08);
+  transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
   height: 100%;
-  border: 1px solid rgba(0,0,0,0.05);
+  border: 1px solid rgba(0, 0, 0, 0.05);
 }
 
 .event-card:hover {
   transform: translateY(-15px);
-  box-shadow: 0 20px 60px rgba(26, 188, 156, 0.15);
+  box-shadow: 0 25px 60px rgba(22, 160, 133, 0.18);
+}
+
+.event-image-wrapper {
+  position: relative;
+  overflow: hidden;
 }
 
 .event-image {
   width: 100%;
   height: 200px;
   object-fit: cover;
-  transition: transform 0.4s ease;
+  transition: transform 0.5s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 .event-card:hover .event-image {
-  transform: scale(1.05);
+  transform: scale(1.1);
+}
+
+/* Overlay on hover */
+.event-image-wrapper::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(135deg, rgba(22, 160, 133, 0.2) 0%, transparent 60%);
+  opacity: 0;
+  transition: opacity 0.4s ease;
+}
+
+.event-card:hover .event-image-wrapper::after {
+  opacity: 1;
 }
 
 .event-content {
@@ -59,10 +216,12 @@
 }
 
 .event-date {
-  display: inline-block;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
   background: linear-gradient(135deg, #16a085, #1abc9c);
   color: white;
-  padding: 8px 20px;
+  padding: 10px 20px;
   border-radius: 50px;
   font-weight: 600;
   font-size: 13px;
@@ -71,28 +230,65 @@
   letter-spacing: 1px;
 }
 
+.event-date i {
+  font-size: 12px;
+}
+
 .event-title {
   font-size: 20px;
   font-weight: 700;
-  color: #333;
+  color: #2c3e50;
   margin-bottom: 15px;
   transition: color 0.3s ease;
+  line-height: 1.4;
 }
 
 .event-card:hover .event-title {
-  color: #1abc9c;
+  color: #16a085;
 }
 
 .event-description {
-  color: #666;
+  color: #6c757d;
   line-height: 1.7;
   margin-bottom: 20px;
   font-size: 14px;
 }
 
+.btn-event-details {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  color: #16a085;
+  font-weight: 600;
+  font-size: 14px;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  transition: all 0.3s ease;
+}
+
+.btn-event-details i {
+  font-size: 12px;
+  transition: transform 0.3s ease;
+}
+
+.btn-event-details:hover {
+  color: #0e6f5c;
+  gap: 15px;
+}
+
+.btn-event-details:hover i {
+  transform: translateX(5px);
+}
+
+@media (max-width: 992px) {
+  .events-section .section-title {
+    font-size: 2rem;
+  }
+}
+
 @media (max-width: 768px) {
-  .section-title {
-    font-size: 28px;
+  .events-section .section-title {
+    font-size: 1.75rem;
   }
   
   .event-title {

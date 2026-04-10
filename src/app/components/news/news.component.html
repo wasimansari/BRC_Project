@@ -1,12 +1,12 @@
 <section id="blog" class="news-section section-padding">
   <div class="container">
-    <div class="text-center mb-5">
+    <div class="text-center mb-5" appScrollAnimate animationType="fadeInUp" [animationDelay]="0">
       <h2 class="section-title">LATEST NEWS</h2>
       <p class="section-subtitle">Stay updated with our latest announcements and events</p>
     </div>
     
     <div class="row">
-      <div *ngFor="let item of news" class="col-lg-4 col-md-6 mb-4">
+      <div *ngFor="let item of news; let i = index" class="col-lg-4 col-md-6 mb-4" appScrollAnimate [animationType]="'fadeInUp'" [animationDelay]="0.1 * (i + 1)">
         <div class="news-card">
           <img [src]="item.image" [alt]="item.title" class="news-image">
           <div class="news-content">

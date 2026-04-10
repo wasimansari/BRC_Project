@@ -7,6 +7,7 @@ import { CourseService, Course } from '../../services/course.service';
 import { AuthService } from '../../services/auth.service';
 import { AboutService, AboutContent, BEOProfile, OrgStructure, StaffMember } from '../../services/about.service';
 import { AnnouncementService, Announcement } from '../../services/announcement.service';
+import { PageBackgroundService, PageBackground } from '../../services/page-background.service';
 import { app_constants } from '../../../constant';
 
 @Component({
@@ -16,6 +17,10 @@ import { app_constants } from '../../../constant';
 })
 export class AdminDashboardComponent implements OnInit {
   isSidebarCollapsed = false;
+  
+  // Animation state for content cards
+  activeTab = 'banners';
+  isAnimating = false;
 
   adminDashboard = app_constants.adminDashboard;
   selectedFile: File | null = null;
@@ -133,6 +138,31 @@ export class AdminDashboardComponent implements OnInit {
   // Month options
   monthOptions = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
 
+  // Page Background properties
+  pageBackgrounds: PageBackground[] = [];
+  selectedPageName = 'about';
+  pageBackgroundTitle = '';
+  pageBackgroundSubtitle = '';
+  pageBackgroundImage: File | null = null;
+  pageBackgroundImagePreview: string | null = null;
+  editingPageBackgroundId: string | null = null;
+  existingPageBackgroundImage: string | null = null;
+  pageBackgroundSizeError = '';
+  readonly PAGE_BACKGROUND_WIDTH = 1920;
+  readonly PAGE_BACKGROUND_HEIGHT = 600;
+
+  // Page options for background management
+  pageOptions = [
+    { value: 'about', label: 'About', icon: 'fa-info-circle' },
+    { value: 'contact', label: 'Contact', icon: 'fa-envelope' },
+    { value: 'courses', label: 'Courses', icon: 'fa-book' },
+    { value: 'events', label: 'Events', icon: 'fa-calendar-alt' },
+    { value: 'blog', label: 'Blog', icon: 'fa-newspaper' },
+    { value: 'gallery', label: 'Gallery', icon: 'fa-images' },
+    { value: 'searchSchool', label: 'Search School', icon: 'fa-school' },
+    { value: 'downloads', label: 'Downloads', icon: 'fa-download' }
+  ];
+
   constructor(
     private router: Router,
     private bannerService: BannerService,
@@ -141,7 +171,8 @@ export class AdminDashboardComponent implements OnInit {
     private courseService: CourseService,
     private authService: AuthService,
     private aboutService: AboutService,
-    private announcementService: AnnouncementService
+    private announcementService: AnnouncementService,
+    private pageBackgroundService: PageBackgroundService
   ) {}
 
   ngOnInit() {
@@ -152,10 +183,20 @@ export class AdminDashboardComponent implements OnInit {
     this.loadBanners();
     this.loadAboutContent();
     this.loadAnnouncements();
+    this.loadPageBackgrounds();
   }
 
   toggleSidebar() {
+    this.isAnimating = true;
     this.isSidebarCollapsed = !this.isSidebarCollapsed;
+    setTimeout(() => {
+      this.isAnimating = false;
+    }, 400);
+  }
+
+  // Set active tab for animation tracking
+  setActiveTab(tab: string) {
+    this.activeTab = tab;
   }
 
   // Announcement Methods
@@ -339,6 +380,204 @@ export class AdminDashboardComponent implements OnInit {
 
   cancelAnnouncementEdit() {
     this.resetAnnouncementForm();
+  }
+
+  // Page Background Methods
+  loadPageBackgrounds() {
+    this.pageBackgroundService.getAllPageBackgrounds().subscribe({
+      next: (data) => {
+        this.pageBackgrounds = data;
+        this.pageBackgroundService.saveToLocalStorage(data);
+      },
+      error: (err) => {
+        console.error('Error loading page backgrounds:', err);
+        const stored = this.pageBackgroundService.getFromLocalStorage();
+        if (stored) {
+          this.pageBackgrounds = stored;
+        }
+      }
+    });
+  }
+
+  onPageBackgroundImageSelected(event: any) {
+    this.pageBackgroundImage = event.target.files[0];
+    this.pageBackgroundSizeError = '';
+
+    if (this.pageBackgroundImage) {
+      const reader = new FileReader();
+      reader.onload = (e: any) => {
+        const img = new Image();
+        img.onload = () => {
+          const width = img.width;
+          const height = img.height;
+          
+          const widthTolerance = 100;
+          const heightTolerance = 100;
+          
+          if (Math.abs(width - this.PAGE_BACKGROUND_WIDTH) > widthTolerance || 
+              Math.abs(height - this.PAGE_BACKGROUND_HEIGHT) > heightTolerance) {
+            this.pageBackgroundSizeError = `Image size should be around ${this.PAGE_BACKGROUND_WIDTH}x${this.PAGE_BACKGROUND_HEIGHT}px. Current: ${width}x${height}px`;
+            this.pageBackgroundImage = null;
+            this.pageBackgroundImagePreview = null;
+            event.target.value = '';
+            return;
+          } else {
+            this.pageBackgroundImagePreview = e.target.result;
+          }
+        };
+        
+        img.onerror = () => {
+          this.pageBackgroundSizeError = 'Unable to load image. Please choose a valid image file.';
+          this.pageBackgroundImage = null;
+          this.pageBackgroundImagePreview = null;
+          event.target.value = '';
+        };
+        img.src = e.target.result;
+      };
+      reader.readAsDataURL(this.pageBackgroundImage);
+    }
+  }
+
+  onPageChange(event: any) {
+    const select = event.target as HTMLSelectElement;
+    this.selectedPageName = select.value;
+    this.resetPageBackgroundForm();
+    
+    // Load existing background for this page
+    const existing = this.pageBackgrounds.find(pb => pb.pageName === this.selectedPageName);
+    if (existing) {
+      this.editingPageBackgroundId = existing._id || null;
+      this.pageBackgroundTitle = existing.title || '';
+      this.pageBackgroundSubtitle = existing.subtitle || '';
+      this.existingPageBackgroundImage = existing.backgroundImage || null;
+      this.pageBackgroundImagePreview = existing.backgroundImage || null;
+    }
+  }
+
+  savePageBackground() {
+    if (this.pageBackgroundImage && this.pageBackgroundSizeError) {
+      alert('Please fix the image dimension error before saving');
+      return;
+    }
+
+    const pageBackground: Partial<PageBackground> = {
+      pageName: this.selectedPageName,
+      title: this.pageBackgroundTitle,
+      subtitle: this.pageBackgroundSubtitle,
+      backgroundImage: this.existingPageBackgroundImage || '',
+      isActive: true
+    };
+
+    this.pageBackgroundService.savePageBackground(pageBackground, this.pageBackgroundImage || undefined).subscribe({
+      next: (response) => {
+        const index = this.pageBackgrounds.findIndex(pb => pb.pageName === this.selectedPageName);
+        if (index >= 0) {
+          this.pageBackgrounds[index] = response;
+        } else {
+          this.pageBackgrounds.push(response);
+        }
+        this.pageBackgroundService.saveToLocalStorage(this.pageBackgrounds);
+        this.resetPageBackgroundForm();
+        alert('Page background saved successfully!');
+      },
+      error: (err) => {
+        console.error('Error saving page background:', err);
+        alert('Error saving page background');
+      }
+    });
+  }
+
+  resetPageBackgroundForm() {
+    this.pageBackgroundImage = null;
+    this.pageBackgroundImagePreview = null;
+    this.existingPageBackgroundImage = null;
+    this.editingPageBackgroundId = null;
+    this.pageBackgroundTitle = '';
+    this.pageBackgroundSubtitle = '';
+    this.pageBackgroundSizeError = '';
+  }
+
+  clearPageBackgroundImage() {
+    this.pageBackgroundImage = null;
+    this.pageBackgroundImagePreview = null;
+    this.existingPageBackgroundImage = null;
+  }
+
+  editPageBackground(pb: PageBackground) {
+    // Set the selected page to this background's page
+    this.selectedPageName = pb.pageName;
+    this.editingPageBackgroundId = pb._id || null;
+    this.pageBackgroundTitle = pb.title || '';
+    this.pageBackgroundSubtitle = pb.subtitle || '';
+    this.existingPageBackgroundImage = pb.backgroundImage || null;
+    this.pageBackgroundImagePreview = pb.backgroundImage || null;
+    this.pageBackgroundImage = null;
+    
+    // Scroll to form
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }
+
+  togglePageBackgroundStatus(pb: PageBackground) {
+    const id = pb._id || pb.pageName;
+    if (!id) return;
+
+    this.pageBackgroundService.getPageBackground(pb.pageName).subscribe({
+      next: (background) => {
+        // Toggle isActive status
+        const updatedBackground = {
+          ...background,
+          isActive: !background.isActive
+        };
+        
+        this.pageBackgroundService.savePageBackground(updatedBackground).subscribe({
+          next: (response) => {
+            const index = this.pageBackgrounds.findIndex(p => p.pageName === pb.pageName);
+            if (index >= 0) {
+              this.pageBackgrounds[index] = response;
+            }
+            this.pageBackgroundService.saveToLocalStorage(this.pageBackgrounds);
+            alert(`Page background ${response.isActive ? 'activated' : 'deactivated'} successfully!`);
+          },
+          error: (err) => {
+            console.error('Error toggling page background status:', err);
+            alert('Error updating page background status');
+          }
+        });
+      },
+      error: (err) => {
+        console.error('Error fetching page background:', err);
+        alert('Error fetching page background');
+      }
+    });
+  }
+
+  deletePageBackground(id: string) {
+    if (!id) return;
+    
+    if (confirm('Are you sure you want to delete this page background?')) {
+      this.pageBackgroundService.deletePageBackground(id).subscribe({
+        next: () => {
+          this.pageBackgrounds = this.pageBackgrounds.filter(pb => (pb._id || pb.pageName) !== id);
+          this.pageBackgroundService.saveToLocalStorage(this.pageBackgrounds);
+          
+          // Reset form if we deleted the currently selected background
+          if (this.editingPageBackgroundId === id) {
+            this.resetPageBackgroundForm();
+          }
+          
+          alert('Page background deleted successfully!');
+        },
+        error: (err) => {
+          console.error('Error deleting page background:', err);
+          alert('Error deleting page background');
+        }
+      });
+    }
+  }
+
+  getPageIcon(pageName: string): string {
+    const page = this.pageOptions.find(p => p.value === pageName);
+    return page?.icon || 'fa-file';
   }
 
   // Handle announcement image selection

@@ -1,2 +1,14 @@
 <router-outlet></router-outlet>
 <app-footer></app-footer>
+
+<!-- Scroll to Top Button -->
+<button 
+  *ngIf="showScrollTop" 
+  class="scroll-to-top-btn" 
+  (click)="scrollToTop()"
+  (keydown)="onKeyDown($event)"
+  tabindex="0"
+  role="button"
+  aria-label="Scroll to top">
+  <i class="fas fa-arrow-up"></i>
+</button>

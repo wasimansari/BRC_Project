@@ -1,14 +1,46 @@
 <app-header></app-header>
 
+@if (pageBackgroundLoading) {
+  <div class="loading-container" style="margin-top: 100px;">
+    <div class="spinner">
+      <div class="spinner-ring"></div>
+      <div class="spinner-ring"></div>
+      <div class="spinner-ring"></div>
+    </div>
+    <p class="loading-text">Loading...</p>
+  </div>
+} @else {
+<!-- Blog Banner -->
+<section class="blog-banner" appScrollAnimate animationType="fadeInUp" [style.background-image]="pageBackground?.backgroundImage ? 'url(' + pageBackground?.backgroundImage + ')' : ''">
+  <div class="blog-banner-overlay"></div>
+  <div class="blog-banner-content">
+    <div class="container">
+      <div class="row">
+        <div class="col-lg-12 text-center">
+          <h1 class="blog-banner-title">{{ pageBackground?.title || 'Latest News & Blog' }}</h1>
+          <p class="blog-banner-subtitle">{{ pageBackground?.subtitle || 'Stay updated with our latest announcements and educational insights' }}</p>
+          <nav aria-label="breadcrumb">
+            <ol class="breadcrumb justify-content-center">
+              <li class="breadcrumb-item"><a href="#">Home</a></li>
+              <li class="breadcrumb-item active" aria-current="page">Blog</li>
+            </ol>
+          </nav>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+}
+
 <section class="blog-page section-padding">
   <div class="container">
-    <div class="text-center mb-5">
-      <h1 class="page-title">Latest News & Blog</h1>
-      <p class="page-subtitle">Stay updated with our latest announcements and educational insights</p>
+    <div class="text-center mb-5" appScrollAnimate animationType="fadeInUp">
+      <h2 class="section-title">Latest Updates</h2>
+      <p class="section-subtitle">Discover the latest news and stories from our community</p>
     </div>
     
     <div class="row">
-      <div class="col-lg-4 col-md-6 mb-4">
+      <div class="col-lg-4 col-md-6 mb-4" appScrollAnimate animationType="fadeInUp" [animationDelay]="0">
         <div class="blog-card">
           <img src="assets/images/news/science-lab.webp" alt="Science Lab" class="blog-image">
           <div class="blog-content">
@@ -23,7 +55,7 @@
         </div>
       </div>
       
-      <div class="col-lg-4 col-md-6 mb-4">
+      <div class="col-lg-4 col-md-6 mb-4" appScrollAnimate animationType="fadeInUp" [animationDelay]="0.1">
         <div class="blog-card">
           <img src="assets/images/news/achievement-award.webp" alt="Achievement Awards" class="blog-image">
           <div class="blog-content">
@@ -38,7 +70,7 @@
         </div>
       </div>
       
-      <div class="col-lg-4 col-md-6 mb-4">
+      <div class="col-lg-4 col-md-6 mb-4" appScrollAnimate animationType="fadeInUp" [animationDelay]="0.2">
         <div class="blog-card">
           <img src="assets/images/news/summer-program.webp" alt="Summer Program" class="blog-image">
           <div class="blog-content">

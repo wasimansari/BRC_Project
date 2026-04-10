@@ -1,7 +1,7 @@
 <section class="testimonial-section section-padding">
   <div class="container">
     <div class="row justify-content-center">
-      <div class="col-lg-8">
+      <div class="col-lg-8" appScrollAnimate animationType="fadeInUp" [animationDelay]="0">
         <div id="testimonialCarousel" class="carousel slide" data-bs-ride="carousel" data-bs-interval="5000" data-bs-touch="true">
           <div class="carousel-inner">
             <div *ngFor="let testimonial of testimonials; let i = index" 

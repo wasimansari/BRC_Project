@@ -1,12 +1,12 @@
 <section class="library-section section-padding">
   <div class="container">
-    <div class="text-center mb-5">
+    <div class="text-center mb-5" appScrollAnimate animationType="fadeInUp" [animationDelay]="0">
       <h2 class="section-title">ONLINE LIBRARY</h2>
       <p class="section-subtitle">Access our extensive collection of educational resources</p>
     </div>
     
     <div class="row">
-      <div *ngFor="let item of libraryItems" class="col-lg-3 col-md-6 mb-4">
+      <div *ngFor="let item of libraryItems; let i = index" class="col-lg-3 col-md-6 mb-4" appScrollAnimate [animationType]="'fadeInUp'" [animationDelay]="0.1 * (i + 1)">
         <div class="library-card">
           <img [src]="item.image" [alt]="item.title" class="library-image">
           <div class="library-content">

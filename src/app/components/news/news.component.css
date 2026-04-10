@@ -1,111 +1,164 @@
+/* News Section - Premium Autoguru Style */
 .news-section {
   background-color: #ffffff;
+  position: relative;
+  overflow: hidden;
 }
 
-.section-title {
-  font-size: 36px;
+.news-section::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  right: 0;
+  width: 35%;
+  height: 100%;
+  background: linear-gradient(135deg, transparent 0%, rgba(22, 160, 133, 0.03) 100%);
+}
+
+.news-section .section-title {
+  font-size: 2.5rem;
   font-weight: 700;
-  color: #333;
+  color: #2c3e50;
   margin-bottom: 15px;
   position: relative;
   display: inline-block;
 }
 
-.section-title::after {
+.news-section .section-title::after {
   content: '';
   position: absolute;
-  bottom: -10px;
+  bottom: -12px;
   left: 50%;
   transform: translateX(-50%);
   width: 60px;
-  height: 3px;
-  background: linear-gradient(to right, #16a085, #1abc9c);
+  height: 4px;
+  background: linear-gradient(90deg, #16a085, #1abc9c);
+  border-radius: 2px;
 }
 
-.section-subtitle {
+.news-section .section-subtitle {
   font-size: 16px;
-  color: #777;
+  color: #6c757d;
   margin-bottom: 50px;
 }
 
 .news-card {
   background: white;
-  border-radius: 15px;
+  border-radius: 20px;
   overflow: hidden;
-  box-shadow: 0 10px 40px rgba(0,0,0,0.08);
-  transition: all 0.4s ease;
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.08);
+  transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
   height: 100%;
-  border: 1px solid rgba(0,0,0,0.05);
+  border: 1px solid rgba(0, 0, 0, 0.05);
 }
 
 .news-card:hover {
   transform: translateY(-15px);
-  box-shadow: 0 20px 60px rgba(26, 188, 156, 0.15);
+  box-shadow: 0 25px 60px rgba(22, 160, 133, 0.18);
+}
+
+.news-image-wrapper {
+  position: relative;
+  overflow: hidden;
 }
 
 .news-image {
   width: 100%;
   height: 220px;
   object-fit: cover;
-  transition: transform 0.4s ease;
+  transition: transform 0.5s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 .news-card:hover .news-image {
-  transform: scale(1.05);
+  transform: scale(1.1);
+}
+
+/* Category badge */
+.news-category {
+  position: absolute;
+  top: 15px;
+  left: 15px;
+  background: linear-gradient(135deg, #16a085, #1abc9c);
+  color: white;
+  padding: 6px 16px;
+  border-radius: 20px;
+  font-size: 12px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
 }
 
 .news-content {
   padding: 30px;
 }
 
+.news-meta {
+  display: flex;
+  gap: 20px;
+  margin-bottom: 15px;
+  color: #6c757d;
+  font-size: 13px;
+}
+
+.news-meta i {
+  color: #16a085;
+  margin-right: 6px;
+}
+
 .news-title {
   font-size: 20px;
   font-weight: 700;
-  color: #333;
+  color: #2c3e50;
   margin-bottom: 15px;
   transition: color 0.3s ease;
+  line-height: 1.4;
 }
 
 .news-card:hover .news-title {
-  color: #1abc9c;
+  color: #16a085;
 }
 
 .news-description {
-  color: #666;
+  color: #6c757d;
   line-height: 1.7;
   margin-bottom: 20px;
   font-size: 14px;
 }
 
 .btn-primary {
-  background: #1F3971;
+  background: linear-gradient(135deg, #16a085, #1abc9c);
   color: white;
   padding: 14px 35px;
   border: none;
   border-radius: 50px;
   cursor: pointer;
   font-size: 13px;
-  /* font-weight: 600; */
+  font-weight: 600;
   text-transform: uppercase;
   letter-spacing: 1px;
   transition: all 0.4s ease;
   text-decoration: none;
   display: inline-block;
-  box-shadow: 0 5px 20px rgba(31, 57, 113, 0.3);
+  box-shadow: 0 5px 20px rgba(22, 160, 133, 0.3);
 }
 
 .btn-primary:hover {
-  background: #FFAE27;
+  background: linear-gradient(135deg, #1abc9c, #16a085);
   color: #ffffff;
   text-decoration: none;
-  transform: translateY(-2px);
-  box-shadow: 0 8px 25px rgba(255, 174, 39, 0.4);
+  transform: translateY(-3px);
+  box-shadow: 0 8px 25px rgba(22, 160, 133, 0.4);
 }
 
+@media (max-width: 992px) {
+  .news-section .section-title {
+    font-size: 2rem;
+  }
+}
 
 @media (max-width: 768px) {
-  .section-title {
-    font-size: 28px;
+  .news-section .section-title {
+    font-size: 1.75rem;
   }
   
   .news-title {

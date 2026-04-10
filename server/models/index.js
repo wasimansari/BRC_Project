@@ -123,9 +123,21 @@ const announcementSchema = new mongoose.Schema({
   categoryClass: { type: String, required: true, enum: ['category-academic', 'category-event', 'category-notice', 'category-holiday'] },
   title: { type: String, required: true },
   description: { type: String, required: true },
+  image: { type: String, default: null },
+  imagePublicId: { type: String, default: null },
   link: { type: String, default: '/notices' },
   isActive: { type: Boolean, default: true },
   displayOrder: { type: Number, default: 0 }
+}, { timestamps: true });
+
+// Page Background Schema
+const pageBackgroundSchema = new mongoose.Schema({
+  pageName: { type: String, required: true, enum: ['home', 'about', 'contact', 'courses', 'events', 'blog', 'gallery', 'searchSchool', 'downloads'] },
+  backgroundImage: { type: String, default: '' },
+  backgroundImagePublicId: { type: String, default: '' },
+  isActive: { type: Boolean, default: true },
+  title: { type: String, default: '' },
+  subtitle: { type: String, default: '' }
 }, { timestamps: true });
 
 // Create and export models
@@ -140,6 +152,7 @@ const Gallery = mongoose.model('Gallery', gallerySchema);
 const Download = mongoose.model('Download', downloadSchema);
 const School = mongoose.model('School', schoolSchema);
 const Announcement = mongoose.model('Announcement', announcementSchema);
+const PageBackground = mongoose.model('PageBackground', pageBackgroundSchema);
 
 module.exports = {
   Event,
@@ -152,5 +165,6 @@ module.exports = {
   Gallery,
   Download,
   School,
-  Announcement
+  Announcement,
+  PageBackground
 };

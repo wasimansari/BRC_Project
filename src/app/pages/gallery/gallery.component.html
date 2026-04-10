@@ -1,14 +1,24 @@
 <app-header></app-header>
 
+@if (pageBackgroundLoading || loading) {
+  <div class="loading-container" style="margin-top: 100px;">
+    <div class="spinner">
+      <div class="spinner-ring"></div>
+      <div class="spinner-ring"></div>
+      <div class="spinner-ring"></div>
+    </div>
+    <p class="loading-text">Loading...</p>
+  </div>
+} @else {
 <!-- Gallery Banner -->
-<section class="gallery-banner">
+<section class="gallery-banner" appScrollAnimate animationType="fadeInUp" [style.background-image]="pageBackground?.backgroundImage ? 'url(' + pageBackground?.backgroundImage + ')' : ''">
   <!-- <div class="gallery-banner-overlay"></div> -->
   <div class="gallery-banner-content">
     <div class="container">
       <div class="row">
         <div class="col-lg-12 text-center">
-          <h1 class="gallery-banner-title">Photo Gallery</h1>
-          <p class="gallery-banner-subtitle">Capturing memories of our vibrant events and activities</p>
+          <h1 class="gallery-banner-title">{{ pageBackground?.title || 'Photo Gallery' }}</h1>
+          <p class="gallery-banner-subtitle">{{ pageBackground?.subtitle || 'Capturing memories of our vibrant events and activities' }}</p>
           <nav aria-label="breadcrumb">
             <ol class="breadcrumb justify-content-center">
               <li class="breadcrumb-item"><a href="#">Home</a></li>
@@ -25,7 +35,7 @@
 <section class="gallery-section section-padding">
   <div class="container">
     <!-- Filter Tabs -->
-    <div class="gallery-filter">
+    <div class="gallery-filter" appScrollAnimate animationType="fadeInUp">
       <!-- <button 
         class="filter-btn" 
         [class.active]="activeFilter === 'all'"
@@ -43,7 +53,7 @@
 
     <!-- Gallery by Date -->
     <div class="gallery-dates">
-      <div class="date-section" *ngFor="let dateGroup of filteredGallery">
+      <div class="date-section" *ngFor="let dateGroup of filteredGallery; let i = index" appScrollAnimate [animationType]="'fadeInUp'" [animationDelay]="0.1 * (i + 1)">
         <div class="date-header">
           <div class="date-badge">
             <i class="fas fa-calendar-alt"></i>
@@ -52,7 +62,7 @@
           <h3 class="event-name">{{ dateGroup.eventName }}</h3>
         </div>
         
-        <div class="row g-4">
+        <div class="row g-3">
           <div class="col-lg-4 col-md-6 col-sm-6" *ngFor="let photo of dateGroup.photos">
             <div class="gallery-item" (click)="openLightbox(photo, dateGroup.photos)">
               <img [src]="photo.src" [alt]="photo.alt" class="gallery-img">
@@ -113,3 +123,4 @@
 </div>
 
 <!-- <app-footer></app-footer> -->
+}

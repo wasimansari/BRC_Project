@@ -13,6 +13,7 @@ const courseRoutes = require('./courses');
 const settingsRoutes = require('./settings');
 const schoolRoutes = require('./schools');
 const announcementRoutes = require('./announcements');
+const pageBackgroundRoutes = require('./pageBackground');
 
 // Use routes
 router.use('/auth', authRoutes);
@@ -26,5 +27,6 @@ router.use('/courses', courseRoutes);
 router.use('/settings', settingsRoutes);
 router.use('/schools', schoolRoutes);
 router.use('/announcements', announcementRoutes);
+router.use('/page-backgrounds', pageBackgroundRoutes);
 
 module.exports = router;

@@ -1,14 +1,46 @@
 <app-header></app-header>
 
+@if (loading) {
+  <div class="loading-container" style="margin-top: 100px;">
+    <div class="spinner">
+      <div class="spinner-ring"></div>
+      <div class="spinner-ring"></div>
+      <div class="spinner-ring"></div>
+    </div>
+    <p class="loading-text">Loading...</p>
+  </div>
+} @else {
+<!-- Banner Section -->
+<section class="courses-banner" appScrollAnimate animationType="fadeInUp" [style.background-image]="pageBackground?.backgroundImage ? 'url(' + pageBackground?.backgroundImage + ')' : ''">
+  <div class="banner-overlay"></div>
+  <div class="banner-content">
+    <div class="container">
+      <div class="row">
+        <div class="col-lg-12 text-center">
+          <h1 class="banner-title">{{ pageBackground?.title || 'Our Courses' }}</h1>
+          <p class="banner-subtitle">{{ pageBackground?.subtitle || 'Explore our comprehensive range of educational programs' }}</p>
+          <nav aria-label="breadcrumb">
+            <ol class="breadcrumb justify-content-center">
+              <li class="breadcrumb-item"><a href="#">Home</a></li>
+              <li class="breadcrumb-item active" aria-current="page">Courses</li>
+            </ol>
+          </nav>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+}
+
 <section class="courses-page section-padding">
   <div class="container">
-    <div class="text-center mb-5">
+    <div class="text-center mb-5" appScrollAnimate animationType="fadeInUp">
       <h1 class="page-title">Our Courses</h1>
       <p class="page-subtitle">Explore our comprehensive range of educational programs</p>
     </div>
     
     <div class="row">
-      <div class="col-lg-4 col-md-6 mb-4">
+      <div class="col-lg-4 col-md-6 mb-4" appScrollAnimate animationType="fadeInUp" [animationDelay]="0">
         <div class="course-card">
           <img src="assets/images/courses/english-class.webp" alt="English Course" class="course-image">
           <div class="course-content">
@@ -27,7 +59,7 @@
         </div>
       </div>
       
-      <div class="col-lg-4 col-md-6 mb-4">
+      <div class="col-lg-4 col-md-6 mb-4" appScrollAnimate animationType="fadeInUp" [animationDelay]="0.1">
         <div class="course-card">
           <img src="assets/images/courses/math-course.webp" alt="Math Course" class="course-image">
           <div class="course-content">
@@ -46,7 +78,7 @@
         </div>
       </div>
       
-      <div class="col-lg-4 col-md-6 mb-4">
+      <div class="col-lg-4 col-md-6 mb-4" appScrollAnimate animationType="fadeInUp" [animationDelay]="0.2">
         <div class="course-card">
           <img src="assets/images/courses/science-course.webp" alt="Science Course" class="course-image">
           <div class="course-content">

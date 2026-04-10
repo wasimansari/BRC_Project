@@ -11,7 +11,7 @@
   </div>
 } @else {
 <!-- About Banner -->
-<section class="about-banner">
+<section class="about-banner" appScrollAnimate animationType="fadeInUp">
   <div class="about-banner-overlay"></div>
   <div class="about-banner-content">
     <div class="container">
@@ -35,13 +35,13 @@
 <section class="vision-mission-section section-padding beo_bg">
   <div class="container">
     <div class="row">
-      <div class="col-lg-12 text-center">
+      <div class="col-lg-12 text-center" appScrollAnimate animationType="fadeInUp">
         <h2 class="section-title">Vision & Mission</h2>
         <p class="section-subtitle">Our guiding principles for excellence in education</p>
       </div>
     </div>
-    <div class="row g-4">
-      <div class="col-lg-6">
+    <div class="row g-3">
+      <div class="col-lg-6" appScrollAnimate animationType="fadeInLeft" [animationDelay]="0">
         <div class="vm-card vm-vision">
           <div class="vm-icon">
             <i class="fas fa-eye"></i>
@@ -50,7 +50,7 @@
           <p>{{ visionMission.vision }}</p>
         </div>
       </div>
-      <div class="col-lg-6">
+      <div class="col-lg-6" appScrollAnimate animationType="fadeInRight" [animationDelay]="0.2">
         <div class="vm-card vm-mission">
           <div class="vm-icon">
             <i class="fas fa-bullseye"></i>
@@ -72,14 +72,14 @@
 <section class="beo-profile-section section-padding">
   <div class="container">
     <div class="row">
-      <div class="col-lg-12 text-center">
+      <div class="col-lg-12 text-center" appScrollAnimate animationType="fadeInUp">
         <h2 class="section-title">BEO Profile</h2>
         <p class="section-subtitle">Meet our Block Education Officer</p>
       </div>
     </div>
     <div class="row justify-content-center">
       <div class="col-lg-12">
-        <div class="beo-profile-card">
+        <div class="beo-profile-card" appScrollAnimate animationType="fadeInUp" [animationDelay]="0.2">
           <div class="row g-0">
             <div class="col-md-4">
               <div class="beo-image-wrapper">
@@ -202,13 +202,13 @@
 <section class="staff-section section-padding">
   <div class="container">
     <div class="row">
-      <div class="col-lg-12 text-center">
+      <div class="col-lg-12 text-center" appScrollAnimate animationType="fadeInUp">
         <h2 class="section-title">Staff Details</h2>
         <p class="section-subtitle">Meet our dedicated team of educators</p>
       </div>
     </div>
     <div class="row g-4">
-      <div class="col-lg-3 col-md-4 col-sm-6" *ngFor="let staff of staffDetails">
+      <div class="col-lg-3 col-md-4 col-sm-6" *ngFor="let staff of staffDetails; let i = index" appScrollAnimate [animationType]="'fadeInUp'" [animationDelay]="0.1 * (i + 1)">
         <div class="staff-card">
           <div class="staff-avatar">
             @if (staff?.image) {<img class="img_width" src="{{staff.image}}" alt="">}

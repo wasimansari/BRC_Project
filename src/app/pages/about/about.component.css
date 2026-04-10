@@ -1,15 +1,41 @@
-/* About Banner Styles */
+/* About Banner Styles - Premium Autoguru */
 .about-banner {
   position: relative;
-  min-height: 400px;
+  min-height: 450px;
   display: flex;
   align-items: center;
   justify-content: center;
-  background-image: url('/assets/images/aboutus/8.webp');
+  /* background-image: url('/assets/images/aboutus/8.webp'); */
   background-size: cover;
   background-position: center;
   background-repeat: no-repeat;
   margin-top: 70px;
+  overflow: hidden;
+}
+
+/* Animated background shapes */
+.about-banner::before {
+  content: '';
+  position: absolute;
+  top: -20%;
+  right: -10%;
+  width: 500px;
+  height: 500px;
+  background: radial-gradient(circle, rgba(26, 188, 156, 0.3) 0%, transparent 70%);
+  border-radius: 50%;
+  animation: float 6s ease-in-out infinite;
+}
+
+.about-banner::after {
+  content: '';
+  position: absolute;
+  bottom: -15%;
+  left: -5%;
+  width: 400px;
+  height: 400px;
+  background: radial-gradient(circle, rgba(22, 160, 133, 0.25) 0%, transparent 70%);
+  border-radius: 50%;
+  animation: float 8s ease-in-out infinite reverse;
 }
 
 .about-banner-overlay {
@@ -18,7 +44,7 @@
   left: 0;
   width: 100%;
   height: 100%;
-  background: linear-gradient(135deg, rgba(0, 123, 255, 0.9) 0%, rgba(26, 188, 156, 0.85) 100%);
+  background: linear-gradient(135deg, rgba(22, 160, 133, 0.92) 0%, rgba(14, 111, 92, 0.88) 100%);
 }
 
 .about-banner-content {
@@ -33,10 +59,10 @@
   font-weight: 800;
   color: white;
   margin-bottom: 15px;
-  text-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+  text-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
   opacity: 0;
   transform: translateY(30px);
-  animation: fadeInUp 0.8s ease forwards;
+  animation: fadeInUp 0.8s cubic-bezier(0.215, 0.61, 0.355, 1) forwards;
 }
 
 .about-banner-subtitle {
@@ -48,7 +74,7 @@
   margin-right: auto;
   opacity: 0;
   transform: translateY(30px);
-  animation: fadeInUp 0.8s ease forwards;
+  animation: fadeInUp 0.8s cubic-bezier(0.215, 0.61, 0.355, 1) forwards;
   animation-delay: 0.2s;
 }
 
@@ -57,18 +83,12 @@
   padding: 12px 25px;
   border-radius: 30px;
   display: inline-flex;
-  backdrop-filter: blur(5px);
+  backdrop-filter: blur(10px);
   opacity: 0;
   transform: translateY(30px);
-  animation: fadeInUp 0.8s ease forwards;
+  animation: fadeInUp 0.8s cubic-bezier(0.215, 0.61, 0.355, 1) forwards;
   animation-delay: 0.4s;
 }
-
-/* .beo_bg{
-    background-image: url('/assets/images/aboutus/BEO5.jpg');
-    background-size: cover;
-    background-position: 100%;
-} */
 
 .breadcrumb-item {
   font-size: 1rem;
@@ -82,18 +102,20 @@
 }
 
 .breadcrumb-item a:hover {
-  color: #1abc9c;
+  color: #ffae27;
 }
 
 .breadcrumb-item + .breadcrumb-item::before {
-  content: "/";
+  content: "\f105";
+  font-family: 'Font Awesome 6 Free';
+  font-weight: 900;
   color: rgba(255, 255, 255, 0.7);
   padding: 0 12px;
 }
 
 .breadcrumb-item.active {
   color: white;
-  font-weight: 500;
+  font-weight: 600;
 }
 
 @keyframes fadeInUp {
@@ -107,9 +129,14 @@
   }
 }
 
+@keyframes float {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-20px); }
+}
+
 @media (max-width: 768px) {
   .about-banner {
-    min-height: 320px;
+    min-height: 350px;
   }
   
   .about-banner-title {
@@ -127,13 +154,13 @@
 
 /* Section Common Styles */
 .section-padding {
-  padding: 80px 0;
+  padding: 100px 0;
 }
 
 .section-title {
   font-size: 2.5rem;
   font-weight: 700;
-  color: #1F3971;
+  color: #2c3e50;
   margin-bottom: 15px;
   position: relative;
   display: inline-block;
@@ -142,18 +169,18 @@
 .section-title::after {
   content: '';
   position: absolute;
-  bottom: -10px;
+  bottom: -12px;
   left: 50%;
   transform: translateX(-50%);
   width: 60px;
   height: 4px;
-  background: linear-gradient(90deg, #1abc9c, #1F3971);
+  background: linear-gradient(90deg, #16a085, #1abc9c);
   border-radius: 2px;
 }
 
 .section-subtitle {
   font-size: 1.1rem;
-  color: #666;
+  color: #6c757d;
   margin-bottom: 50px;
   max-width: 500px;
   margin-left: auto;
@@ -162,10 +189,25 @@
 
 /* Vision & Mission Section */
 .vision-mission-section {
-  /* background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%); */
-    background-image: url('/assets/images/aboutus/BEO4.jpg');
-    background-size: cover;
-    background-position: 100%;
+  background-image: url('/assets/images/aboutus/BEO4.jpg');
+  background-size: cover;
+  background-position: 100%;
+  position: relative;
+}
+
+.vision-mission-section::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(255, 255, 255, 0.95);
+}
+
+.vision-mission-section .container {
+  position: relative;
+  z-index: 1;
 }
 
 .vm-card {
@@ -174,7 +216,7 @@
   padding: 40px;
   height: 100%;
   box-shadow: 0 10px 40px rgba(0, 0, 0, 0.08);
-  transition: all 0.3s ease;
+  transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
   position: relative;
   overflow: hidden;
 }
@@ -189,16 +231,16 @@
 }
 
 .vm-vision::before {
-  background: linear-gradient(90deg, #1abc9c, #16a085);
+  background: linear-gradient(90deg, #16a085, #1abc9c);
 }
 
 .vm-mission::before {
-  background: linear-gradient(90deg, #1F3971, #2c5282);
+  background: linear-gradient(90deg, #16a085, #1abc9c);
 }
 
 .vm-card:hover {
-  transform: translateY(-5px);
-  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.12);
+  transform: translateY(-10px);
+  box-shadow: 0 25px 60px rgba(22, 160, 133, 0.18);
 }
 
 .vm-icon {
@@ -210,29 +252,34 @@
   justify-content: center;
   margin-bottom: 25px;
   font-size: 28px;
+  transition: all 0.4s ease;
 }
 
 .vm-vision .vm-icon {
-  background: linear-gradient(135deg, #d4edda, #c3e6cb);
-  color: #1abc9c;
+  background: linear-gradient(135deg, rgba(22, 160, 133, 0.15), rgba(26, 188, 156, 0.1));
+  color: #16a085;
 }
 
 .vm-mission .vm-icon {
-  background: linear-gradient(135deg, #dbeafe, #bfdbfe);
-  color: #1F3971;
+  background: linear-gradient(135deg, rgba(22, 160, 133, 0.15), rgba(26, 188, 156, 0.1));
+  color: #16a085;
+}
+
+.vm-card:hover .vm-icon {
+  transform: scale(1.1) rotate(5deg);
 }
 
 .vm-card h3 {
   font-size: 1.5rem;
   font-weight: 700;
-  color: #1F3971;
+  color: #2c3e50;
   margin-bottom: 20px;
 }
 
 .vm-card p {
   font-size: 1rem;
   line-height: 1.8;
-  color: #666;
+  color: #6c757d;
 }
 
 .mission-list {
@@ -249,6 +296,11 @@
   align-items: center;
   gap: 12px;
   border-bottom: 1px solid #eee;
+  transition: all 0.3s ease;
+}
+
+.mission-list li:hover {
+  padding-left: 10px;
 }
 
 .mission-list li:last-child {
@@ -256,33 +308,61 @@
 }
 
 .mission-list li i {
-  color: #1abc9c;
+  color: #16a085;
   font-size: 18px;
 }
 
 /* BEO Profile Section */
 .beo-profile-section {
-  background: white;
+  background: #f8f9fa;
+  position: relative;
+  overflow: hidden;
+}
+
+.beo-profile-section::before {
+  content: '';
+  position: absolute;
+  top: -20%;
+  right: -10%;
+  width: 400px;
+  height: 400px;
+  background: radial-gradient(circle, rgba(22, 160, 133, 0.08) 0%, transparent 70%);
+  border-radius: 50%;
 }
 
 .beo-profile-card {
-  background: linear-gradient(135deg, #fff 0%, #f8f9fa 100%);
+  background: white;
   border-radius: 25px;
   overflow: hidden;
-  box-shadow: 0 15px 50px rgba(0, 0, 0, 0.1);
-  border: 1px solid rgba(26, 188, 156, 0.1);
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.1);
+  border: 1px solid rgba(22, 160, 133, 0.1);
+  transition: all 0.4s ease;
+}
+
+.beo-profile-card:hover {
+  box-shadow: 0 25px 70px rgba(22, 160, 133, 0.15);
 }
 
 .beo-image-wrapper {
   height: 100%;
   min-height: 350px;
-  background: linear-gradient(135deg, #1abc9c 0%, #1F3971 100%);
+  background: linear-gradient(135deg, #16a085 0%, #0e6f5c 100%);
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
   padding: 40px 20px;
   position: relative;
+}
+
+.beo-image-wrapper::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: url('data:image/svg+xml,%3Csvg width="60" height="60" viewBox="0 0 60 60" xmlns="http://www.w3.org/2000/svg"%3E%3Cg fill="none" fill-rule="evenodd"%3E%3Cg fill="%231abc9c" fill-opacity="0.08"%3E%3Cpath d="M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z"/%3E%3C/g%3E%3C/g%3E%3C/svg%3E');
 }
 
 .beo-image {
@@ -294,13 +374,18 @@
   align-items: center;
   justify-content: center;
   margin-bottom: 20px;
-  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
+  box-shadow: 0 15px 50px rgba(0, 0, 0, 0.2);
   border: 5px solid rgba(255, 255, 255, 0.3);
+  transition: transform 0.4s ease;
+}
+
+.beo-image:hover {
+  transform: scale(1.05);
 }
 
 .beo-image i {
   font-size: 80px;
-  color: #1F3971;
+  color: #16a085;
 }
 
 .beo-badge {
@@ -312,14 +397,14 @@
   display: flex;
   align-items: center;
   gap: 8px;
-  box-shadow: 0 5px 20px rgba(0, 0, 0, 0.15);
-  color: #1F3971;
+  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+  color: #16a085;
   font-weight: 700;
   font-size: 0.9rem;
 }
 
 .beo-badge i {
-  color: #f1c40f;
+  color: #ffae27;
 }
 
 .beo-info {
@@ -329,13 +414,13 @@
 .beo-name {
   font-size: 1.8rem;
   font-weight: 700;
-  color: #1F3971;
+  color: #2c3e50;
   margin-bottom: 5px;
 }
 
 .beo-designation {
   font-size: 1.1rem;
-  color: #1abc9c;
+  color: #16a085;
   font-weight: 600;
   margin-bottom: 25px;
 }
@@ -351,13 +436,22 @@
   display: flex;
   align-items: flex-start;
   gap: 12px;
+  padding: 15px;
+  border-radius: 12px;
+  background: #f8f9fa;
+  transition: all 0.3s ease;
+}
+
+.detail-item:hover {
+  background: rgba(22, 160, 133, 0.08);
+  transform: translateX(5px);
 }
 
 .detail-item > i {
   width: 40px;
   height: 40px;
-  background: linear-gradient(135deg, #e8f5e9, #c8e6c9);
-  color: #1abc9c;
+  background: linear-gradient(135deg, #16a085, #1abc9c);
+  color: white;
   border-radius: 10px;
   display: flex;
   align-items: center;
@@ -381,15 +475,15 @@
 }
 
 .beo-message {
-  background: linear-gradient(135deg, #f8f9fa, #e9ecef);
+  background: linear-gradient(135deg, #f8f9fa, #fff);
   padding: 25px;
   border-radius: 15px;
-  border-left: 4px solid #1abc9c;
+  border-left: 4px solid #16a085;
 }
 
 .beo-message h4 {
   font-size: 1.1rem;
-  color: #1F3971;
+  color: #2c3e50;
   margin-bottom: 15px;
   display: flex;
   align-items: center;
@@ -397,7 +491,7 @@
 }
 
 .beo-message h4 i {
-  color: #1abc9c;
+  color: #16a085;
 }
 
 .beo-message p {
@@ -410,7 +504,19 @@
 
 /* Organizational Structure Section */
 .org-structure-section {
-  background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+  background: linear-gradient(135deg, #f8f9fa 0%, #fff 100%);
+  position: relative;
+  overflow: hidden;
+}
+
+.org-structure-section::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  right: 0;
+  width: 40%;
+  height: 100%;
+  background: linear-gradient(135deg, rgba(22, 160, 133, 0.03) 0%, transparent 60%);
 }
 
 .org-chart {
@@ -432,13 +538,15 @@
   display: flex;
   align-items: center;
   gap: 15px;
-  transition: all 0.3s ease;
+  transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
   min-width: 220px;
+  border: 1px solid rgba(0, 0, 0, 0.05);
 }
 
 .org-node:hover {
-  transform: translateY(-5px);
-  box-shadow: 0 15px 50px rgba(0, 0, 0, 0.15);
+  transform: translateY(-8px);
+  box-shadow: 0 20px 50px rgba(22, 160, 133, 0.15);
+  border-color: rgba(22, 160, 133, 0.2);
 }
 
 .node-icon {
@@ -451,19 +559,24 @@
   color: white;
   font-size: 22px;
   flex-shrink: 0;
+  transition: transform 0.3s ease;
+}
+
+.org-node:hover .node-icon {
+  transform: scale(1.1) rotate(10deg);
 }
 
 .node-content h4 {
   font-size: 1rem;
   font-weight: 700;
-  color: #1F3971;
+  color: #2c3e50;
   margin-bottom: 5px;
   text-align: left;
 }
 
 .node-content span {
   font-size: 0.85rem;
-  color: #888;
+  color: #6c757d;
 }
 
 .org-node-main {
@@ -493,13 +606,14 @@
 .connector-line {
   width: 3px;
   height: 25px;
-  background: linear-gradient(180deg, #1abc9c, #1F3971);
+  background: linear-gradient(180deg, #16a085, #1abc9c);
   border-radius: 2px;
 }
 
 /* Staff Section */
 .staff-section {
   background: white;
+  position: relative;
 }
 
 .staff-card {
@@ -508,28 +622,34 @@
   padding: 30px;
   text-align: center;
   box-shadow: 0 10px 40px rgba(0, 0, 0, 0.08);
-  transition: all 0.3s ease;
+  transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
   height: 100%;
   border: 1px solid rgba(0, 0, 0, 0.05);
 }
 
 .staff-card:hover {
-  transform: translateY(-10px);
-  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.15);
-  border-color: rgba(26, 188, 156, 0.3);
+  transform: translateY(-12px);
+  box-shadow: 0 25px 60px rgba(22, 160, 133, 0.18);
+  border-color: rgba(22, 160, 133, 0.3);
 }
 
 .staff-avatar {
   width: 120px;
   height: 120px;
   margin: 0 auto 20px;
-  background: linear-gradient(135deg, #e8f5e9, #c8e6c9);
+  background: linear-gradient(135deg, rgba(22, 160, 133, 0.1), rgba(26, 188, 156, 0.05));
   border-radius: 50%;
   display: flex;
   align-items: center;
   justify-content: center;
-  border: 4px solid #1abc9c;
+  border: 4px solid #16a085;
   overflow: hidden;
+  transition: all 0.4s ease;
+}
+
+.staff-card:hover .staff-avatar {
+  transform: scale(1.1);
+  box-shadow: 0 10px 30px rgba(22, 160, 133, 0.3);
 }
 
 .img_width{
@@ -538,7 +658,7 @@
 
 .staff-avatar i {
   font-size: 36px;
-  color: #1abc9c;
+  color: #16a085;
 }
 
 .staff-info {
@@ -548,13 +668,13 @@
 .staff-name {
   font-size: 1.15rem;
   font-weight: 700;
-  color: #1F3971;
+  color: #2c3e50;
   margin-bottom: 8px;
 }
 
 .staff-designation {
   font-size: 0.95rem;
-  color: #1abc9c;
+  color: #16a085;
   font-weight: 600;
   margin-bottom: 15px;
   padding-bottom: 15px;
@@ -569,22 +689,25 @@
 
 .contact-link {
   font-size: 0.85rem;
-  color: #666;
+  color: #6c757d;
   text-decoration: none;
   display: flex;
   align-items: center;
   justify-content: center;
   gap: 8px;
   transition: all 0.3s ease;
-}
-
-.contact-link i {
-  color: #1abc9c;
-  font-size: 12px;
+  padding: 8px;
+  border-radius: 8px;
 }
 
 .contact-link:hover {
-  color: #1F3971;
+  background: rgba(22, 160, 133, 0.08);
+  color: #16a085;
+}
+
+.contact-link i {
+  color: #16a085;
+  font-size: 12px;
 }
 
 /* Responsive Styles */
@@ -614,7 +737,7 @@
 
 @media (max-width: 768px) {
   .section-padding {
-    padding: 60px 0;
+    padding: 70px 0;
   }
   
   .section-title {

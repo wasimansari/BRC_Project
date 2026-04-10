@@ -123,6 +123,7 @@ export class AdminSchoolComponent implements OnInit {
     this.totalPages = Math.ceil(filtered.length / this.pageSize);
     const start = (this.currentPage - 1) * this.pageSize;
     this.filteredSchools = filtered.slice(start, start + this.pageSize);
+    console.log('school list',this.filteredSchools)
   }
 
   onSearch(): void {
