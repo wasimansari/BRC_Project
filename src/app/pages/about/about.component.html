@@ -11,22 +11,19 @@
   </div>
 } @else {
 <!-- About Banner -->
-<section class="about-banner" appScrollAnimate animationType="fadeInUp">
-  <div class="about-banner-overlay"></div>
+<section class="about-banner" appScrollAnimate animationType="fadeInUp" 
+         [style.background-image]="backgroundImageStyle">
+  <!-- <div class="about-banner-overlay"></div> -->
   <div class="about-banner-content">
-    <div class="container">
-      <div class="row">
-        <div class="col-lg-12 text-center">
-          <h1 class="about-banner-title">About Us</h1>
-          <p class="about-banner-subtitle">Discover our story, mission, and commitment to excellence in education</p>
-          <nav aria-label="breadcrumb">
-            <ol class="breadcrumb justify-content-center">
-              <li class="breadcrumb-item"><a href="#">Home</a></li>
-              <li class="breadcrumb-item active" aria-current="page">About Us</li>
-            </ol>
-          </nav>
-        </div>
-      </div>
+    <div class="banner-text-wrapper">
+      <h1 class="about-banner-title">{{ pageBackground?.title || 'About Us' }}</h1>
+      <p class="about-banner-subtitle">{{ pageBackground?.subtitle || 'Discover our story, mission, and commitment to excellence in education' }}</p>
+      <nav aria-label="breadcrumb">
+        <ol class="breadcrumb">
+          <li class="breadcrumb-item"><a routerLink="/">Home</a></li>
+          <li class="breadcrumb-item active" aria-current="page">{{ pageBackground?.title || 'About Us' }}</li>
+        </ol>
+      </nav>
     </div>
   </div>
 </section>

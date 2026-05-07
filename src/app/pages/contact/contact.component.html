@@ -1,18 +1,29 @@
 <app-header></app-header>
 
+@if (pageBackgroundLoading) {
+  <div class="loading-container" style="margin-top: 100px;">
+    <div class="spinner">
+      <div class="spinner-ring"></div>
+      <div class="spinner-ring"></div>
+      <div class="spinner-ring"></div>
+    </div>
+    <p class="loading-text">Loading...</p>
+  </div>
+} @else {
 <!-- Banner Section -->
-<section class="contact-banner" appScrollAnimate animationType="fadeInUp">
-  <div class="banner-overlay"></div>
+<section class="contact-banner" appScrollAnimate animationType="fadeInUp" [style.background-image]="backgroundImageStyle">
+  <!-- <div class="banner-overlay"></div> -->
   <div class="banner-content">
-    <h1 class="banner-title">Get In Touch</h1>
-    <p class="banner-subtitle">We'd love to hear from you. Send us a message and we'll respond as soon as possible.</p>
+    <h1 class="banner-title">{{ pageBackground?.title || 'Get In Touch' }}</h1>
+    <p class="banner-subtitle">{{ pageBackground?.subtitle || 'We\'d love to hear from you. Send us a message and we\'ll respond as soon as possible.' }}</p>
     <div class="banner-breadcrumb">
       <a href="#">Home</a>
       <span class="separator">›</span>
-      <span class="current">Contact Us</span>
+      <span class="current">{{ pageBackground?.title || 'Contact Us' }}</span>
     </div>
   </div>
 </section>
+}
 
 <section class="contact-page section-padding">
   <div class="container">

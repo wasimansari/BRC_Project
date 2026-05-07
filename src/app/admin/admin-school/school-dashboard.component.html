@@ -1,0 +1,87 @@
+<div class="container mt-5">
+  <div class="row">
+    <div class="col-md-12">
+      <h2 class="mb-4">School Dashboard</h2>
+      <div *ngIf="schoolInfo" class="alert alert-info">
+        Welcome, <strong>{{ schoolInfo.schoolName }}</strong> (UDISE: {{ schoolInfo.udiseCode }})!
+      </div>
+    </div>
+  </div>
+
+  <div class="row mt-4">
+    <!-- Document Upload Section -->
+    <div class="col-md-6">
+      <div class="card shadow-sm mb-4">
+        <div class="card-header bg-primary text-white">
+          Upload New Document
+        </div>
+        <div class="card-body">
+          <form (ngSubmit)="onUpload()">
+            <div class="mb-3">
+              <label for="documentTitle" class="form-label">Document Title <span class="text-danger">*</span></label>
+              <input type="text" class="form-control" id="documentTitle" [(ngModel)]="documentTitle" name="documentTitle" required>
+            </div>
+            <div class="mb-3">
+              <label for="documentDescription" class="form-label">Description</label>
+              <textarea class="form-control" id="documentDescription" [(ngModel)]="documentDescription" name="documentDescription" rows="3"></textarea>
+            </div>
+            <div class="mb-3">
+              <label for="documentCategory" class="form-label">Category (Optional)</label>
+              <input type="text" class="form-control" id="documentCategory" [(ngModel)]="documentCategory" name="documentCategory">
+            </div>
+            <div class="mb-3">
+              <label for="documentFile" class="form-label">Select File (Image/PDF) <span class="text-danger">*</span></label>
+              <input type="file" class="form-control" id="documentFile" (change)="onFileSelected($event)" accept="image/*,application/pdf" required>
+            </div>
+
+            <div *ngIf="isUploading" class="progress mb-3">
+              <div class="progress-bar progress-bar-striped progress-bar-animated" role="progressbar" [style.width]="uploadProgress + '%'" aria-valuenow="uploadProgress" aria-valuemin="0" aria-valuemax="100">{{ uploadProgress }}%</div>
+            </div>
+
+            <div *ngIf="errorMessage" class="alert alert-danger mt-3">{{ errorMessage }}</div>
+            <div *ngIf="uploadMessage" class="alert alert-success mt-3">{{ uploadMessage }}</div>
+
+            <button type="submit" class="btn btn-success" [disabled]="isUploading">
+              <span *ngIf="isUploading" class="spinner-border spinner-border-sm me-2"></span>
+              Upload Document
+            </button>
+          </form>
+        </div>
+      </div>
+    </div>
+
+    <!-- My Uploaded Documents Section -->
+    <div class="col-md-6">
+      <div class="card shadow-sm">
+        <div class="card-header bg-info text-white">
+          My Uploaded Documents
+        </div>
+        <div class="card-body">
+          <div *ngIf="myDocuments.length === 0" class="alert alert-warning">
+            No documents uploaded yet.
+          </div>
+          <ul class="list-group">
+            <li *ngFor="let doc of myDocuments" class="list-group-item d-flex justify-content-between align-items-center">
+              <div>
+                <strong>{{ doc.title }}</strong>
+                <p class="mb-0 text-muted small">{{ doc.description }}</p>
+                <span class="badge bg-secondary me-2">{{ doc.category || 'Uncategorized' }}</span>
+                <span class="badge" [ngClass]="{
+                  'bg-warning text-dark': doc.status === 'pending',
+                  'bg-success': doc.status === 'approved',
+                  'bg-danger': doc.status === 'rejected'
+                }">{{ doc.status | titlecase }}</span>
+                <span *ngIf="doc.reviewNote" class="text-danger small ms-2">({{ doc.reviewNote }})</span>
+              </div>
+              <div>
+                <a [href]="doc.fileUrl" target="_blank" class="btn btn-sm btn-outline-primary me-2">View</a>
+                <!-- Add delete functionality if needed -->
+                <!-- <button class="btn btn-sm btn-outline-danger">Delete</button> -->
+              </div>
+            </li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

@@ -29,4 +29,11 @@ export class EventsPageComponent implements OnInit {
       }
     });
   }
+
+  get backgroundImageStyle() {
+    if (this.pageBackground?.backgroundImage) {
+      return `url(${this.pageBackground.backgroundImage})`;
+    }
+    return '';
+  }
 }

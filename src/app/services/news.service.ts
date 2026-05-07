@@ -54,7 +54,14 @@ export class NewsService {
    */
   getNews(): Observable<News[]> {
     return this.http.get<News[]>(this.NEWS_ENDPOINT).pipe(
-      map(response => response || []),
+      map(response => {
+        // If API returns empty array or null, use local news
+        if (!response || response.length === 0) {
+          console.log('API returned empty, using local news');
+          return this.localNews;
+        }
+        return response;
+      }),
       catchError(error => {
         console.error('Error fetching news from API:', error);
         return of(this.localNews);

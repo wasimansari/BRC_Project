@@ -1,5 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { AboutService, AboutContent } from '../../services/about.service';
+import { PageBackgroundService, PageBackground } from '../../services/page-background.service';
 
 @Component({
   selector: 'app-about-page',
@@ -9,14 +10,19 @@ import { AboutService, AboutContent } from '../../services/about.service';
 export class AboutComponent implements OnInit {
   loading = true;
   aboutContent: AboutContent;
+  pageBackground: PageBackground | null = null;
 
-  constructor(private aboutService: AboutService) {
+  constructor(
+    private aboutService: AboutService,
+    private pageBackgroundService: PageBackgroundService
+  ) {
     // Initialize with local data to prevent template errors before the API call completes.
     this.aboutContent = this.aboutService.getLocalAbout();
   }
 
   ngOnInit() {
     this.loadAboutContent();
+    this.loadPageBackground();
   }
 
   loadAboutContent() {
@@ -32,6 +38,22 @@ export class AboutComponent implements OnInit {
         // The service already handles fallbacks, so this is a last resort.
         // The content is already initialized with local data in the constructor.
         this.loading = false;
+      }
+    });
+  }
+
+  loadPageBackground() {
+    this.pageBackgroundService.getPageBackground('about').subscribe({
+      next: (data) => {
+        this.pageBackground = data;
+      },
+      error: (err) => {
+        console.error('Error loading page background:', err);
+        // Try to get from localStorage as fallback
+        const backgrounds = this.pageBackgroundService.getFromLocalStorage();
+        if (backgrounds) {
+          this.pageBackground = backgrounds.find(bg => bg.pageName === 'about') || null;
+        }
       }
     });
   }
@@ -54,5 +76,12 @@ export class AboutComponent implements OnInit {
 
   get staffDetails() {
     return this.aboutContent.staffDetails;
+  }
+
+  get backgroundImageStyle() {
+    if (this.pageBackground?.backgroundImage) {
+      return `url(${this.pageBackground.backgroundImage})`;
+    }
+    return '';
   }
 }
