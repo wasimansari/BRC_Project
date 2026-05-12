@@ -1,0 +1,370 @@
+<div class="admin-news">
+  <!-- Header -->
+  <div class="page-header">
+    <div class="container-fluid">
+      <h1>Department News Management</h1>
+      <p class="header-subtitle">Manage all department news, announcements, and updates</p>
+    </div>
+  </div>
+
+  <!-- Main Content -->
+  <div class="container-fluid">
+    <div class="row">
+      <!-- Form Section -->
+      <div class="col-lg-4">
+        <div class="form-card">
+          <h3>{{ isEditMode ? 'Edit News' : 'Add New News' }}</h3>
+          
+          <div *ngIf="isEditMode" class="edit-mode-badge">
+            <span>You are editing a news item. </span>
+            <button type="button" class="btn btn-link btn-sm p-0" (click)="resetForm()">Cancel edit</button>
+          </div>
+
+          <form (ngSubmit)="submitForm()">
+            <!-- Basic Information -->
+            <div class="form-section">
+              <h4>Basic Information</h4>
+              
+              <div class="form-group">
+                <label>Title <span class="required">*</span></label>
+                <input type="text" [(ngModel)]="formData.title" name="title" class="form-control" 
+                       placeholder="Enter news title" required>
+              </div>
+
+              <div class="form-group">
+                <label>Description <span class="required">*</span></label>
+                <textarea [(ngModel)]="formData.description" name="description" class="form-control" 
+                         rows="3" placeholder="Enter news description" required></textarea>
+              </div>
+
+              <div class="row">
+                <div class="col-md-6">
+                  <div class="form-group">
+                    <label>Category <span class="required">*</span></label>
+                    <select [(ngModel)]="formData.category" name="category" class="form-select" required>
+                      <option value="">Select Category</option>
+                      <option *ngFor="let category of categories" [value]="category">{{ category }}</option>
+                    </select>
+                  </div>
+                </div>
+                <div class="col-md-6">
+                  <div class="form-group">
+                    <label>Author <span class="required">*</span></label>
+                    <input type="text" [(ngModel)]="formData.author" name="author" class="form-control" 
+                           placeholder="Author name" required>
+                  </div>
+                </div>
+              </div>
+
+              <div class="form-group">
+                <label>Tags</label>
+                <div class="tag-input">
+                  <input type="text" class="form-control" placeholder="Add tag and press Enter" 
+                         (keyup.enter)="addTag($event)">
+                  <div class="tags-list" *ngIf="formData.tags.length > 0">
+                    <span *ngFor="let tag of formData.tags; let i = index" class="tag">
+                      {{ tag }}
+                      <button type="button" class="tag-remove" (click)="removeTag(i)">
+                        <i class="fas fa-times"></i>
+                      </button>
+                    </span>
+                  </div>
+                </div>
+              </div>
+
+              <div class="row">
+                <div class="col-md-6">
+                  <div class="form-group">
+                    <label>Display Order</label>
+                    <input type="number" [(ngModel)]="formData.displayOrder" name="displayOrder" 
+                           class="form-control" min="0" placeholder="0">
+                  </div>
+                </div>
+                <div class="col-md-6">
+                  <div class="form-group">
+                    <div class="form-check mt-4">
+                      <input type="checkbox" [(ngModel)]="formData.isActive" name="isActive" 
+                             class="form-check-input" id="isActive">
+                      <label class="form-check-label" for="isActive">
+                        Active (show on website)
+                      </label>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Content Type Selection -->
+            <div class="form-section">
+              <h4>Content Type</h4>
+              
+              <div class="form-group">
+                <label>Content Type <span class="required">*</span></label>
+                <select [(ngModel)]="formData.contentType" name="contentType" class="form-select" 
+                        (change)="onContentTypeChange()" required>
+                  <option [value]="NewsContentType.TEXT">Text Article</option>
+                  <option [value]="NewsContentType.IMAGE">Image News</option>
+                  <option [value]="NewsContentType.PDF">PDF Document</option>
+                </select>
+              </div>
+
+              <!-- Text Content -->
+              <div class="form-group" *ngIf="formData.contentType === NewsContentType.TEXT">
+                <label>Article Content <span class="required">*</span></label>
+                <textarea [(ngModel)]="formData.textContent" name="textContent" class="form-control" 
+                         rows="8" placeholder="Write your article content here..." required></textarea>
+              </div>
+
+              <!-- Image Content -->
+              <div class="form-group" *ngIf="formData.contentType === NewsContentType.IMAGE">
+                <label>Image <span class="required">*</span></label>
+                <input type="file" (change)="onImageSelected($event)" class="form-control" 
+                       accept="image/*" [required]="!isEditMode">
+                
+                <div *ngIf="imageError" class="alert alert-danger mt-2">
+                  <i class="fas fa-exclamation-triangle"></i> {{ imageError }}
+                </div>
+
+                <div *ngIf="imagePreview" class="image-preview mt-3">
+                  <div class="preview-container">
+                    <img [src]="imagePreview" alt="Image preview" class="preview-image">
+                    <button type="button" class="clear-btn" (click)="clearImage()">
+                      <i class="fas fa-times"></i>
+                    </button>
+                  </div>
+                </div>
+
+                <div class="file-info">
+                  <small class="text-muted">
+                    <i class="fas fa-info-circle"></i> 
+                    Supported formats: JPEG, PNG, GIF, WebP. Max size: 5MB
+                  </small>
+                </div>
+              </div>
+
+              <!-- PDF Content -->
+              <div class="form-group" *ngIf="formData.contentType === NewsContentType.PDF">
+                <label>PDF Document <span class="required">*</span></label>
+                <input type="file" (change)="onPdfSelected($event)" class="form-control" 
+                       accept="application/pdf" [required]="!isEditMode">
+                
+                <div *ngIf="pdfError" class="alert alert-danger mt-2">
+                  <i class="fas fa-exclamation-triangle"></i> {{ pdfError }}
+                </div>
+
+                <div *ngIf="pdfPreview" class="pdf-preview mt-3">
+                  <div class="preview-container">
+                    <div class="pdf-info">
+                      <i class="fas fa-file-pdf"></i>
+                      <span>{{ pdfPreview }}</span>
+                    </div>
+                    <button type="button" class="clear-btn" (click)="clearPdf()">
+                      <i class="fas fa-times"></i>
+                    </button>
+                  </div>
+                </div>
+
+                <div class="file-info">
+                  <small class="text-muted">
+                    <i class="fas fa-info-circle"></i> 
+                    PDF format only. Max size: 10MB
+                  </small>
+                </div>
+              </div>
+            </div>
+
+            <!-- Form Error -->
+            <div *ngIf="formError" class="alert alert-danger">
+              <i class="fas fa-exclamation-triangle"></i> {{ formError }}
+            </div>
+
+            <!-- Submit Button -->
+            <div class="form-actions">
+              <button type="submit" class="btn btn-primary" [disabled]="isSubmitting">
+                <i class="fas" [class.fa-plus]="!isEditMode" [class.fa-save]="isEditMode"></i>
+                {{ isSubmitting ? 'Processing...' : (isEditMode ? 'Update News' : 'Create News') }}
+              </button>
+              <button type="button" class="btn btn-secondary" (click)="resetForm()" [disabled]="isSubmitting">
+                <i class="fas fa-times"></i> Cancel
+              </button>
+            </div>
+          </form>
+        </div>
+      </div>
+
+      <!-- News List Section -->
+      <div class="col-lg-8">
+        <div class="list-card">
+          <div class="list-header">
+            <h3>News Items ({{ filteredNews.length }})</h3>
+            <div class="header-actions">
+              <button type="button" class="btn btn-sm btn-outline-primary" (click)="loadNews()" 
+                      [disabled]="loading">
+                <i class="fas fa-sync-alt" [class.fa-spin]="loading"></i> Refresh
+              </button>
+            </div>
+            <div class="filter-controls">
+              <select class="form-select form-select-sm" [(ngModel)]="selectedCategory" 
+                      (change)="onCategoryFilterChange(selectedCategory)">
+                <option value="all">All Categories</option>
+                <option *ngFor="let category of categories" [value]="category">{{ category }}</option>
+              </select>
+              <div class="form-check">
+                <input type="checkbox" class="form-check-input" id="inactiveFilter" 
+                       [(ngModel)]="showInactiveOnly" (change)="toggleInactiveFilter()">
+                <label class="form-check-label" for="inactiveFilter">Show inactive only</label>
+              </div>
+            </div>
+          </div>
+
+          <!-- Loading State -->
+          <div *ngIf="loading" class="loading-state">
+            <div class="spinner-border text-primary" role="status">
+              <span class="visually-hidden">Loading...</span>
+            </div>
+            <p>Loading news...</p>
+          </div>
+
+          <!-- News List -->
+          <div class="news-list" *ngIf="!loading">
+            <div *ngIf="filteredNews.length === 0" class="empty-state">
+              <i class="fas fa-newspaper"></i>
+              <h4>No news found</h4>
+              <p>No news items match your current filters.</p>
+            </div>
+
+            <div *ngFor="let news of filteredNews" class="news-item" 
+                 [class.inactive]="!news.isActive">
+              <div class="news-content">
+                <div class="news-header">
+                  <div class="content-type-badge">
+                    <i class="fas" [class]="getContentIcon(news.content.type)"></i>
+                    {{ getContentTypeLabel(news.content.type) }}
+                  </div>
+                  <div class="news-status">
+                    <span class="badge" [class.bg-success]="news.isActive" [class.bg-secondary]="!news.isActive">
+                      {{ news.isActive ? 'Active' : 'Inactive' }}
+                    </span>
+                  </div>
+                </div>
+
+                <div class="news-body">
+                  <h4 class="news-title">{{ news.title }}</h4>
+                  <p class="news-description">{{ truncateText(news.description, 120) }}</p>
+                  
+                  <div class="news-meta">
+                    <span class="meta-item">
+                      <i class="fas fa-folder"></i> {{ news.category }}
+                    </span>
+                    <span class="meta-item">
+                      <i class="fas fa-user"></i> {{ news.author }}
+                    </span>
+                    <span class="meta-item">
+                      <i class="fas fa-calendar"></i> {{ formatDate(news.publishDate) }}
+                    </span>
+                    <span class="meta-item">
+                      <i class="fas fa-sort"></i> Order: {{ news.displayOrder }}
+                    </span>
+                  </div>
+
+                  <div class="news-tags" *ngIf="news.tags.length > 0">
+                    <span *ngFor="let tag of news.tags" class="tag">{{ tag }}</span>
+                  </div>
+                </div>
+              </div>
+
+              <div class="news-actions">
+                <button class="btn btn-sm btn-info" (click)="openPreviewModal(news)" title="Preview">
+                  <i class="fas fa-eye"></i>
+                </button>
+                <button class="btn btn-sm btn-primary" (click)="editNews(news)" title="Edit">
+                  <i class="fas fa-edit"></i>
+                </button>
+                <button class="btn btn-sm" 
+                        [class.btn-success]="!news.isActive" 
+                        [class.btn-warning]="news.isActive" 
+                        (click)="toggleNewsStatus(news)" 
+                        [title]="news.isActive ? 'Deactivate' : 'Activate'">
+                  <i class="fas" [class.fa-eye]="!news.isActive" [class.fa-eye-slash]="news.isActive"></i>
+                </button>
+                <button class="btn btn-sm btn-danger" (click)="deleteNews(news._id || news.id?.toString() || '')" 
+                        title="Delete">
+                  <i class="fas fa-trash"></i>
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Preview Modal -->
+  <div class="preview-modal" *ngIf="showPreviewModal && previewNews" (click)="closePreview()">
+    <div class="modal-content" (click)="$event.stopPropagation()">
+      <div class="modal-header">
+        <h3>{{ previewNews.title }}</h3>
+        <button type="button" class="close-btn" (click)="closePreview()">
+          <i class="fas fa-times"></i>
+        </button>
+      </div>
+
+      <div class="modal-body">
+        <div class="preview-meta">
+          <div class="meta-item">
+            <i class="fas fa-folder"></i> {{ previewNews.category }}
+          </div>
+          <div class="meta-item">
+            <i class="fas fa-user"></i> {{ previewNews.author }}
+          </div>
+          <div class="meta-item">
+            <i class="fas fa-calendar"></i> {{ formatDate(previewNews.publishDate) }}
+          </div>
+          <div class="meta-item">
+            <i class="fas fa-info-circle"></i> {{ getContentTypeLabel(previewNews.content.type) }}
+          </div>
+        </div>
+
+        <div class="preview-content">
+          <!-- Text Content Preview -->
+          <div *ngIf="previewNews.content.type === NewsContentType.TEXT" class="text-preview">
+            <p>{{ previewNews.content.text }}</p>
+          </div>
+
+          <!-- Image Content Preview -->
+          <div *ngIf="previewNews.content.type === NewsContentType.IMAGE" class="image-preview">
+            <img [src]="previewNews.content.imageUrl" [alt]="previewNews.title">
+          </div>
+
+          <!-- PDF Content Preview -->
+          <div *ngIf="previewNews.content.type === NewsContentType.PDF" class="pdf-preview">
+            <div class="pdf-info">
+              <i class="fas fa-file-pdf"></i>
+              <div>
+                <h5>{{ previewNews.content.fileName || 'PDF Document' }}</h5>
+                <p *ngIf="previewNews.content.fileSize">
+                  Size: {{ formatFileSize(previewNews.content.fileSize) }}
+                </p>
+              </div>
+            </div>
+            <button class="btn btn-primary" (click)="openPdfInNewTab(previewNews.content.pdfUrl!)">
+              <i class="fas fa-external-link-alt"></i> Open PDF
+            </button>
+          </div>
+        </div>
+
+        <div class="preview-description">
+          <h5>Description</h5>
+          <p>{{ previewNews.description }}</p>
+        </div>
+
+        <div class="preview-tags" *ngIf="previewNews.tags.length > 0">
+          <h5>Tags</h5>
+          <div class="tags-list">
+            <span *ngFor="let tag of previewNews.tags" class="tag">{{ tag }}</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

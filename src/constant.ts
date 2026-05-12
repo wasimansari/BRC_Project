@@ -26,6 +26,7 @@ export const app_constants = {
   auth: { login: '/auth/login', signup: '/auth/signup', createAdmin: '/auth/create-admin' },
   events: { getAll: '/events', create: '/events', delete: '/events' },
   news: { getAll: '/news', create: '/news', delete: '/news' },
+  departmentNews: { getAll: '/department-news', create: '/department-news', update: '/department-news', delete: '/department-news', toggle: '/department-news', upload: '/upload/news' },
   courses: { getAll: '/courses', create: '/courses', delete: '/courses' },
   banners: { getAll: '/banners', getActive: '/banners', create: '/banners', update: '/banners', delete: '/banners' },
   about: { get: '/about', update: '/about', addStaff: '/about/staff', deleteStaff: '/about/staff' },

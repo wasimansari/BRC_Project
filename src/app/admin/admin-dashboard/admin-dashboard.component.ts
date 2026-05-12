@@ -191,7 +191,7 @@ export class AdminDashboardComponent implements OnInit {
     this.isSidebarCollapsed = !this.isSidebarCollapsed;
     setTimeout(() => {
       this.isAnimating = false;
-    }, 400);
+    }, 300);
   }
 
   // Set active tab for animation tracking

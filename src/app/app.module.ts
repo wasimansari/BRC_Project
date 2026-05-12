@@ -33,6 +33,9 @@ import { AdminSignupComponent } from './admin/admin-login/admin-signup.component
 import { AdminGalleryComponent } from './admin/admin-gallery/admin-gallery.component';
 import { AdminDownloadsComponent } from './admin/admin-downloads/admin-downloads.component';
 import { AdminSchoolComponent } from './admin/admin-school/admin-school.component';
+import { AdminNewsComponent } from './admin/admin-news/admin-news.component';
+import { DepartmentNewsComponent } from './pages/department-news/department-news.component';
+import { NewsPreviewComponent } from './components/news-preview/news-preview.component';
 import { AppComponent } from './app.component';
 
 @NgModule({
@@ -62,6 +65,9 @@ import { AppComponent } from './app.component';
     AdminGalleryComponent,
     AdminDownloadsComponent,
     AdminSchoolComponent,
+    AdminNewsComponent,
+    DepartmentNewsComponent,
+    NewsPreviewComponent,
     ScrollAnimateDirective,
     SmoothScrollDirective
   ],
@@ -70,7 +76,6 @@ import { AppComponent } from './app.component';
     HttpClientModule,
     FormsModule,
     ReactiveFormsModule,
-    RouterModule,
     AppRoutingModule
   ],
   providers: [

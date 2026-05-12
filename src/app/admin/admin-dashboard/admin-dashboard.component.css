@@ -27,8 +27,9 @@
   padding: 25px;
   box-shadow: 0 5px 15px rgba(0,0,0,0.1);
   margin-bottom: 20px;
-  /* Prevent content from squishing during collapse animation */
-  min-width: 250px;
+  height: fit-content;
+  position: sticky;
+  top: 20px;
 }
 
 .sidebar h3 {
@@ -363,7 +364,7 @@
   border-radius: 0 8px 8px 0;
 }
 
-/* Sidebar Toggle Functionality */
+/* Sidebar toggle button */
 .sidebar-toggle-btn {
   background: transparent;
   border: none;
@@ -372,18 +373,25 @@
   cursor: pointer;
   padding: 0 10px 0 0;
   line-height: 1;
-  transition: transform 0.3s ease;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   z-index: 10;
   position: absolute;
   margin: 5px 0 0 5px;
+  transform-origin: center;
 }
 
 .sidebar-toggle-btn:hover {
-  transform: scale(1.1);
+  transform: scale(1.05);
+  color: #0056b3;
+}
+
+.sidebar-toggle-btn:active {
+  transform: scale(0.95);
 }
 
 .sidebar-toggle-btn i {
-  transition: transform 0.4s cubic-bezier(0.68, -0.55, 0.27, 1.55);
+  transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  display: block;
 }
 
 .admin-dashboard.sidebar-collapsed .sidebar-toggle-btn i {
@@ -392,23 +400,31 @@
 
 .dashboard-header h1 {
   font-size: 1.6rem;
-  transition: all 0.35s ease-in-out;
+  transition: all 0.35s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 /* Container wrappers for transition */
-.sidebar-container, .content-container {
-  transition: max-width 0.4s ease-in-out, flex 0.4s ease-in-out, opacity 0.25s linear;
+.sidebar-container {
+  flex: 0 0 25%;
+  max-width: 25%;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  overflow: visible;
+  will-change: max-width;
+}
+
+.content-container {
+  flex: 0 0 75%;
+  max-width: 75%;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  will-change: max-width;
 }
 
 /* Collapsed state */
 .admin-dashboard.sidebar-collapsed .sidebar-container {
-  flex: 0 0 0;
-  max-width: 0;
-  padding: 0;
-  margin: 0;
+  flex: 0 0 0%;
+  max-width: 0%;
   overflow: hidden;
-  opacity: 0;
-  border: none;
+  visibility: hidden;
 }
 
 .admin-dashboard.sidebar-collapsed .content-container {
@@ -426,35 +442,45 @@
 
 /* Sidebar toggle button */
 .sidebar-toggle-btn.desktop-toggle {
-  position: absolute;
-  top: 15px;
-  left: 15px;
-  z-index: 100;
+  position: fixed;
+  top: 20px;
+  left: 20px;
+  z-index: 1000;
   background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
   color: white;
   border: none;
-  width: 40px;
-  height: 40px;
-  border-radius: 10px;
+  width: 45px;
+  height: 45px;
+  border-radius: 12px;
   display: flex;
   align-items: center;
   justify-content: center;
   cursor: pointer;
-  box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
-  transition: all 0.3s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+  box-shadow: 0 4px 20px rgba(102, 126, 234, 0.3);
+  transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+  transform-origin: center;
 }
 
 .sidebar-toggle-btn.desktop-toggle:hover {
-  transform: scale(1.1) rotate(5deg);
-  box-shadow: 0 6px 20px rgba(102, 126, 234, 0.6);
+  transform: scale(1.02);
+  box-shadow: 0 6px 25px rgba(102, 126, 234, 0.4);
 }
 
-.sidebar-toggle-btn.desktop-toggle.collapsed {
-  left: 15px;
+.sidebar-toggle-btn.desktop-toggle:active {
+  transform: scale(0.98);
+}
+
+.admin-dashboard.sidebar-collapsed .sidebar-toggle-btn.desktop-toggle {
+  left: 20px;
+}
+
+.admin-dashboard:not(.sidebar-collapsed) .sidebar-toggle-btn.desktop-toggle {
+  left: calc(25% + 20px);
 }
 
 .sidebar-toggle-btn.desktop-toggle i {
-  transition: transform 0.4s cubic-bezier(0.68, -0.55, 0.27, 1.55);
+  transition: transform 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+  font-size: 18px;
 }
 
 .sidebar-toggle-btn.desktop-toggle.collapsed i {
@@ -467,7 +493,7 @@
 
 /* Header animation */
 .dashboard-header {
-  transition: all 0.4s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+  transition: all 0.35s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 .dashboard-header.header-expanded {
@@ -574,21 +600,21 @@
 
 /* Sidebar collapse animation */
 .sidebar-container {
-  transition: all 0.4s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+  transition: max-width 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   overflow: hidden;
 }
 
 .admin-dashboard.sidebar-animating .sidebar-container {
-  transition: all 0.5s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+  transition: max-width 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 /* Content container animation */
 .content-container {
-  transition: all 0.4s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+  transition: max-width 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 .admin-dashboard.sidebar-animating .content-container {
-  transition: all 0.5s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+  transition: max-width 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 /* Form card entrance animation */
@@ -713,13 +739,30 @@
 
 /* Responsive mobile toggle */
 @media (max-width: 768px) {
+  .sidebar-container {
+    flex: 0 0 0%;
+    max-width: 0%;
+    overflow: hidden;
+    visibility: hidden;
+  }
+  
+  .content-container {
+    flex: 0 0 100%;
+    max-width: 100%;
+  }
+  
   .sidebar-toggle-btn.desktop-toggle {
     display: flex;
     top: 10px;
     left: 10px;
-    width: 36px;
-    height: 36px;
+    width: 40px;
+    height: 40px;
     font-size: 14px;
+  }
+  
+  .admin-dashboard.sidebar-collapsed .sidebar-toggle-btn.desktop-toggle,
+  .admin-dashboard:not(.sidebar-collapsed) .sidebar-toggle-btn.desktop-toggle {
+    left: 10px;
   }
   
   .dashboard-header {

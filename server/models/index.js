@@ -9,13 +9,28 @@ const eventSchema = new mongoose.Schema({
   createdAt: { type: Date, default: Date.now }
 });
 
-// News Schema
+// News Schema (Enhanced for Department News)
 const newsSchema = new mongoose.Schema({
-  title: { type: String, required: true },
-  description: { type: String, required: true },
-  image: { type: String, required: true },
-  createdAt: { type: Date, default: Date.now }
-});
+  title: { type: String, required: true, trim: true, maxlength: 200 },
+  description: { type: String, required: true, trim: true, maxlength: 1000 },
+  category: { type: String, required: true, enum: ['Achievements', 'Academics', 'Events', 'Announcements', 'Other'], default: 'Other' },
+  author: { type: String, required: true, trim: true, maxlength: 100 },
+  tags: [{ type: String, trim: true, maxlength: 50 }],
+  isActive: { type: Boolean, default: true },
+  displayOrder: { type: Number, default: 0, min: 0 },
+  publishDate: { type: Date, default: Date.now },
+  content: {
+    type: { type: String, enum: ['text', 'image', 'pdf'], required: true },
+    text: { type: String },
+    imageUrl: { type: String },
+    thumbnailUrl: { type: String },
+    pdfUrl: { type: String },
+    fileName: { type: String },
+    fileSize: { type: Number }
+  },
+  // Legacy fields for backward compatibility
+  image: { type: String }
+}, { timestamps: true });
 
 // Course Schema
 const courseSchema = new mongoose.Schema({
