@@ -1,0 +1,47 @@
+<div class="teacher-login-container">
+  <div class="teacher-card">
+    <h2>Teacher Login</h2>
+
+    <div class="form-group">
+      <label for="udiseCode">UDISE Code</label>
+      <input type="text" id="udiseCode" class="form-control" [(ngModel)]="udiseCode" name="udiseCode" required>
+    </div>
+
+    <div class="form-group">
+      <label for="mobileNo">Registered Mobile Number</label>
+      <input type="text" id="mobileNo" class="form-control" [(ngModel)]="mobileNo" name="mobileNo" required>
+    </div>
+
+    <button class="btn btn-secondary w-100" (click)="requestOtp()" [disabled]="isLoading">
+      {{ isLoading && !otpVerified ? 'Sending OTP...' : 'Generate OTP' }}
+    </button>
+
+    <div *ngIf="otpSent" class="mt-4">
+      <div class="form-group">
+        <label for="otp">Enter OTP</label>
+        <input type="text" id="otp" class="form-control" [(ngModel)]="otp" name="otp">
+      </div>
+      <button class="btn btn-primary w-100" (click)="verifyOtp()" [disabled]="isLoading">
+        {{ isLoading && !otpVerified ? 'Verifying OTP...' : 'Verify OTP' }}
+      </button>
+    </div>
+
+    <div *ngIf="otpVerified" class="mt-4">
+      <div class="form-group">
+        <label for="password">Generated Password</label>
+        <input type="text" id="password" class="form-control" [(ngModel)]="password" name="password" readonly>
+      </div>
+      <button class="btn btn-success w-100" (click)="loginWithPassword()" [disabled]="isLoading">
+        {{ isLoading ? 'Logging in...' : 'Login with Password' }}
+      </button>
+    </div>
+
+    <div *ngIf="message" class="alert alert-info mt-3">
+      {{ message }}
+    </div>
+
+    <p class="mt-3 text-center">
+      New teacher? <a routerLink="/teacher/signup">Sign up here</a>
+    </p>
+  </div>
+</div>

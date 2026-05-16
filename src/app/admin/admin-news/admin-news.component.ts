@@ -74,7 +74,6 @@ export class AdminNewsComponent implements OnInit {
     // Force refresh to get latest data from API
     this.newsService.getAllNews(true).subscribe({
       next: (news) => {
-        console.log('📰 Loaded news in admin:', news.length, 'items');
         this.allNews = news.sort((a, b) => b.displayOrder - a.displayOrder);
         this.filteredNews = [...this.allNews];
         this.loading = false;

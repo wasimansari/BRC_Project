@@ -255,12 +255,10 @@ router.delete('/:id', authenticateToken, async (req, res) => {
       try {
         await cloudinary.uploader.destroy(download.filePublicId, { resource_type: 'raw' });
       } catch (err) {
-        console.log('PDF delete with raw failed, trying auto:', err.message);
         // Try with 'auto' if 'raw' fails (for files uploaded with older code)
         try {
           await cloudinary.uploader.destroy(download.filePublicId, { resource_type: 'auto' });
         } catch (err2) {
-          console.log('PDF delete with auto also failed:', err2.message);
           cloudinaryDeleteError = err2;
         }
       }

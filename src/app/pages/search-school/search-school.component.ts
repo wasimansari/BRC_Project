@@ -491,7 +491,6 @@ export class SearchSchoolComponent implements OnInit {
         this.isLoading = false;
         if (data) {
           this.filteredSchools = [this.mapApiResponseToSchool(data)];
-          console.log(this.filteredSchools);
         } else {
           this.errorMessage = 'No school found with this UDISE code';
         }
@@ -601,20 +600,17 @@ export class SearchSchoolComponent implements OnInit {
 
     // Use schoolId from the search API (not the UDISE code) for facility API
     const facilityId = school.schoolId || school.udiseCode;
-    console.log('Opening facility modal for school:', school.schoolName, 'UDISE:', school.udiseCode, 'SchoolId:', facilityId);
 
     // Call all 3 APIs and combine the data
     this.schoolSearchService.getCompleteSchoolDetails(facilityId).subscribe({
       next: (data) => {
         this.isLoadingReportCard = false;
-        console.log('Complete school details received:', data);
         
         if (data) {
           this.showReportCardDetails = data;
         } else {
           // If API doesn't return data, use search results data as fallback
           this.showReportCardDetails = this.getFallbackData(school);
-          console.log('Using fallback data for facility details');
         }
       },
       error: (err) => {
@@ -622,7 +618,6 @@ export class SearchSchoolComponent implements OnInit {
         console.error('Error fetching school details:', err);
         // On error, use search results data as fallback
         this.showReportCardDetails = this.getFallbackData(school);
-        console.log('Using fallback data for facility details due to error');
       }
     });
   }

@@ -30,6 +30,9 @@ import { FooterComponent } from './components/footer/footer.component';
 import { AdminLoginComponent } from './admin/admin-login/admin-login.component';
 import { AdminDashboardComponent } from './admin/admin-dashboard/admin-dashboard.component';
 import { AdminSignupComponent } from './admin/admin-login/admin-signup.component';
+import { TeacherLoginComponent } from './teacher/teacher-login/teacher-login.component';
+import { TeacherSignupComponent } from './teacher/teacher-signup/teacher-signup.component';
+import { TeacherDashboardComponent } from './teacher/teacher-dashboard/teacher-dashboard.component';
 import { AdminGalleryComponent } from './admin/admin-gallery/admin-gallery.component';
 import { AdminDownloadsComponent } from './admin/admin-downloads/admin-downloads.component';
 import { AdminSchoolComponent } from './admin/admin-school/admin-school.component';
@@ -62,6 +65,9 @@ import { AppComponent } from './app.component';
     AdminLoginComponent,
     AdminDashboardComponent,
     AdminSignupComponent,
+    TeacherLoginComponent,
+    TeacherSignupComponent,
+    TeacherDashboardComponent,
     AdminGalleryComponent,
     AdminDownloadsComponent,
     AdminSchoolComponent,

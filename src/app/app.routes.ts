@@ -13,7 +13,11 @@ import { DepartmentNewsComponent } from './pages/department-news/department-news
 import { AdminLoginComponent } from './admin/admin-login/admin-login.component';
 import { AdminDashboardComponent } from './admin/admin-dashboard/admin-dashboard.component';
 import { AdminSignupComponent } from './admin/admin-login/admin-signup.component';
+import { TeacherLoginComponent } from './teacher/teacher-login/teacher-login.component';
+import { TeacherSignupComponent } from './teacher/teacher-signup/teacher-signup.component';
+import { TeacherDashboardComponent } from './teacher/teacher-dashboard/teacher-dashboard.component';
 import { AuthGuard } from './auth.guard';
+import { TeacherAuthGuard } from './teacher/teacher-auth.guard';
 
 const routes: Routes = [
   { 
@@ -70,6 +74,19 @@ const routes: Routes = [
   { 
     path: 'admin/signup', 
     component: AdminSignupComponent 
+  },
+  { 
+    path: 'teacher/login', 
+    component: TeacherLoginComponent 
+  },
+  { 
+    path: 'teacher/signup', 
+    component: TeacherSignupComponent 
+  },
+  {
+    path: 'teacher/dashboard',
+    component: TeacherDashboardComponent,
+    canActivate: [TeacherAuthGuard]
   },
   { 
     path: 'admin/dashboard', 

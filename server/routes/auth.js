@@ -103,11 +103,9 @@ router.post('/initialize', async (req, res) => {
         role: 'superadmin'
       });
       await admin.save();
-      console.log('Default superadmin user created');
     } else if (!adminExists.role) {
       adminExists.role = 'superadmin';
       await adminExists.save();
-      console.log('Existing admin updated to superadmin');
     }
     res.json({ message: 'Admin initialization complete' });
   } catch (error) {

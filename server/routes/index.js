@@ -14,9 +14,11 @@ const settingsRoutes = require('./settings');
 const schoolRoutes = require('./schools');
 const announcementRoutes = require('./announcements');
 const pageBackgroundRoutes = require('./pageBackground');
+const teacherRoutes = require('./teacher');
 
 // Use routes
 router.use('/auth', authRoutes);
+router.use('/teacher', teacherRoutes);
 router.use('/banners', bannerRoutes);
 router.use('/events', eventRoutes);
 router.use('/news', newsRoutes);

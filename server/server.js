@@ -39,14 +39,12 @@ const initializeDefaultAdmin = async () => {
       const hashedPassword = await bcrypt.hash('admin123', 10);
       const admin = new Admin({ username: 'admin', password: hashedPassword, role: 'superadmin' });
       await admin.save();
-      console.log('Default superadmin user created');
     } else if (!adminExists.role) {
       adminExists.role = 'superadmin';
       await adminExists.save();
-      console.log('Existing admin updated to superadmin');
     }
   } catch (error) {
-    console.log('Error creating admin:', error);
+    console.error('Error creating admin:', error);
   }
 };
 
@@ -64,7 +62,7 @@ connectDB().then(async () => {
 
   // Start server
   app.listen(PORT, () => {
-    console.log(`Server is running on port ${PORT}`);
+    console.log(`Server connected successfully and running on port ${PORT}`);
   });
 }).catch(err => {
   console.error('Failed to connect to MongoDB:', err);

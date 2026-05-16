@@ -48,6 +48,20 @@ const adminSchema = new mongoose.Schema({
   role: { type: String, enum: ['superadmin', 'admin'], default: 'admin' }
 });
 
+// Teacher Schema
+const teacherSchema = new mongoose.Schema({
+  udiseCode: { type: String, required: true },
+  mobileNo: { type: String, required: true },
+  schoolName: { type: String, required: true },
+  fullName: { type: String, default: '' },
+  password: { type: String, default: '' },
+  otp: { type: String, select: false },
+  otpExpiresAt: { type: Date },
+  createdAt: { type: Date, default: Date.now }
+});
+
+teacherSchema.index({ udiseCode: 1, mobileNo: 1 }, { unique: true });
+
 // Banner Schema
 const bannerSchema = new mongoose.Schema({
   title: { type: String, required: true },
@@ -160,6 +174,7 @@ const Event = mongoose.model('Event', eventSchema);
 const News = mongoose.model('News', newsSchema);
 const Course = mongoose.model('Course', courseSchema);
 const Admin = mongoose.model('Admin', adminSchema);
+const Teacher = mongoose.model('Teacher', teacherSchema);
 const Banner = mongoose.model('Banner', bannerSchema);
 const Settings = mongoose.model('Settings', settingsSchema);
 const About = mongoose.model('About', aboutSchema);
@@ -174,6 +189,7 @@ module.exports = {
   News,
   Course,
   Admin,
+  Teacher,
   Banner,
   Settings,
   About,
