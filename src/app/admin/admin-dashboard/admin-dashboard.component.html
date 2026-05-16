@@ -75,6 +75,11 @@
                   <i class="fas fa-image"></i> <span class="nav-text">Page Backgrounds</span>
                 </a>
               </li>
+              <li class="nav-item">
+                <a class="nav-link" href="#testimonials" data-bs-toggle="pill" appSmoothScroll [scrollOffset]="80" (click)="setActiveTab('testimonials')">
+                  <i class="fas fa-comments"></i> <span class="nav-text">Testimonials</span>
+                </a>
+              </li>
             </ul>
           </div>
         </div>
@@ -689,6 +694,113 @@
                             {{ pb.isActive ? 'Deactivate' : 'Activate' }}
                           </button>
                           <button class="btn btn-sm btn-danger ms-1" (click)="deletePageBackground(pb._id || pb.pageName)">
+                            <i class="fas fa-trash"></i>
+                          </button>
+                        </td>
+                      </tr>
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+            </div>
+
+            <!-- Testimonials Tab -->
+            <div class="tab-pane fade" id="testimonials" [class.tab-active]="activeTab === 'testimonials'">
+              <div class="content-card">
+                <h2>Manage Testimonials</h2>
+                <p class="text-muted">Add, edit, or remove testimonials displayed on the home page testimonial section.</p>
+
+                <div class="testimonial-form-card" [class.edit-mode]="editingTestimonialId">
+                  <h4>
+                    <i class="fas" [class.fa-plus-circle]="!editingTestimonialId" [class.fa-edit]="editingTestimonialId"></i>
+                    {{ editingTestimonialId ? 'Edit Testimonial' : 'Add New Testimonial' }}
+                  </h4>
+
+                  <div *ngIf="editingTestimonialId" class="edit-mode-badge">
+                    <span>You are editing a testimonial. </span>
+                    <button type="button" class="btn btn-link btn-sm p-0" (click)="resetTestimonialForm()">Cancel edit</button>
+                  </div>
+
+                  <div class="row">
+                    <div class="col-md-6">
+                      <div class="form-group mb-3">
+                        <label>Name <span class="text-danger">*</span></label>
+                        <input type="text" [(ngModel)]="testimonialName" class="form-control" placeholder="Enter name">
+                      </div>
+                    </div>
+                    <div class="col-md-6">
+                      <div class="form-group mb-3">
+                        <label>Role <span class="text-danger">*</span></label>
+                        <input type="text" [(ngModel)]="testimonialRole" class="form-control" placeholder="Enter role or position">
+                      </div>
+                    </div>
+                  </div>
+
+                  <div class="form-group mb-3">
+                    <label>Testimonial Text <span class="text-danger">*</span></label>
+                    <textarea rows="4" [(ngModel)]="testimonialText" class="form-control" placeholder="Enter testimonial text"></textarea>
+                  </div>
+
+                  <div class="form-group mb-3">
+                    <label>Image URL</label>
+                    <input type="text" [(ngModel)]="testimonialImage" class="form-control" placeholder="Enter image URL or leave blank to upload">
+                    <small class="text-muted d-block">Or upload an image below for passport-size photo.</small>
+                  </div>
+
+                  <div class="form-group mb-3">
+                    <label>Upload Image (Optional)</label>
+                    <input type="file" (change)="onTestimonialImageSelected($event)" class="form-control" accept="image/*">
+                    <div class="testimonial-size-note mt-2">
+                      <i class="fas fa-info-circle"></i>
+                      <strong> Recommended size: {{ TESTIMONIAL_IMAGE_WIDTH }} x {{ TESTIMONIAL_IMAGE_HEIGHT }} pixels (4:5 passport ratio)</strong>
+                    </div>
+                    <div *ngIf="testimonialImageError" class="alert alert-danger mt-2 py-2" role="alert">
+                      <i class="fas fa-exclamation-triangle"></i> {{ testimonialImageError }}
+                    </div>
+                  </div>
+
+                  <div *ngIf="testimonialImagePreview" class="mb-3">
+                    <label>Image Preview</label>
+                    <div class="preview-image">
+                      <img [src]="testimonialImagePreview" alt="Testimonial preview" class="img-fluid rounded" style="max-height: 200px;">
+                    </div>
+                  </div>
+
+                  <button class="btn btn-primary" (click)="saveTestimonial()">
+                    <i class="fas" [class.fa-plus]="!editingTestimonialId" [class.fa-save]="editingTestimonialId"></i>
+                    {{ editingTestimonialId ? 'Update Testimonial' : 'Save Testimonial' }}
+                  </button>
+                </div>
+
+                <h4 class="mt-4"><i class="fas fa-list"></i> Configured Testimonials ({{ testimonials.length }})</h4>
+                <div *ngIf="testimonials.length === 0" class="alert alert-info">
+                  <i class="fas fa-info-circle"></i> No testimonials configured yet. Add testimonials above.
+                </div>
+
+                <div class="table-responsive" *ngIf="testimonials.length > 0">
+                  <table class="table">
+                    <thead>
+                      <tr>
+                        <th>Name</th>
+                        <th>Role</th>
+                        <th>Text</th>
+                        <th>Image</th>
+                        <th>Actions</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      <tr *ngFor="let t of testimonials">
+                        <td>{{ t.name }}</td>
+                        <td>{{ t.role }}</td>
+                        <td>{{ t.text | slice:0:70 }}{{ t.text.length > 70 ? '...' : '' }}</td>
+                        <td>
+                          <img *ngIf="t.image" [src]="t.image" alt="testimonial" class="img-thumbnail" style="max-width: 80px; max-height: 80px; object-fit: cover;">
+                        </td>
+                        <td>
+                          <button class="btn btn-sm btn-primary me-1" (click)="editTestimonial(t)">
+                            <i class="fas fa-edit"></i>
+                          </button>
+                          <button class="btn btn-sm btn-danger" (click)="deleteTestimonial(t._id || t.id || null)">
                             <i class="fas fa-trash"></i>
                           </button>
                         </td>

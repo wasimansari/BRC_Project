@@ -10,11 +10,17 @@ export class AdminNewsComponent implements OnInit {
   allNews: DepartmentNews[] = [];
   filteredNews: DepartmentNews[] = [];
   categories: string[] = [
-    'Achievements',
-    'Academics', 
-    'Events',
-    'Announcements',
-    'Other'
+    'BRC Mehsi Updates',
+    'District Updates',
+    'Teacher News',
+    'Student News',
+    'HM/HT News',
+    'Class Teacher Updates',
+    'eShikshaKosh Updates',
+    'UDISE+ Updates',
+    'Transfer & Posting',
+    'Training Programs',
+    'Meetings & Events'
   ];
   loading: boolean = true;
   

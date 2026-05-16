@@ -8,6 +8,7 @@ import { AuthService } from '../../services/auth.service';
 import { AboutService, AboutContent, BEOProfile, OrgStructure, StaffMember } from '../../services/about.service';
 import { AnnouncementService, Announcement } from '../../services/announcement.service';
 import { PageBackgroundService, PageBackground } from '../../services/page-background.service';
+import { TestimonialService, Testimonial } from '../../services/testimonial.service';
 import { app_constants } from '../../../constant';
 
 @Component({
@@ -127,6 +128,19 @@ export class AdminDashboardComponent implements OnInit {
   readonly ANNOUNCEMENT_IMAGE_WIDTH = 800;
   readonly ANNOUNCEMENT_IMAGE_HEIGHT = 500;
 
+  // Testimonial management properties
+  testimonials: Testimonial[] = [];
+  testimonialName = '';
+  testimonialRole = '';
+  testimonialText = '';
+  testimonialImage = '';
+  testimonialImageFile: File | null = null;
+  testimonialImagePreview = '';
+  testimonialImageError = '';
+  editingTestimonialId: string | null = null;
+  readonly TESTIMONIAL_IMAGE_WIDTH = 400;
+  readonly TESTIMONIAL_IMAGE_HEIGHT = 500;
+
   // Category options for announcements
   categoryOptions = [
     { value: 'Academic', label: 'Academic', class: 'category-academic' },
@@ -172,7 +186,8 @@ export class AdminDashboardComponent implements OnInit {
     private authService: AuthService,
     private aboutService: AboutService,
     private announcementService: AnnouncementService,
-    private pageBackgroundService: PageBackgroundService
+    private pageBackgroundService: PageBackgroundService,
+    private testimonialService: TestimonialService
   ) {}
 
   ngOnInit() {
@@ -184,6 +199,7 @@ export class AdminDashboardComponent implements OnInit {
     this.loadAboutContent();
     this.loadAnnouncements();
     this.loadPageBackgrounds();
+    this.loadTestimonials();
   }
 
   toggleSidebar() {
@@ -380,6 +396,155 @@ export class AdminDashboardComponent implements OnInit {
 
   cancelAnnouncementEdit() {
     this.resetAnnouncementForm();
+  }
+
+  // Testimonial Methods
+  loadTestimonials() {
+    this.testimonialService.getTestimonials().subscribe({
+      next: (data) => {
+        this.testimonials = data;
+      },
+      error: (err) => {
+        console.error('Error loading testimonials:', err);
+        this.testimonials = [];
+      }
+    });
+  }
+
+  onTestimonialImageSelected(event: any) {
+    this.testimonialImageFile = event.target.files[0];
+    this.testimonialImageError = '';
+
+    if (this.testimonialImageFile) {
+      const reader = new FileReader();
+      reader.onload = (e: any) => {
+        const img = new Image();
+        img.onload = () => {
+          const width = img.width;
+          const height = img.height;
+          const ratio = width / height;
+          const expectedRatio = this.TESTIMONIAL_IMAGE_WIDTH / this.TESTIMONIAL_IMAGE_HEIGHT; // 0.8
+          
+          // Allow some tolerance for aspect ratio (4:5 = 0.8)
+          const ratioDifference = Math.abs(ratio - expectedRatio);
+          if (ratioDifference > 0.2) { // 20% tolerance
+            this.testimonialImageError = `Image aspect ratio should be around 4:5 (${this.TESTIMONIAL_IMAGE_WIDTH}x${this.TESTIMONIAL_IMAGE_HEIGHT}). Current: ${width}x${height}`;
+            this.testimonialImageFile = null;
+            this.testimonialImagePreview = '';
+            event.target.value = '';
+            return;
+          }
+          
+          this.testimonialImagePreview = e.target.result;
+        };
+        
+        img.onerror = () => {
+          this.testimonialImageError = 'Unable to load image. Please choose a valid image file.';
+          this.testimonialImageFile = null;
+          this.testimonialImagePreview = '';
+          event.target.value = '';
+        };
+        img.src = e.target.result;
+      };
+      reader.readAsDataURL(this.testimonialImageFile);
+    }
+  }
+
+  saveTestimonial() {
+    if (!this.testimonialName.trim() || !this.testimonialRole.trim() || !this.testimonialText.trim()) {
+      alert('Please fill in the testimonial name, role, and text.');
+      return;
+    }
+
+    if (this.testimonialImageFile && this.testimonialImageError) {
+      alert('Please fix the image error before saving.');
+      return;
+    }
+
+    const testimonial: Partial<Testimonial> = {
+      name: this.testimonialName.trim(),
+      role: this.testimonialRole.trim(),
+      text: this.testimonialText.trim(),
+      image: this.testimonialImage.trim() || ''
+    };
+
+    if (this.editingTestimonialId) {
+      this.testimonialService.updateTestimonial(this.editingTestimonialId, testimonial, this.testimonialImageFile || undefined).subscribe({
+        next: (response) => {
+          const index = this.testimonials.findIndex(t => (t._id || t.id) === this.editingTestimonialId);
+          if (index >= 0) {
+            this.testimonials[index] = response;
+          }
+          this.testimonialService.saveToLocalStorage(this.testimonials);
+          this.resetTestimonialForm();
+          alert('Testimonial updated successfully!');
+        },
+        error: (err) => {
+          console.error('Error updating testimonial:', err);
+          alert('Error updating testimonial: ' + (err.error?.message || err.message));
+        }
+      });
+    } else {
+      this.testimonialService.createTestimonial(testimonial, this.testimonialImageFile || undefined).subscribe({
+        next: (response) => {
+          this.testimonials.push(response);
+          this.testimonialService.saveToLocalStorage(this.testimonials);
+          this.resetTestimonialForm();
+          alert('Testimonial saved successfully!');
+        },
+        error: (err) => {
+          console.error('Error saving testimonial:', err);
+          alert('Error saving testimonial: ' + (err.error?.message || err.message));
+        }
+      });
+    }
+  }
+
+  editTestimonial(testimonial: Testimonial) {
+    this.editingTestimonialId = testimonial._id || testimonial.id || null;
+    this.testimonialName = testimonial.name;
+    this.testimonialRole = testimonial.role;
+    this.testimonialText = testimonial.text;
+    this.testimonialImage = testimonial.image;
+    this.testimonialImagePreview = testimonial.image;
+    this.testimonialImageFile = null;
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }
+
+  deleteTestimonial(id: string | null) {
+    if (!id) {
+      return;
+    }
+
+    if (!confirm('Are you sure you want to delete this testimonial?')) {
+      return;
+    }
+
+    this.testimonialService.deleteTestimonial(id).subscribe({
+      next: () => {
+        this.testimonials = this.testimonials.filter(t => (t._id || t.id) !== id);
+        this.testimonialService.saveToLocalStorage(this.testimonials);
+        if (this.editingTestimonialId === id) {
+          this.resetTestimonialForm();
+        }
+        alert('Testimonial deleted successfully!');
+      },
+      error: (err) => {
+        console.error('Error deleting testimonial:', err);
+        alert('Error deleting testimonial: ' + (err.error?.message || err.message));
+      }
+    });
+  }
+
+  resetTestimonialForm() {
+    this.testimonialName = '';
+    this.testimonialRole = '';
+    this.testimonialText = '';
+    this.testimonialImage = '';
+    this.testimonialImageFile = null;
+    this.testimonialImagePreview = '';
+    this.testimonialImageError = '';
+    this.editingTestimonialId = null;
   }
 
   // Page Background Methods

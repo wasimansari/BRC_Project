@@ -169,6 +169,16 @@ const pageBackgroundSchema = new mongoose.Schema({
   subtitle: { type: String, default: '' }
 }, { timestamps: true });
 
+// Testimonial Schema
+const testimonialSchema = new mongoose.Schema({
+  name: { type: String, required: true },
+  role: { type: String, required: true },
+  text: { type: String, required: true },
+  image: { type: String, default: '' },
+  imagePublicId: { type: String, default: '' },
+  isActive: { type: Boolean, default: true }
+}, { timestamps: true });
+
 // Create and export models
 const Event = mongoose.model('Event', eventSchema);
 const News = mongoose.model('News', newsSchema);
@@ -183,6 +193,7 @@ const Download = mongoose.model('Download', downloadSchema);
 const School = mongoose.model('School', schoolSchema);
 const Announcement = mongoose.model('Announcement', announcementSchema);
 const PageBackground = mongoose.model('PageBackground', pageBackgroundSchema);
+const Testimonial = mongoose.model('Testimonial', testimonialSchema);
 
 module.exports = {
   Event,
@@ -197,5 +208,6 @@ module.exports = {
   Download,
   School,
   Announcement,
-  PageBackground
+  PageBackground,
+  Testimonial
 };

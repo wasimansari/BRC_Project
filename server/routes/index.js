@@ -15,6 +15,7 @@ const schoolRoutes = require('./schools');
 const announcementRoutes = require('./announcements');
 const pageBackgroundRoutes = require('./pageBackground');
 const teacherRoutes = require('./teacher');
+const testimonialRoutes = require('./testimonial');
 
 // Use routes
 router.use('/auth', authRoutes);
@@ -30,5 +31,6 @@ router.use('/settings', settingsRoutes);
 router.use('/schools', schoolRoutes);
 router.use('/announcements', announcementRoutes);
 router.use('/page-backgrounds', pageBackgroundRoutes);
+router.use('/testimonials', testimonialRoutes);
 
 module.exports = router;

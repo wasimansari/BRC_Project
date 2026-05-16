@@ -497,11 +497,17 @@ export class EnhancedNewsService {
         console.error('Error fetching categories:', error);
         // Return hardcoded categories as fallback
         return of([
-          'Achievements',
-          'Academics', 
-          'Events',
-          'Announcements',
-          'Other'
+          'BRC Mehsi Updates',
+          'District Updates',
+          'Teacher News',
+          'Student News',
+          'HM/HT News',
+          'Class Teacher Updates',
+          'eShikshaKosh Updates',
+          'UDISE+ Updates',
+          'Transfer & Posting',
+          'Training Programs',
+          'Meetings & Events'
         ]);
       })
     );

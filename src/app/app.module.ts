@@ -24,6 +24,7 @@ import { ServicesComponent } from './components/services/services.component';
 import { StatisticsComponent } from './components/statistics/statistics.component';
 import { NoticesComponent } from './components/notices/notices.component';
 import { NewsComponent } from './components/news/news.component';
+import { EventsComponent } from './components/events/events.component';
 import { LibraryComponent } from './components/library/library.component';
 import { TestimonialComponent } from './components/testimonial/testimonial.component';
 import { FooterComponent } from './components/footer/footer.component';
@@ -59,6 +60,7 @@ import { AppComponent } from './app.component';
     StatisticsComponent,
     NoticesComponent,
     NewsComponent,
+    EventsComponent,
     LibraryComponent,
     TestimonialComponent,
     FooterComponent,

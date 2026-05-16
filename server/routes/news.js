@@ -257,8 +257,30 @@ router.patch('/:id/toggle', async (req, res) => {
 // @access  Public
 router.get('/categories/list', async (req, res) => {
   try {
-    const categories = await News.distinct('category');
-    res.json({ success: true, data: categories.sort() });
+    const dbCategories = (await News.distinct('category')) || [];
+
+    const fallback = [
+      'BRC Mehsi Updates',
+      'District Updates',
+      'Teacher News',
+      'Student News',
+      'HM/HT News',
+      'Class Teacher Updates',
+      'eShikshaKosh Updates',
+      'UDISE+ Updates',
+      'Transfer & Posting',
+      'Training Programs',
+      'Meetings & Events'
+    ];
+
+    // Clean DB categories and merge with fallback preserving fallback order
+    const cleanedDb = dbCategories.map(c => (c || '').toString().trim()).filter(Boolean);
+    const merged = [...fallback];
+    cleanedDb.forEach(c => {
+      if (!merged.includes(c)) merged.push(c);
+    });
+
+    res.json({ success: true, data: merged });
   } catch (error) {
     res.status(500).json({ message: 'Error fetching categories', error: error.message });
   }

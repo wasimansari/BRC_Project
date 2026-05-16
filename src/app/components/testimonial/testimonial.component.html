@@ -1,39 +1,46 @@
 <section class="testimonial-section section-padding">
+  <div class="testimonial-overlay"></div>
   <div class="container">
+    <div class="row justify-content-center text-center mb-5" appScrollAnimate animationType="fadeInUp" [animationDelay]="0">
+      <div class="col-lg-8">
+        <p class="testimonial-label">Testimonials</p>
+        <h2 class="testimonial-heading">What our community is saying</h2>
+        <p class="testimonial-subtitle">Real feedback from students, teachers, and school leaders who trust Eduubuzz for better learning outcomes.</p>
+      </div>
+    </div>
+
     <div class="row justify-content-center">
-      <div class="col-lg-8" appScrollAnimate animationType="fadeInUp" [animationDelay]="0">
-        <div id="testimonialCarousel" class="carousel slide" data-bs-ride="carousel" data-bs-interval="5000" data-bs-touch="true">
+      <div class="col-lg-10" appScrollAnimate animationType="fadeInUp" [animationDelay]="0.1">
+        <div id="testimonialCarousel" class="carousel slide" data-bs-ride="carousel" data-bs-interval="6000" data-bs-touch="true">
           <div class="carousel-inner">
             <div *ngFor="let testimonial of testimonials; let i = index" 
                  class="carousel-item" 
                  [class.active]="i === 0">
               <div class="testimonial-card">
-                <div class="testimonial-content">
-                  <div class="quote-icon">
-                    <i class="fas fa-quote-left"></i>
-                  </div>
-                  <p class="testimonial-text">{{ testimonial.text }}</p>
-                  <div class="testimonial-author">
-                    <img [src]="testimonial.image" [alt]="testimonial.name" class="author-image">
-                    <div class="author-info">
-                      <h4 class="author-name">{{ testimonial.name }}</h4>
-                      <p class="author-role">{{ testimonial.role }}</p>
-                    </div>
+                <div class="quote-icon">
+                  <i class="fas fa-quote-left"></i>
+                </div>
+                <p class="testimonial-text">{{ testimonial.text }}</p>
+                <div class="testimonial-author">
+                  <img [src]="testimonial.image" [alt]="testimonial.name" class="author-image">
+                  <div class="author-info">
+                    <h4 class="author-name">{{ testimonial.name }}</h4>
+                    <p class="author-role">{{ testimonial.role }}</p>
                   </div>
                 </div>
               </div>
             </div>
           </div>
-          
+
           <button class="carousel-control-prev" type="button" data-bs-target="#testimonialCarousel" data-bs-slide="prev">
-            <i class="fa fa-angle-left"></i>
+            <span class="control-icon"><i class="fa fa-angle-left"></i></span>
             <span class="visually-hidden">Previous</span>
           </button>
           <button class="carousel-control-next" type="button" data-bs-target="#testimonialCarousel" data-bs-slide="next">
-            <i class="fa fa-angle-right"></i>
+            <span class="control-icon"><i class="fa fa-angle-right"></i></span>
             <span class="visually-hidden">Next</span>
           </button>
-          
+
           <div class="carousel-indicators">
             <button *ngFor="let testimonial of testimonials; let i = index" 
                     type="button" 
