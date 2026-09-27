@@ -36,27 +36,54 @@ export class ErrorInterceptor implements HttpInterceptor {
           errorMessage = error.error.message;
         } else {
           // Server-side error
-          switch (error.status) {
-            case 0:
-              errorMessage = 'Unable to connect to server. Please check your internet connection.';
-              break;
-            case 401:
-              // Unauthorized - Token expired or invalid
-              errorMessage = 'Your session has expired. Please login again.';
-              this.authService.logout();
-              this.router.navigate(['/admin/login']);
-              break;
-            case 403:
-              errorMessage = 'You do not have permission to perform this action.';
-              break;
-            case 404:
-              errorMessage = 'The requested resource was not found.';
-              break;
-            case 500:
-              errorMessage = 'Server error. Please try again later.';
-              break;
-            default:
-              errorMessage = error.error?.message || `Error: ${error.status}`;
+          // Prioritize specific message from backend if available
+          if (error.error && error.error.message) {
+            errorMessage = error.error.message;
+            
+            // Still handle the 401 redirects if needed
+            if (error.status === 401) {
+              if (request.url.includes('/api/teacher') || request.url.includes('/api/teacher-docs')) {
+                localStorage.removeItem('teacherToken');
+                localStorage.removeItem('isTeacherLoggedIn');
+                localStorage.removeItem('teacherUdiseCode');
+                localStorage.removeItem('teacherData');
+                this.router.navigate(['/teacher/login']);
+              } else {
+                this.authService.logout();
+                this.router.navigate(['/admin/login']);
+              }
+            }
+          } else {
+            // Fallback generic messages
+            switch (error.status) {
+              case 0:
+                errorMessage = 'Unable to connect to server. Please check your internet connection.';
+                break;
+              case 401:
+                errorMessage = 'Your session has expired. Please login again.';
+                if (request.url.includes('/api/teacher') || request.url.includes('/api/teacher-docs')) {
+                  localStorage.removeItem('teacherToken');
+                  localStorage.removeItem('isTeacherLoggedIn');
+                  localStorage.removeItem('teacherUdiseCode');
+                  localStorage.removeItem('teacherData');
+                  this.router.navigate(['/teacher/login']);
+                } else {
+                  this.authService.logout();
+                  this.router.navigate(['/admin/login']);
+                }
+                break;
+              case 403:
+                errorMessage = 'You do not have permission to perform this action.';
+                break;
+              case 404:
+                errorMessage = 'The requested resource was not found.';
+                break;
+              case 500:
+                errorMessage = 'Server error. Please try again later.';
+                break;
+              default:
+                errorMessage = `Error: ${error.status}`;
+            }
           }
         }
 

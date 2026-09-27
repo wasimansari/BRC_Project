@@ -2,6 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { SchoolSearchService, SchoolDetails, SchoolReportCard, SchoolCompleteDetails } from '../../services/school-search.service';
 import { SchoolService, School as LocalSchoolData } from '../../services/school.service';
 import { PageBackgroundService, PageBackground } from '../../services/page-background.service';
+import { TeacherDirectoryService, TeacherDirectory } from '../../services/teacher-directory.service';
 import { app_constants, SearchTypeId } from '../../../constant';
 
 // Local school interface matching our database
@@ -110,6 +111,32 @@ export class SearchSchoolComponent implements OnInit {
   localDistricts: string[] = [];
   localBlocks: string[] = [];
 
+  // Teacher Directory data from database
+  allTeachers: TeacherDirectory[] = [];
+  localFilteredTeachers: TeacherDirectory[] = [];
+  
+  // Teacher Pagination
+  teacherCurrentPage = 1;
+  teacherPageSize = 10;
+  teacherTotalPages = 1;
+  teacherTotalRecords = 0;
+  
+  // Teacher search/filter
+  teacherSearchTerm = '';
+  teacherSelectedDistrict = '';
+  teacherSelectedBlock = '';
+  
+  // Show teacher results
+  isLoadingTeachers = false;
+  
+  // Unique districts and blocks for teacher filters
+  teacherDistricts: string[] = [];
+  teacherBlocks: string[] = [];
+
+  // Teacher modal properties
+  showTeacherModal = false;
+  selectedTeacher: TeacherDirectory | null = null;
+
   // Page background properties
   pageBackground: PageBackground | null = null;
   pageBackgroundLoading = true;
@@ -117,12 +144,26 @@ export class SearchSchoolComponent implements OnInit {
   constructor(
     private schoolSearchService: SchoolSearchService,
     private schoolService: SchoolService,
+    private teacherService: TeacherDirectoryService,
     private pageBackgroundService: PageBackgroundService
   ) {}
 
   ngOnInit(): void {
     this.loadLocalSchools();
+    this.loadTeachers();
     this.loadPageBackground();
+  }
+
+  // Open teacher modal
+  openTeacherModal(teacher: TeacherDirectory): void {
+    this.selectedTeacher = teacher;
+    this.showTeacherModal = true;
+  }
+
+  // Close teacher modal
+  closeTeacherModal(): void {
+    this.showTeacherModal = false;
+    this.selectedTeacher = null;
   }
 
   loadPageBackground() {
@@ -139,6 +180,106 @@ export class SearchSchoolComponent implements OnInit {
     });
   }
 
+  // Load teachers from local database
+  loadTeachers(): void {
+    this.isLoadingTeachers = true;
+    this.teacherService.getAllTeachers().subscribe({
+      next: (data) => {
+        this.allTeachers = data;
+        this.extractTeacherDistrictsAndBlocks();
+        this.applyTeacherFilters();
+        this.isLoadingTeachers = false;
+      },
+      error: (err) => {
+        console.error('Error loading teachers:', err);
+        this.isLoadingTeachers = false;
+      }
+    });
+  }
+
+  // Extract unique districts and blocks for teachers
+  extractTeacherDistrictsAndBlocks(): void {
+    this.teacherDistricts = [...new Set(this.allTeachers.map(t => t.postingDistrict).filter(Boolean))].sort();
+    this.teacherBlocks = [...new Set(this.allTeachers.map(t => t.postingBlock).filter(Boolean))].sort();
+  }
+
+  // Apply teacher filters and pagination
+  applyTeacherFilters(): void {
+    let filtered = [...this.allTeachers];
+
+    // Search filter
+    if (this.teacherSearchTerm) {
+      const term = this.teacherSearchTerm.toLowerCase();
+      filtered = filtered.filter(t =>
+        t.teacherName?.toLowerCase().includes(term) ||
+        t.teacherId?.toLowerCase().includes(term) ||
+        t.subject?.toLowerCase().includes(term) ||
+        t.class?.toLowerCase().includes(term) ||
+        t.postingDistrict?.toLowerCase().includes(term) ||
+        t.postingBlock?.toLowerCase().includes(term) ||
+        t.homeDistrict?.toLowerCase().includes(term) ||
+        t.contactNo?.toLowerCase().includes(term)
+      );
+    }
+
+    // District filter
+    if (this.teacherSelectedDistrict) {
+      filtered = filtered.filter(t => t.postingDistrict === this.teacherSelectedDistrict);
+    }
+
+    // Block filter
+    if (this.teacherSelectedBlock) {
+      filtered = filtered.filter(t => t.postingBlock === this.teacherSelectedBlock);
+    }
+
+    this.teacherTotalRecords = filtered.length;
+    this.teacherTotalPages = Math.ceil(filtered.length / this.teacherPageSize);
+    
+    // Pagination
+    const start = (this.teacherCurrentPage - 1) * this.teacherPageSize;
+    this.localFilteredTeachers = filtered.slice(start, start + this.teacherPageSize);
+  }
+
+  // Teacher search
+  onTeacherSearch(): void {
+    this.teacherCurrentPage = 1;
+    this.applyTeacherFilters();
+  }
+
+  // Clear teacher filters
+  clearTeacherFilters(): void {
+    this.teacherSearchTerm = '';
+    this.teacherSelectedDistrict = '';
+    this.teacherSelectedBlock = '';
+    this.teacherCurrentPage = 1;
+    this.applyTeacherFilters();
+  }
+
+  // Teacher Pagination
+  goToTeacherPage(page: number): void {
+    if (page >= 1 && page <= this.teacherTotalPages) {
+      this.teacherCurrentPage = page;
+      this.applyTeacherFilters();
+    }
+  }
+
+  // Get page numbers for teacher pagination
+  getTeacherPageNumbers(): number[] {
+    const pages: number[] = [];
+    const maxPages = 5;
+    let startPage = Math.max(1, this.teacherCurrentPage - Math.floor(maxPages / 2));
+    let endPage = Math.min(this.teacherTotalPages, startPage + maxPages - 1);
+    
+    if (endPage - startPage < maxPages - 1) {
+      startPage = Math.max(1, endPage - maxPages + 1);
+    }
+    
+    for (let i = startPage; i <= endPage; i++) {
+      pages.push(i);
+    }
+    return pages;
+  }
+
   // Load schools from local database
   loadLocalSchools(): void {
     this.isLoadingLocal = true;
@@ -147,6 +288,13 @@ export class SearchSchoolComponent implements OnInit {
         this.allSchools = data;
         this.extractDistrictsAndBlocks();
         this.applyLocalFilters();
+        
+        // Show MongoDB data in the main Search Results cards on page load
+        if (this.filteredSchools.length === 0 && !this.showResults) {
+          this.filteredSchools = data.map(s => this.mapLocalSchoolToSchool(s));
+          this.showResults = true;
+        }
+        
         this.isLoadingLocal = false;
       },
       error: (err) => {
@@ -154,6 +302,38 @@ export class SearchSchoolComponent implements OnInit {
         this.isLoadingLocal = false;
       }
     });
+  }
+
+  // Map local database school to UDISE school format for the cards
+  private mapLocalSchoolToSchool(localSchool: LocalSchool): School {
+    return {
+      udiseCode: localSchool.udiseCode || '',
+      schoolName: localSchool.schoolName || '',
+      type: 'School', // Generic fallback
+      address: '', 
+      block: localSchool.block || '',
+      districtName: localSchool.district || '',
+      stateName: 'Uttar Pradesh',
+      principal: localSchool.hmHtName || 'N/A',
+      phone: localSchool.mobileNo || 'N/A',
+      email: 'N/A',
+      category: '',
+      pincode: '',
+      website: '',
+      schMgmtDesc: '',
+      classFrm: 0,
+      classTo: 0,
+      schoolStatusName: localSchool.isActive ? 'Active' : 'Inactive',
+      clusterName: localSchool.crcName || '',
+      villageName: '',
+      schCatDesc: '',
+      schLocDesc: '',
+      schTypeDesc: '',
+      lastmodifiedTime: '',
+      latitude: 0,
+      longitude: 0,
+      schoolId: localSchool.udiseCode || ''
+    };
   }
 
   // Extract unique districts and blocks

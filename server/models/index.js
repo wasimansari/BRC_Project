@@ -13,7 +13,9 @@ const eventSchema = new mongoose.Schema({
 const newsSchema = new mongoose.Schema({
   title: { type: String, required: true, trim: true, maxlength: 200 },
   description: { type: String, required: true, trim: true, maxlength: 1000 },
-  category: { type: String, required: true, enum: ['Achievements', 'Academics', 'Events', 'Announcements', 'Other'], default: 'Other' },
+  // Bug Fix 9: Removed restrictive enum — categories come from routes/news.js dynamically
+  // Previous enum only allowed 5 values but real data has 11+ categories
+  category: { type: String, required: true, default: 'Other' },
   author: { type: String, required: true, trim: true, maxlength: 100 },
   tags: [{ type: String, trim: true, maxlength: 50 }],
   isActive: { type: Boolean, default: true },
@@ -24,7 +26,10 @@ const newsSchema = new mongoose.Schema({
     text: { type: String },
     imageUrl: { type: String },
     thumbnailUrl: { type: String },
+    // Bug Fix 4 (schema support): Store Cloudinary public_ids for reliable file deletion
+    imagePublicId: { type: String },
     pdfUrl: { type: String },
+    pdfPublicId: { type: String },
     fileName: { type: String },
     fileSize: { type: Number }
   },
@@ -50,17 +55,35 @@ const adminSchema = new mongoose.Schema({
 
 // Teacher Schema
 const teacherSchema = new mongoose.Schema({
-  udiseCode: { type: String, required: true },
-  mobileNo: { type: String, required: true },
-  schoolName: { type: String, required: true },
-  fullName: { type: String, default: '' },
-  password: { type: String, default: '' },
-  otp: { type: String, select: false },
-  otpExpiresAt: { type: Date },
-  createdAt: { type: Date, default: Date.now }
+  udiseCode:   { type: String, required: true },
+  mobileNo:    { type: String, required: true },
+  email:       { type: String, required: true, lowercase: true, trim: true },
+  schoolName:  { type: String, required: true },
+  fullName:    { type: String, default: '' },
+  password:    { type: String, default: '', select: false },
+  otp:         { type: String, select: false },
+  otpExpiresAt:{ type: Date, select: false },
+  isVerified:  { type: Boolean, default: false },
+  isActive:    { type: Boolean, default: true },
+  createdAt:   { type: Date, default: Date.now }
 });
 
 teacherSchema.index({ udiseCode: 1, mobileNo: 1 }, { unique: true });
+
+// TeacherDocument Schema — for dashboard uploads
+const teacherDocumentSchema = new mongoose.Schema({
+  udiseCode:   { type: String, required: true },
+  teacherName: { type: String, default: '' },
+  title:       { type: String, required: true },
+  docType:     { type: String, enum: ['Letter', 'Absentee', 'Report', 'Circular', 'Other'], default: 'Other' },
+  description: { type: String, default: '' },
+  fileUrl:     { type: String, required: true },
+  filePublicId:{ type: String, default: '' },
+  fileName:    { type: String, default: '' },
+  fileSize:    { type: Number, default: 0 },
+  mimeType:    { type: String, default: '' },
+  uploadedAt:  { type: Date, default: Date.now }
+});
 
 // Banner Schema
 const bannerSchema = new mongoose.Schema({
@@ -179,6 +202,25 @@ const testimonialSchema = new mongoose.Schema({
   isActive: { type: Boolean, default: true }
 }, { timestamps: true });
 
+// Teacher Directory Schema
+const teacherDirectorySchema = new mongoose.Schema({
+  srNo: { type: Number, required: true },
+  teacherId: { type: String, required: true, unique: true },
+  teacherName: { type: String, required: true },
+  class: { type: String, default: '' },
+  subject: { type: String, default: '' },
+  highestQualification: { type: String, default: '' },
+  schoolName: { type: String, required: true },
+  udise: { type: String, required: true },
+  contactNo: { type: String, default: '' },
+  postingBlock: { type: String, default: '' },
+  postingDistrict: { type: String, default: '' },
+  homeDistrict: { type: String, default: '' },
+  isCrcSchool: { type: String, enum: ['Yes', 'No', ''], default: '' },
+  crcSchool: { type: String, default: '' },
+  isActive: { type: Boolean, default: true }
+}, { timestamps: true });
+
 // Create and export models
 const Event = mongoose.model('Event', eventSchema);
 const News = mongoose.model('News', newsSchema);
@@ -194,6 +236,8 @@ const School = mongoose.model('School', schoolSchema);
 const Announcement = mongoose.model('Announcement', announcementSchema);
 const PageBackground = mongoose.model('PageBackground', pageBackgroundSchema);
 const Testimonial = mongoose.model('Testimonial', testimonialSchema);
+const TeacherDirectory = mongoose.model('TeacherDirectory', teacherDirectorySchema);
+const TeacherDocument = mongoose.model('TeacherDocument', teacherDocumentSchema);
 
 module.exports = {
   Event,
@@ -209,5 +253,8 @@ module.exports = {
   School,
   Announcement,
   PageBackground,
-  Testimonial
+  Testimonial,
+  TeacherDirectory,
+  TeacherDocument
 };
+

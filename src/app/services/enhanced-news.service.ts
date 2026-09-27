@@ -116,14 +116,8 @@ export class EnhancedNewsService {
    * Get all news from API
    */
   getAllNews(forceRefresh: boolean = false): Observable<DepartmentNews[]> {
-    // First try to get from localStorage (user-created news)
-    const storedNews = this.getFromLocalStorage();
-    if (storedNews && storedNews.length > 0 && !forceRefresh) {
-      console.log('Using news from localStorage');
-      return of(storedNews);
-    }
-
-    // If no localStorage data or force refresh, try API
+    // Bug Fix 7: Always fetch from API first — localStorage is only an OFFLINE fallback
+    // (Previous code returned stale localStorage data before even trying the API)
     return this.http.get<any>(this.NEWS_ENDPOINT).pipe(
       map(response => {
         // Handle different response formats
@@ -144,9 +138,8 @@ export class EnhancedNewsService {
         }
         
         if (newsData && newsData.length > 0) {
-          // Transform data if needed
           const transformedNews = newsData.map(item => this.transformNewsData(item));
-          // Cache the data in localStorage for offline support
+          // Cache in localStorage for offline support
           this.saveToLocalStorage(transformedNews);
           return transformedNews;
         } else {
@@ -156,7 +149,8 @@ export class EnhancedNewsService {
       }),
       catchError(error => {
         console.error('❌ Error fetching news from API:', error);
-        console.log('🔄 Using localStorage fallback');
+        console.log('🔄 Using localStorage fallback (offline mode)');
+        // Only use localStorage as fallback when API is unreachable
         return of(this.getFromLocalStorage() || this.localNews);
       })
     );

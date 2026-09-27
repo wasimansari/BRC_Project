@@ -1,50 +1,195 @@
-.teacher-signup-container {
+.auth-page {
+  min-height: calc(100vh - 70px);
   display: flex;
   align-items: center;
   justify-content: center;
-  min-height: 80vh;
-  padding: 24px;
+  background: #f4f7f6;
+  padding: 40px 20px;
+  margin-top: 68px;
 }
 
-.teacher-card {
+.auth-container {
+  background: white;
   width: 100%;
-  max-width: 420px;
-  background: #ffffff;
-  border-radius: 12px;
-  box-shadow: 0 12px 32px rgba(0, 0, 0, 0.08);
-  padding: 30px;
+  max-width: 520px;
+  border-radius: var(--radius-md);
+  box-shadow: 0 10px 30px rgba(0,0,0,0.08);
+  padding: 40px;
+  border-top: 4px solid var(--brand-primary);
 }
 
-.teacher-card h2 {
-  margin-bottom: 24px;
-  font-size: 26px;
+.auth-header {
   text-align: center;
+  margin-bottom: 30px;
 }
 
+.auth-icon {
+  width: 60px;
+  height: 60px;
+  background: rgba(26, 82, 118, 0.1);
+  color: var(--brand-primary);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 24px;
+  margin: 0 auto 15px;
+}
+
+.auth-header h2 {
+  font-size: 1.8rem;
+  font-weight: 700;
+  color: var(--brand-dark);
+  margin-bottom: 8px;
+}
+
+.auth-header p {
+  color: #6c757d;
+  font-size: 0.95rem;
+}
+
+/* Progress Steps */
+.progress-steps {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 30px;
+  padding: 0 20px;
+}
+
+.step {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  position: relative;
+  z-index: 2;
+}
+
+.step-num {
+  width: 32px;
+  height: 32px;
+  background: #e9ecef;
+  color: #adb5bd;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 600;
+  font-size: 14px;
+  transition: all 0.3s;
+}
+
+.step-text {
+  font-size: 12px;
+  font-weight: 600;
+  color: #adb5bd;
+  margin-top: 8px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.step.active .step-num {
+  background: var(--brand-primary);
+  color: white;
+  box-shadow: 0 0 0 4px rgba(26, 82, 118, 0.2);
+}
+.step.active .step-text {
+  color: var(--brand-primary);
+}
+
+.step.completed .step-num {
+  background: var(--brand-accent);
+  color: white;
+}
+
+.step-line {
+  flex-grow: 1;
+  height: 3px;
+  background: #e9ecef;
+  margin: 0 10px;
+  position: relative;
+  top: -12px;
+  transition: all 0.3s;
+}
+
+.step-line.active {
+  background: var(--brand-primary);
+}
+
+/* Forms */
 .form-group {
-  margin-bottom: 16px;
+  margin-bottom: 20px;
 }
 
 .form-group label {
-  display: block;
-  margin-bottom: 8px;
   font-weight: 600;
+  font-size: 0.9rem;
+  color: #34495e;
+  margin-bottom: 8px;
+  display: block;
 }
 
-.form-control {
-  width: 100%;
-  padding: 10px 12px;
-  border: 1px solid #ced4da;
-  border-radius: 6px;
-  outline: none;
+.input-icon {
+  position: relative;
 }
 
-.btn {
-  display: inline-flex;
-  justify-content: center;
-  align-items: center;
+.input-icon i {
+  position: absolute;
+  left: 15px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: #95a5a6;
 }
 
-.text-center {
+.input-icon .form-control {
+  padding-left: 45px;
+  height: 48px;
+  border-radius: var(--radius-sm);
+  border: 1px solid #dce4ec;
+  font-size: 0.95rem;
+}
+
+.input-icon .form-control:focus {
+  border-color: var(--brand-primary);
+  box-shadow: 0 0 0 3px rgba(26, 82, 118, 0.1);
+}
+
+/* OTP Input */
+.otp-input {
   text-align: center;
+  font-size: 24px;
+  letter-spacing: 12px;
+  font-family: monospace;
+  height: 60px !important;
+  font-weight: 700;
+  color: var(--brand-primary);
+}
+
+.btn-resend {
+  color: var(--brand-accent);
+  text-decoration: none;
+  font-weight: 600;
+  font-size: 0.9rem;
+}
+.btn-resend:disabled {
+  color: #95a5a6;
+}
+
+.brand-link {
+  color: var(--brand-primary);
+  font-weight: 600;
+  text-decoration: none;
+}
+.brand-link:hover {
+  text-decoration: underline;
+}
+
+/* Alerts */
+.alert {
+  padding: 12px 16px;
+  border-radius: var(--radius-sm);
+  font-size: 0.9rem;
+  display: flex;
+  align-items: center;
+  gap: 10px;
 }

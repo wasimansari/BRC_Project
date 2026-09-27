@@ -1,50 +1,22 @@
-/* Blog Banner Styles */
+/* Blog Banner — Unified Page Banner */
 .blog-banner {
   position: relative;
-  min-height: 450px;
+  min-height: 280px;
   display: flex;
   align-items: center;
   justify-content: center;
-  /* background-image: url('/assets/images/news/news_bg.jpg'); */
   background-size: cover;
   background-position: center;
   background-repeat: no-repeat;
-  margin-top: 70px;
+  margin-top: 68px;
   overflow: hidden;
-}
-
-/* Animated background shapes */
-.blog-banner::before {
-  content: '';
-  position: absolute;
-  top: -20%;
-  right: -10%;
-  width: 500px;
-  height: 500px;
-  background: radial-gradient(circle, rgba(26, 188, 156, 0.3) 0%, transparent 70%);
-  border-radius: 50%;
-  animation: float 6s ease-in-out infinite;
-}
-
-.blog-banner::after {
-  content: '';
-  position: absolute;
-  bottom: -15%;
-  left: -5%;
-  width: 400px;
-  height: 400px;
-  background: radial-gradient(circle, rgba(22, 160, 133, 0.25) 0%, transparent 70%);
-  border-radius: 50%;
-  animation: float 8s ease-in-out infinite reverse;
+  background-color: var(--brand-primary);
 }
 
 .blog-banner-overlay {
   position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  background: linear-gradient(135deg, rgba(22, 160, 133, 0.92) 0%, rgba(14, 111, 92, 0.88) 100%);
+  inset: 0;
+  background: linear-gradient(135deg, rgba(26, 82, 118, 0.93) 0%, rgba(22, 160, 133, 0.75) 100%);
 }
 
 .blog-banner-content {

@@ -1,7 +1,172 @@
-<div class="teacher-dashboard-container">
-  <div class="teacher-dashboard-card">
-    <h2>Teacher Dashboard</h2>
-    <p>Welcome, teacher with UDISE code <strong>{{ udiseCode }}</strong>.</p>
-    <button class="btn btn-primary" (click)="logout()">Logout</button>
-  </div>
+<div class="dashboard-layout">
+  
+  <!-- SIDEBAR -->
+  <aside class="dashboard-sidebar">
+    <div class="sidebar-header">
+      <i class="fa-solid fa-graduation-cap"></i>
+      <h3>Teacher Portal</h3>
+    </div>
+    
+    <div class="sidebar-user">
+      <div class="avatar"><i class="fa-solid fa-user"></i></div>
+      <div class="user-info">
+        <h4>{{ teacherData?.fullName || 'Teacher' }}</h4>
+        <span class="badge">{{ teacherData?.udiseCode }}</span>
+      </div>
+    </div>
+
+    <nav class="sidebar-nav">
+      <a [class.active]="activeTab === 'upload'" (click)="switchTab('upload')">
+        <i class="fa-solid fa-cloud-arrow-up"></i> Upload Document
+      </a>
+      <a [class.active]="activeTab === 'my-docs'" (click)="switchTab('my-docs')">
+        <i class="fa-solid fa-folder-open"></i> My Documents
+      </a>
+      <a [class.active]="activeTab === 'profile'" (click)="switchTab('profile')">
+        <i class="fa-solid fa-id-card"></i> Profile
+      </a>
+      <a (click)="logout()" class="logout-link">
+        <i class="fa-solid fa-right-from-bracket"></i> Logout
+      </a>
+    </nav>
+  </aside>
+
+  <!-- MAIN CONTENT -->
+  <main class="dashboard-main">
+    
+    <!-- Topbar -->
+    <header class="dashboard-topbar">
+      <h2>
+        <ng-container *ngIf="activeTab === 'upload'">Upload New Document</ng-container>
+        <ng-container *ngIf="activeTab === 'my-docs'">My Documents</ng-container>
+        <ng-container *ngIf="activeTab === 'profile'">My Profile</ng-container>
+      </h2>
+      <div class="school-tag"><i class="fa-solid fa-school me-2"></i>{{ teacherData?.schoolName }}</div>
+    </header>
+
+    <div class="dashboard-content">
+      
+      <!-- TOAST NOTIFICATION -->
+      <div class="toast-notification" [class.show]="toastMessage" [class.error]="toastType === 'error'">
+        <i class="fa-solid" [class.fa-check-circle]="toastType === 'success'" [class.fa-circle-exclamation]="toastType === 'error'"></i>
+        {{ toastMessage }}
+      </div>
+
+      <!-- TAB 1: UPLOAD -->
+      <div *ngIf="activeTab === 'upload'" class="dashboard-card">
+        <form (ngSubmit)="onUpload()">
+          <div class="row">
+            <div class="col-md-8">
+              <div class="form-group mb-4">
+                <label>Document Title <span class="text-danger">*</span></label>
+                <input type="text" class="form-control" [(ngModel)]="uploadTitle" name="title" placeholder="e.g., Leave Application Oct 2024" required>
+              </div>
+            </div>
+            <div class="col-md-4">
+              <div class="form-group mb-4">
+                <label>Document Type</label>
+                <select class="form-select" [(ngModel)]="uploadType" name="type">
+                  <option value="Letter">Letter</option>
+                  <option value="Absentee">Absentee</option>
+                  <option value="Report">Report</option>
+                  <option value="Circular">Circular</option>
+                  <option value="Other">Other</option>
+                </select>
+              </div>
+            </div>
+          </div>
+
+          <div class="form-group mb-4">
+            <label>Description (Optional)</label>
+            <textarea class="form-control" [(ngModel)]="uploadDesc" name="desc" rows="2" placeholder="Brief details about the document..."></textarea>
+          </div>
+
+          <div class="form-group mb-4">
+            <label>Attach File <span class="text-danger">*</span> <small class="text-muted">(PDF, JPG, PNG, DOC — Max 5MB)</small></label>
+            <div class="file-upload-box">
+              <input type="file" #fileInput (change)="onFileSelect($event)" accept=".pdf,image/*,.doc,.docx" class="form-control" required>
+            </div>
+          </div>
+
+          <button type="submit" class="btn btn-primary" [disabled]="isUploading || !uploadTitle || !selectedFile">
+            <span *ngIf="isUploading"><i class="fa-solid fa-spinner fa-spin me-2"></i>Uploading...</span>
+            <span *ngIf="!isUploading"><i class="fa-solid fa-upload me-2"></i>Upload Document</span>
+          </button>
+        </form>
+      </div>
+
+      <!-- TAB 2: MY DOCS -->
+      <div *ngIf="activeTab === 'my-docs'" class="dashboard-card docs-card">
+        <div *ngIf="isLoading" class="text-center py-5 text-muted">
+          <i class="fa-solid fa-spinner fa-spin fa-2x mb-3"></i><br>Loading documents...
+        </div>
+        
+        <div *ngIf="!isLoading && documents.length === 0" class="empty-state">
+          <img src="assets/images/empty-folder.png" alt="No docs" onerror="this.style.display='none'">
+          <i class="fa-regular fa-folder-open fa-3x mb-3 text-muted" *ngIf="true"></i>
+          <h4>No documents found</h4>
+          <p class="text-muted">You haven't uploaded any documents yet.</p>
+          <button class="btn btn-outline-primary mt-3" (click)="switchTab('upload')">Upload First Document</button>
+        </div>
+
+        <div class="table-responsive" *ngIf="!isLoading && documents.length > 0">
+          <table class="table table-hover align-middle custom-table">
+            <thead>
+              <tr>
+                <th>Title & Type</th>
+                <th>Upload Date</th>
+                <th>File</th>
+                <th class="text-end">Actions</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr *ngFor="let doc of documents">
+                <td>
+                  <div class="doc-title">{{ doc.title }}</div>
+                  <span class="doc-badge">{{ doc.docType }}</span>
+                </td>
+                <td class="text-muted small">
+                  {{ doc.uploadedAt | date:'mediumDate' }}<br>
+                  {{ doc.uploadedAt | date:'shortTime' }}
+                </td>
+                <td>
+                  <a [href]="doc.fileUrl" target="_blank" class="btn btn-sm btn-light border">
+                    <i class="fa-solid fa-eye me-1"></i> View
+                  </a>
+                </td>
+                <td class="text-end">
+                  <button class="btn btn-sm btn-outline-danger" (click)="deleteDocument(doc._id)">
+                    <i class="fa-solid fa-trash"></i>
+                  </button>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- TAB 3: PROFILE -->
+      <div *ngIf="activeTab === 'profile'" class="dashboard-card">
+        <div class="profile-details">
+          <div class="row border-bottom py-3">
+            <div class="col-md-4 text-muted fw-bold">Full Name</div>
+            <div class="col-md-8">{{ teacherData?.fullName || 'Not provided' }}</div>
+          </div>
+          <div class="row border-bottom py-3">
+            <div class="col-md-4 text-muted fw-bold">Email Address</div>
+            <div class="col-md-8">{{ teacherData?.email }}</div>
+          </div>
+          <div class="row border-bottom py-3">
+            <div class="col-md-4 text-muted fw-bold">UDISE Code</div>
+            <div class="col-md-8"><span class="badge bg-primary">{{ teacherData?.udiseCode }}</span></div>
+          </div>
+          <div class="row py-3">
+            <div class="col-md-4 text-muted fw-bold">School Name</div>
+            <div class="col-md-8">{{ teacherData?.schoolName }}</div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </main>
 </div>

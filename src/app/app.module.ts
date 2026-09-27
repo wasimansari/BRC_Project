@@ -38,6 +38,7 @@ import { AdminGalleryComponent } from './admin/admin-gallery/admin-gallery.compo
 import { AdminDownloadsComponent } from './admin/admin-downloads/admin-downloads.component';
 import { AdminSchoolComponent } from './admin/admin-school/admin-school.component';
 import { AdminNewsComponent } from './admin/admin-news/admin-news.component';
+import { AdminTeacherDirectoryComponent } from './admin/admin-teacher-directory/admin-teacher-directory.component';
 import { DepartmentNewsComponent } from './pages/department-news/department-news.component';
 import { NewsPreviewComponent } from './components/news-preview/news-preview.component';
 import { AppComponent } from './app.component';
@@ -73,6 +74,7 @@ import { AppComponent } from './app.component';
     AdminGalleryComponent,
     AdminDownloadsComponent,
     AdminSchoolComponent,
+    AdminTeacherDirectoryComponent,
     AdminNewsComponent,
     DepartmentNewsComponent,
     NewsPreviewComponent,

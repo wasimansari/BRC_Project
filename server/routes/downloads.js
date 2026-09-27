@@ -32,6 +32,9 @@ const uploadToCloudinary = (fileBuffer, fileType, originalFilename) => {
         (error, result) => {
           if (error) return reject(error);
 
+          // Bug Fix 1: Assign finalUrl from result.secure_url BEFORE using it
+          let finalUrl = result.secure_url;
+
           if (fileType === 'pdf') {
             finalUrl = finalUrl.replace('/image/upload/', '/raw/upload/');
             if (!finalUrl.endsWith('.pdf')) {
@@ -197,7 +200,8 @@ router.get('/:id/download', async (req, res) => {
       return res.status(404).json({ message: 'Download file not found' });
     }
 
-    const fileUrl = download.fileUrl;
+    // Bug Fix 2: Use 'let' so fileUrl can be reassigned for PDF URL correction
+    let fileUrl = download.fileUrl;
     if (download.fileType === 'pdf') {
       fileUrl = fileUrl.replace('/image/upload/', '/raw/upload/');
     }

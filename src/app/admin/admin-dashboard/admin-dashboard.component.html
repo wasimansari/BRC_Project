@@ -66,6 +66,11 @@
                 </a>
               </li>
               <li class="nav-item">
+                <a class="nav-link" href="#teacher-directory" data-bs-toggle="pill" appSmoothScroll [scrollOffset]="80" (click)="setActiveTab('teacher-directory')">
+                  <i class="fas fa-chalkboard-teacher"></i> <span class="nav-text">Teacher Directory</span>
+                </a>
+              </li>
+              <li class="nav-item">
                 <a class="nav-link" href="#announcements" data-bs-toggle="pill" appSmoothScroll [scrollOffset]="80" (click)="setActiveTab('announcements')">
                   <i class="fas fa-bullhorn"></i> <span class="nav-text">Announcements</span>
                 </a>
@@ -571,6 +576,11 @@
             <!-- Schools Tab -->
             <div class="tab-pane fade" id="schools" role="tabpanel" [class.tab-active]="activeTab === 'schools'">
               <app-admin-school></app-admin-school>
+            </div>
+
+            <!-- Teacher Directory Tab -->
+            <div class="tab-pane fade" id="teacher-directory" role="tabpanel" [class.tab-active]="activeTab === 'teacher-directory'">
+              <app-admin-teacher-directory></app-admin-teacher-directory>
             </div>
 
             <!-- Page Backgrounds Tab -->

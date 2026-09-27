@@ -53,9 +53,23 @@ export class BannerService {
    */
   getBanners(): Observable<Banner[]> {
     return this.http.get<Banner[]>(this.BANNERS_ENDPOINT).pipe(
-      map(response => response || []),
+      map(response => {
+        if (response && response.length > 0) {
+          localStorage.setItem('banners', JSON.stringify(response));
+        }
+        return response || [];
+      }),
       catchError(error => {
         console.error('Error fetching banners from API:', error);
+        const stored = localStorage.getItem('banners');
+        if (stored) {
+          try {
+            const parsed = JSON.parse(stored);
+            if (Array.isArray(parsed) && parsed.length > 0) {
+              return of(parsed.filter(b => b.isActive !== false));
+            }
+          } catch (e) {}
+        }
         return of(this.localBanners);
       })
     );
@@ -66,9 +80,23 @@ export class BannerService {
    */
   getAllBanners(): Observable<Banner[]> {
     return this.http.get<Banner[]>(this.BANNERS_ALL_ENDPOINT).pipe(
-      map(response => response || []),
+      map(response => {
+        if (response && response.length > 0) {
+          localStorage.setItem('all_banners', JSON.stringify(response));
+        }
+        return response || [];
+      }),
       catchError(error => {
         console.error('Error fetching all banners from API:', error);
+        const stored = localStorage.getItem('all_banners') || localStorage.getItem('banners');
+        if (stored) {
+          try {
+            const parsed = JSON.parse(stored);
+            if (Array.isArray(parsed) && parsed.length > 0) {
+              return of(parsed);
+            }
+          } catch (e) {}
+        }
         return of(this.localBanners);
       })
     );

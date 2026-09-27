@@ -1,17 +1,18 @@
 <app-header></app-header>
 
 @if (pageBackgroundLoading) {
-  <div class="loading-container" style="margin-top: 100px;">
-    <div class="spinner">
-      <div class="spinner-ring"></div>
-      <div class="spinner-ring"></div>
-      <div class="spinner-ring"></div>
-    </div>
-    <p class="loading-text">Loading...</p>
+<div class="loading-container" style="margin-top: 100px;">
+  <div class="spinner">
+    <div class="spinner-ring"></div>
+    <div class="spinner-ring"></div>
+    <div class="spinner-ring"></div>
   </div>
+  <p class="loading-text">Loading...</p>
+</div>
 } @else {
 <!-- Search School Hero Section -->
-<section class="search-school-hero" [style.background-image]="pageBackground?.backgroundImage ? 'url(' + pageBackground?.backgroundImage + ')' : ''">
+<section class="search-school-hero"
+  [style.background-image]="pageBackground?.backgroundImage ? 'url(' + pageBackground?.backgroundImage + ')' : ''">
   <!-- <div class="hero-overlay"></div> -->
   <div class="hero-content">
     <div class="container">
@@ -21,7 +22,8 @@
             <i class="fas fa-school"></i>
           </div>
           <h1 class="hero-title">{{ pageBackground?.title || 'Search School' }}</h1>
-          <p class="hero-subtitle">{{ pageBackground?.subtitle || 'Find schools in your area using UDISE Plus database' }}</p>
+          <p class="hero-subtitle">{{ pageBackground?.subtitle || 'Find schools in your area using UDISE Plus database'
+            }}</p>
           <nav aria-label="breadcrumb">
             <ol class="breadcrumb justify-content-center">
               <li class="breadcrumb-item"><a href="#">Home</a></li>
@@ -35,165 +37,146 @@
 </section>
 }
 
-<!-- Search Form Section -->
-<section class="search-section">
+<!-- Teacher Directory Section -->
+<section class="local-schools-section" id="teacher-directory">
   <div class="container">
-    <div class="search-card">
-      <div class="search-header">
-        <h2><i class="fas fa-search"></i> School Search</h2>
-        <p>Enter any of the following details to search for a school</p>
+    <div class="local-schools-card">
+      <div class="local-schools-header">
+        <div class="header-icon">
+          <i class="fas fa-chalkboard-teacher"></i>
+        </div>
+        <div class="header-text">
+          <h2><i class="fas fa-users"></i> Teacher Directory</h2>
+          <p>Browse all teachers from our database with search and filter options</p>
+        </div>
       </div>
 
-      <div class="search-form">
-        <div class="search-type-selector">
-          <button 
-            *ngFor="let type of searchTypes" 
-            class="search-type-btn"
-            [class.active]="selectedSearchType === type.id"
-            (click)="selectSearchType(type.id)">
-            <i [class]="type.icon"></i>
-            {{ type.label }}
-          </button>
-        </div>
-
-        <div class="search-inputs">
-          <div class="row g-3">
-            <div class="col-md-6" *ngIf="selectedSearchType === 'udise'">
-              <div class="form-group">
-                <label><i class="fas fa-id-card"></i> UDISE Code</label>
-                <input 
-                  type="text" 
-                  class="form-control" 
-                  placeholder="Enter 11-digit UDISE Code"
-                  [(ngModel)]="udiseCode"
-                  maxlength="11"
-                  (keypress)="onKeyPress($event)">
-                <small class="text-muted">Example: 12345678901</small>
-              </div>
+      <!-- Search and Filter -->
+      <div class="local-filter-section">
+        <div class="row g-3">
+          <div class="col-md-4">
+            <div class="form-group">
+              <label><i class="fas fa-search"></i> Search</label>
+              <input type="text" class="form-control" placeholder="Search by name, ID, subject..."
+                [(ngModel)]="teacherSearchTerm" (input)="onTeacherSearch()">
             </div>
-
-            <div class="col-md-6" *ngIf="selectedSearchType === 'school'">
-              <div class="form-group">
-                <label><i class="fas fa-graduation-cap"></i> School Name</label>
-                <input 
-                  type="text" 
-                  class="form-control" 
-                  placeholder="Enter School Name"
-                  [(ngModel)]="schoolName">
-              </div>
+          </div>
+          <div class="col-md-3">
+            <div class="form-group">
+              <label><i class="fas fa-map-marker-alt"></i> Posting District</label>
+              <select class="form-control" [(ngModel)]="teacherSelectedDistrict" (change)="onTeacherSearch()">
+                <option value="">All Districts</option>
+                <option *ngFor="let district of teacherDistricts" [value]="district">{{ district }}</option>
+              </select>
             </div>
-
-            <div class="col-md-6" *ngIf="selectedSearchType === 'district'">
-              <div class="form-group">
-                <label><i class="fas fa-map-marker-alt"></i> District</label>
-                <select class="form-control" [(ngModel)]="selectedDistrict">
-                  <option value="">Select District</option>
-                  <option *ngFor="let district of districts" [value]="district">{{ district }}</option>
-                </select>
-              </div>
+          </div>
+          <div class="col-md-3">
+            <div class="form-group">
+              <label><i class="fas fa-map-marked-alt"></i> Posting Block</label>
+              <select class="form-control" [(ngModel)]="teacherSelectedBlock" (change)="onTeacherSearch()">
+                <option value="">All Blocks</option>
+                <option *ngFor="let block of teacherBlocks" [value]="block">{{ block }}</option>
+              </select>
             </div>
-
-            <div class="col-md-6" *ngIf="selectedSearchType === 'block'">
-              <div class="form-group">
-                <label><i class="fas fa-map-marked-alt"></i> Block</label>
-                <select class="form-control" [(ngModel)]="selectedBlock">
-                  <option value="">Select Block</option>
-                  <option *ngFor="let block of blocks" [value]="block">{{ block }}</option>
-                </select>
-              </div>
-            </div>
-
-            <div class="col-12">
-              <button class="btn-search" (click)="searchSchools()">
-                <i class="fas fa-search"></i> Search Schools
+          </div>
+          <div class="col-md-2">
+            <div class="form-group">
+              <label>&nbsp;</label>
+              <button class="btn btn-clear w-100" (click)="clearTeacherFilters()">
+                <i class="fas fa-times"></i> Clear
               </button>
             </div>
           </div>
         </div>
       </div>
-    </div>
-  </div>
-</section>
 
-<!-- Search Results Section -->
-<section class="results-section" *ngIf="showResults">
-  <div class="container">
-    <!-- Loading State -->
-    <div class="loading-container" *ngIf="isLoading">
-      <div class="spinner">
-        <i class="fas fa-circle-notch fa-spin"></i>
-      </div>
-      <p>Searching schools...</p>
-    </div>
-
-    <!-- Error Message -->
-    <div class="error-container" *ngIf="errorMessage && !isLoading">
-      <i class="fas fa-exclamation-circle"></i>
-      <h4>Search Error</h4>
-      <p>{{ errorMessage }}</p>
-    </div>
-
-    <!-- Search Results -->
-    <div *ngIf="!isLoading && !errorMessage">
-      <div class="results-header">
-        <h3><i class="fas fa-list"></i> Search Results</h3>
-        <p>{{ filteredSchools.length }} schools found</p>
+      <!-- Results Info -->
+      <div class="results-info">
+        <p><i class="fas fa-info-circle"></i> Showing {{ localFilteredTeachers.length }} of {{ teacherTotalRecords }} teachers
+        </p>
       </div>
 
-      <div class="results-list">
-        <div class="result-card" *ngFor="let school of filteredSchools">
-          <div class="result-header">
-            <div class="school-icon">
-              <i class="fas fa-school"></i>
-            </div>
-            <div class="school-info">
-              <h4>{{ school.schoolName }}</h4>
-              <span class="udise-code"><i class="fas fa-id-card"></i> UDISE: {{ school.udiseCode }}</span>
-            </div>
-            <div class="school-type">
-              <span [class]="getBadgeClass(school.type)">{{ school.type }}</span>
-            </div>
-          </div>
-          <div class="result-body">
-            <div class="detail-row">
-              <i class="fas fa-map-marker-alt"></i>
-              <span>{{ school.address }}, {{ school.block }}, {{ school.districtName }}, {{ school.stateName }} - {{ school.pincode }}</span>
-            </div>
-            <div class="detail-row">
-              <i class="fas fa-user"></i>
-              <span>Principal: {{ school.principal }}</span>
-            </div>
-            <div class="detail-row">
-              <i class="fas fa-phone"></i>
-              <span>{{ school.phone }}</span>
-            </div>
-            <div class="detail-row">
-              <i class="fas fa-envelope"></i>
-              <span>{{ school.email }}</span>
-            </div>
-            <div class="detail-row" *ngIf="school.website">
-              <i class="fas fa-globe"></i>
-              <span>{{ school.website }}</span>
-            </div>
-          </div>
-          <div class="result-footer">
-            <button class="btn-know-more" (click)="openFacilityModal(school)">
-              <i class="fas fa-info-circle"></i> Know More
-            </button>
-          </div>
+      <!-- Loading State -->
+      <div class="loading-container" *ngIf="isLoadingTeachers">
+        <div class="spinner">
+          <i class="fas fa-circle-notch fa-spin"></i>
+        </div>
+        <p>Loading teachers...</p>
+      </div>
+
+      <!-- Teachers Table -->
+      <div class="table-responsive" *ngIf="!isLoadingTeachers && localFilteredTeachers.length > 0">
+        <table class="table local-schools-table">
+          <thead>
+            <tr>
+              <th><i class="fas fa-hashtag"></i> Sr.No</th>
+              <th><i class="fas fa-id-badge"></i> Teacher ID</th>
+              <th><i class="fas fa-user"></i> Name</th>
+              <th><i class="fas fa-book"></i> Subject</th>
+              <th><i class="fas fa-school"></i> School</th>
+              <th><i class="fas fa-id-card"></i> UDISE</th>
+              <th><i class="fas fa-map-marker-alt"></i> Posting Dist.</th>
+              <th><i class="fas fa-phone"></i> Contact No</th>
+              <th><i class="fas fa-cogs"></i> Action</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let teacher of localFilteredTeachers; let i = index" class="school-row">
+              <td>{{ (teacherCurrentPage - 1) * teacherPageSize + i + 1 }}</td>
+              <td><code class="udise-code">{{ teacher.teacherId }}</code></td>
+              <td class="school-name">{{ teacher.teacherName }}</td>
+              <td>{{ teacher.subject || '-' }}</td>
+              <td>{{ teacher.schoolName }}</td>
+              <td>{{ teacher.udise }}</td>
+              <td>{{ teacher.postingDistrict || '-' }}</td>
+              <td>{{ teacher.contactNo || '-' }}</td>
+              <td>
+                <button class="btn btn-sm btn-primary" (click)="openTeacherModal(teacher)">
+                  <i class="fas fa-eye"></i> View
+                </button>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <!-- No Results -->
+      <div class="no-results" *ngIf="!isLoadingTeachers && localFilteredTeachers.length === 0">
+        <i class="fas fa-search"></i>
+        <h4>No Teachers Found</h4>
+        <p>Try adjusting your search criterias</p>
+      </div>
+
+      <!-- Pagination -->
+      <div class="pagination-container" *ngIf="teacherTotalPages > 1">
+        <nav>
+          <ul class="pagination">
+            <li class="page-item" [class.disabled]="teacherCurrentPage === 1">
+              <a class="page-link" (click)="goToTeacherPage(teacherCurrentPage - 1)">
+                <i class="fas fa-chevron-left"></i> Previous
+              </a>
+            </li>
+            <li class="page-item" *ngFor="let page of getTeacherPageNumbers()" [class.active]="teacherCurrentPage === page">
+              <a class="page-link" (click)="goToTeacherPage(page)">{{ page }}</a>
+            </li>
+            <li class="page-item" [class.disabled]="teacherCurrentPage === teacherTotalPages">
+              <a class="page-link" (click)="goToTeacherPage(teacherCurrentPage + 1)">
+                Next <i class="fas fa-chevron-right"></i>
+              </a>
+            </li>
+          </ul>
+        </nav>
+        <div class="page-info">
+          Page {{ teacherCurrentPage }} of {{ teacherTotalPages }}
         </div>
       </div>
-
-      <div class="no-results" *ngIf="filteredSchools.length === 0">
-        <i class="fas fa-search"></i>
-        <h4>No Schools Found</h4>
-        <p>Try adjusting your search criteria</p>
-      </div>
     </div>
   </div>
 </section>
 
-<!-- Local School Directory Section -->
+<!-- Space separator between directories -->
+<div class="my-5"></div>
+
 <section class="local-schools-section" id="local-schools">
   <div class="container">
     <div class="local-schools-card">
@@ -213,12 +196,8 @@
           <div class="col-md-4">
             <div class="form-group">
               <label><i class="fas fa-search"></i> Search</label>
-              <input 
-                type="text" 
-                class="form-control" 
-                placeholder="Search by name, UDISE, HM name..."
-                [(ngModel)]="localSearchTerm"
-                (input)="onLocalSearch()">
+              <input type="text" class="form-control" placeholder="Search by name, UDISE, HM name..."
+                [(ngModel)]="localSearchTerm" (input)="onLocalSearch()">
             </div>
           </div>
           <div class="col-md-3">
@@ -252,7 +231,8 @@
 
       <!-- Results Info -->
       <div class="results-info">
-        <p><i class="fas fa-info-circle"></i> Showing {{ localFilteredSchools.length }} of {{ totalRecords }} schools</p>
+        <p><i class="fas fa-info-circle"></i> Showing {{ localFilteredSchools.length }} of {{ totalRecords }} schools
+        </p>
       </div>
 
       <!-- Loading State -->
@@ -288,7 +268,8 @@
               <td>{{ school.hmHtName || '-' }}</td>
               <td>{{ school.mobileNo || '-' }}</td>
               <td>
-                <span class="badge" [class.bg-success]="school.crc === 'Yes'" [class.bg-secondary]="school.crc !== 'Yes'">
+                <span class="badge" [class.bg-success]="school.crc === 'Yes'"
+                  [class.bg-secondary]="school.crc !== 'Yes'">
                   {{ school.crc || 'N/A' }}
                 </span>
               </td>
@@ -301,7 +282,7 @@
       <div class="no-results" *ngIf="!isLoadingLocal && localFilteredSchools.length === 0">
         <i class="fas fa-search"></i>
         <h4>No Schools Found</h4>
-        <p>Try adjusting your search criteria</p>
+        <p>Try adjusting your search criterias</p>
       </div>
 
       <!-- Pagination -->
@@ -390,7 +371,8 @@
 
           <div class="facility-item">
             <div class="facility-label">Block</div>
-            <div class="facility-value">{{ showReportCardDetails.blockName || showReportCardDetails.lgdBlock || 'N/A' }}</div>
+            <div class="facility-value">{{ showReportCardDetails.blockName || showReportCardDetails.lgdBlock || 'N/A' }}
+            </div>
           </div>
 
           <div class="facility-item">
@@ -400,7 +382,8 @@
 
           <div class="facility-item">
             <div class="facility-label">Village</div>
-            <div class="facility-value">{{ showReportCardDetails.villageName || showReportCardDetails.lgdVillage || 'N/A' }}</div>
+            <div class="facility-value">{{ showReportCardDetails.villageName || showReportCardDetails.lgdVillage ||
+              'N/A' }}</div>
           </div>
 
           <div class="facility-item">
@@ -426,12 +409,14 @@
         <div class="facility-grid">
           <div class="facility-item">
             <div class="facility-label">School Category</div>
-            <div class="facility-value">{{ showReportCardDetails.schoolCategory || showReportCardDetails.categoryName || 'N/A' }}</div>
+            <div class="facility-value">{{ showReportCardDetails.schoolCategory || showReportCardDetails.categoryName ||
+              'N/A' }}</div>
           </div>
 
           <div class="facility-item">
             <div class="facility-label">School Management</div>
-            <div class="facility-value">{{ showReportCardDetails.schoolManagement || showReportCardDetails.managementName || 'N/A' }}</div>
+            <div class="facility-value">{{ showReportCardDetails.schoolManagement ||
+              showReportCardDetails.managementName || 'N/A' }}</div>
           </div>
 
           <div class="facility-item">
@@ -441,7 +426,8 @@
 
           <div class="facility-item">
             <div class="facility-label">School Type</div>
-            <div class="facility-value">{{ showReportCardDetails.schoolType || showReportCardDetails.typeName || 'N/A' }}</div>
+            <div class="facility-value">{{ showReportCardDetails.schoolType || showReportCardDetails.typeName || 'N/A'
+              }}</div>
           </div>
 
           <div class="facility-item">
@@ -487,7 +473,8 @@
 
           <div class="facility-item">
             <div class="facility-label">Total Teachers (Regular)</div>
-            <div class="facility-value">{{ showReportCardDetails.totalTeacherReg || showReportCardDetails.totalTeachers || 0 }}</div>
+            <div class="facility-value">{{ showReportCardDetails.totalTeacherReg || showReportCardDetails.totalTeachers
+              || 0 }}</div>
           </div>
 
           <div class="facility-item" *ngIf="showReportCardDetails.totalTeacherCon">
@@ -582,6 +569,86 @@
       <div class="facility-error" *ngIf="!isLoadingReportCard && !showReportCardDetails">
         <i class="fas fa-exclamation-triangle"></i>
         <p>Unable to load facility details. Please try again.</p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Teacher Details Modal -->
+<div class="modal-overlay" *ngIf="showTeacherModal" (click)="closeTeacherModal()">
+  <div class="modal-container" (click)="$event.stopPropagation()">
+    <div class="modal-header">
+      <h3><i class="fas fa-chalkboard-teacher"></i> Teacher Details</h3>
+      <button class="close-btn" (click)="closeTeacherModal()">
+        <i class="fas fa-times"></i>
+      </button>
+    </div>
+
+    <div class="modal-body" *ngIf="selectedTeacher">
+      <div class="teacher-profile-header">
+        <div class="teacher-avatar">
+          <i class="fas fa-user-circle"></i>
+        </div>
+        <div class="teacher-title-info">
+          <h4>{{ selectedTeacher.teacherName }}</h4>
+          <p class="teacher-id">ID: {{ selectedTeacher.teacherId }}</p>
+        </div>
+      </div>
+
+      <div class="detail-grid">
+        <div class="detail-group">
+          <label>Subject</label>
+          <div class="detail-value">{{ selectedTeacher.subject || 'N/A' }}</div>
+        </div>
+        <div class="detail-group">
+          <label>Class</label>
+          <div class="detail-value">{{ selectedTeacher.class || 'N/A' }}</div>
+        </div>
+        <div class="detail-group">
+          <label>Highest Qualification</label>
+          <div class="detail-value">{{ selectedTeacher.highestQualification || 'N/A' }}</div>
+        </div>
+        <div class="detail-group">
+          <label>Contact Number</label>
+          <div class="detail-value">{{ selectedTeacher.contactNo || 'N/A' }}</div>
+        </div>
+      </div>
+
+      <h5 class="section-title mt-4"><i class="fas fa-school"></i> Posting Information</h5>
+      <div class="detail-grid">
+        <div class="detail-group">
+          <label>School Name</label>
+          <div class="detail-value">{{ selectedTeacher.schoolName || 'N/A' }}</div>
+        </div>
+        <div class="detail-group">
+          <label>UDISE Code</label>
+          <div class="detail-value">{{ selectedTeacher.udise || 'N/A' }}</div>
+        </div>
+        <div class="detail-group">
+          <label>Posting District</label>
+          <div class="detail-value">{{ selectedTeacher.postingDistrict || 'N/A' }}</div>
+        </div>
+        <div class="detail-group">
+          <label>Posting Block</label>
+          <div class="detail-value">{{ selectedTeacher.postingBlock || 'N/A' }}</div>
+        </div>
+        <div class="detail-group">
+          <label>Home District</label>
+          <div class="detail-value">{{ selectedTeacher.homeDistrict || 'N/A' }}</div>
+        </div>
+        <div class="detail-group">
+          <label>CRC School</label>
+          <div class="detail-value">
+            <span class="badge" [class.bg-success]="selectedTeacher.isCrcSchool === 'Yes'"
+              [class.bg-secondary]="selectedTeacher.isCrcSchool !== 'Yes'">
+              {{ selectedTeacher.isCrcSchool || 'N/A' }}
+            </span>
+          </div>
+        </div>
+        <div class="detail-group col-span-2" *ngIf="selectedTeacher.crcSchool">
+          <label>CRC School Name</label>
+          <div class="detail-value">{{ selectedTeacher.crcSchool }}</div>
+        </div>
       </div>
     </div>
   </div>

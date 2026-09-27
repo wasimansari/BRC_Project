@@ -4,8 +4,9 @@ const cloudinary = require('cloudinary').v2;
 const router = express.Router();
 const { News } = require('../models');
 
-// Configure multer for file uploads
-const upload = multer({ dest: 'uploads/' });
+// Bug Fix 3: Use memoryStorage instead of disk - Render free tier has no persistent disk
+const storage = multer.memoryStorage();
+const upload = multer({ storage });
 
 // @route   GET /api/news
 // @desc    Get all news (with filtering)
@@ -90,27 +91,38 @@ router.post('/', upload.single('file'), async (req, res) => {
     // Handle file upload to Cloudinary
     if (req.file) {
       try {
-        const result = await cloudinary.uploader.upload(req.file.path, {
-          folder: 'brc-project/department-news',
-          resource_type: 'auto'
+        // Bug Fix 3: Use upload_stream with buffer (memoryStorage) instead of upload with file path (diskStorage)
+        const uploadResult = await new Promise((resolve, reject) => {
+          const uploadStream = cloudinary.uploader.upload_stream(
+            { folder: 'brc-project/department-news', resource_type: 'auto' },
+            (error, result) => {
+              if (error) return reject(error);
+              resolve(result);
+            }
+          );
+          uploadStream.end(req.file.buffer);
         });
-        
+
         if (contentType === 'image') {
-          newsData.content.imageUrl = result.secure_url;
-          newsData.content.thumbnailUrl = cloudinary.url(result.public_id, {
+          newsData.content.imageUrl = uploadResult.secure_url;
+          // Bug Fix 4: Store public_id for reliable deletion later
+          newsData.content.imagePublicId = uploadResult.public_id;
+          newsData.content.thumbnailUrl = cloudinary.url(uploadResult.public_id, {
             width: 400,
             height: 300,
             crop: 'fill',
             quality: 'auto'
           });
         } else if (contentType === 'pdf') {
-          newsData.content.pdfUrl = result.secure_url;
+          newsData.content.pdfUrl = uploadResult.secure_url;
+          // Bug Fix 4: Store public_id for reliable deletion later
+          newsData.content.pdfPublicId = uploadResult.public_id;
           newsData.content.fileName = req.file.originalname;
           newsData.content.fileSize = req.file.size;
         }
-        
+
         // Legacy image field for backward compatibility
-        newsData.image = result.secure_url;
+        newsData.image = uploadResult.secure_url;
       } catch (uploadError) {
         console.error('Cloudinary upload error:', uploadError);
         return res.status(500).json({ message: 'Error uploading file', error: uploadError.message });
@@ -155,27 +167,38 @@ router.put('/:id', upload.single('file'), async (req, res) => {
     // Handle file upload to Cloudinary
     if (req.file) {
       try {
-        const result = await cloudinary.uploader.upload(req.file.path, {
-          folder: 'brc-project/department-news',
-          resource_type: 'auto'
+        // Bug Fix 3: Use upload_stream with buffer (memoryStorage) instead of upload with file path
+        const uploadResult = await new Promise((resolve, reject) => {
+          const uploadStream = cloudinary.uploader.upload_stream(
+            { folder: 'brc-project/department-news', resource_type: 'auto' },
+            (error, result) => {
+              if (error) return reject(error);
+              resolve(result);
+            }
+          );
+          uploadStream.end(req.file.buffer);
         });
-        
+
         if (contentType === 'image') {
-          updateData.content.imageUrl = result.secure_url;
-          updateData.content.thumbnailUrl = cloudinary.url(result.public_id, {
+          updateData.content.imageUrl = uploadResult.secure_url;
+          // Bug Fix 4: Store public_id for reliable deletion
+          updateData.content.imagePublicId = uploadResult.public_id;
+          updateData.content.thumbnailUrl = cloudinary.url(uploadResult.public_id, {
             width: 400,
             height: 300,
             crop: 'fill',
             quality: 'auto'
           });
         } else if (contentType === 'pdf') {
-          updateData.content.pdfUrl = result.secure_url;
+          updateData.content.pdfUrl = uploadResult.secure_url;
+          // Bug Fix 4: Store public_id for reliable deletion
+          updateData.content.pdfPublicId = uploadResult.public_id;
           updateData.content.fileName = req.file.originalname;
           updateData.content.fileSize = req.file.size;
         }
-        
+
         // Legacy image field for backward compatibility
-        updateData.image = result.secure_url;
+        updateData.image = uploadResult.secure_url;
       } catch (uploadError) {
         console.error('Cloudinary upload error:', uploadError);
         return res.status(500).json({ message: 'Error uploading file', error: uploadError.message });
@@ -213,13 +236,25 @@ router.delete('/:id', async (req, res) => {
       return res.status(404).json({ message: 'News not found' });
     }
     
-    // Delete associated files from Cloudinary
-    if (news.content && news.content.imageUrl) {
+    // Bug Fix 4: Use stored public_id directly instead of reconstructing from URL
+    if (news.content && (news.content.imagePublicId || news.content.pdfPublicId)) {
       try {
-        const publicId = news.content.imageUrl.split('/').pop().split('.')[0];
-        await cloudinary.uploader.destroy(`brc-project/department-news/${publicId}`);
+        const publicId = news.content.imagePublicId || news.content.pdfPublicId;
+        const resourceType = news.content.pdfPublicId ? 'raw' : 'image';
+        await cloudinary.uploader.destroy(publicId, { resource_type: resourceType });
       } catch (cloudinaryError) {
-        console.error('Failed to delete image from Cloudinary:', cloudinaryError);
+        console.error('Failed to delete file from Cloudinary:', cloudinaryError);
+      }
+    } else if (news.content && news.content.imageUrl) {
+      // Legacy fallback: reconstruct public_id from URL (best effort)
+      try {
+        const urlParts = news.content.imageUrl.split('/upload/');
+        if (urlParts.length > 1) {
+          const publicId = urlParts[1].replace(/^v\d+\//, '').replace(/\.[^.]+$/, '');
+          await cloudinary.uploader.destroy(publicId);
+        }
+      } catch (cloudinaryError) {
+        console.error('Failed to delete legacy image from Cloudinary:', cloudinaryError);
       }
     }
     

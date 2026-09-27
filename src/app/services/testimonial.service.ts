@@ -45,10 +45,12 @@ export class TestimonialService {
     formData.append('name', testimonial.name || '');
     formData.append('role', testimonial.role || '');
     formData.append('text', testimonial.text || '');
-    formData.append('image', testimonial.image || '');
-    
+
+    // Bug Fix 5: Only append ONE 'image' field — file takes priority over URL string
     if (imageFile) {
       formData.append('image', imageFile);
+    } else if (testimonial.image) {
+      formData.append('image', testimonial.image);
     }
 
     return this.http.post<Testimonial>(this.API_URL, formData).pipe(
@@ -64,10 +66,12 @@ export class TestimonialService {
     formData.append('name', testimonial.name || '');
     formData.append('role', testimonial.role || '');
     formData.append('text', testimonial.text || '');
-    formData.append('image', testimonial.image || '');
-    
+
+    // Bug Fix 5: Only append ONE 'image' field — file takes priority over URL string
     if (imageFile) {
       formData.append('image', imageFile);
+    } else if (testimonial.image) {
+      formData.append('image', testimonial.image);
     }
 
     return this.http.put<Testimonial>(`${this.API_URL}/${id}`, formData).pipe(
