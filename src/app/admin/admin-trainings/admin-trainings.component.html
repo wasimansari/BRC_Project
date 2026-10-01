@@ -1,0 +1,118 @@
+<div class="container-fluid py-4">
+  <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
+    <h1 class="h2">Manage Trainings</h1>
+    <button class="btn btn-primary" (click)="openAddForm()">+ Add New Training</button>
+  </div>
+
+  <div *ngIf="isLoading" class="text-center my-5">
+    <div class="spinner-border text-primary" role="status"></div>
+  </div>
+
+  <!-- Form Modal/Section -->
+  <div *ngIf="showForm" class="card mb-4 shadow-sm border-primary">
+    <div class="card-header bg-primary text-white">
+      {{ isEditing ? 'Edit Training' : 'Add New Training' }}
+    </div>
+    <div class="card-body">
+      <form (ngSubmit)="saveTraining()">
+        <div class="mb-3">
+          <label class="form-label">Title</label>
+          <input type="text" class="form-control" name="title" [(ngModel)]="currentTraining.title" required>
+        </div>
+        <div class="mb-3">
+          <label class="form-label">Description (Content for the section)</label>
+          <textarea class="form-control" name="description" rows="5" [(ngModel)]="currentTraining.description" required></textarea>
+        </div>
+        <div class="row">
+          <div class="col-md-6 mb-3">
+            <label class="form-label">Category (Training Type)</label>
+            <select class="form-select" name="category" [(ngModel)]="currentTraining.category">
+              <option value="">Select Training Type</option>
+              <option value="PBL">PBL</option>
+              <option value="TLM">TLM</option>
+              <option value="PTM">PTM</option>
+              <option value="Induction">Induction</option>
+              <option value="Digital">Digital</option>
+              <option value="Academic">Academic</option>
+              <option value="Other">Other</option>
+            </select>
+          </div>
+          <div class="col-md-6 mb-3">
+            <label class="form-label">Display Order</label>
+            <input type="number" class="form-control" name="displayOrder" [(ngModel)]="currentTraining.displayOrder">
+          </div>
+        </div>
+        <div class="row">
+          <div class="col-md-6 mb-3">
+            <label class="form-label">From Date</label>
+            <input type="date" class="form-control" name="fromDate" [(ngModel)]="currentTraining.fromDate">
+          </div>
+          <div class="col-md-6 mb-3">
+            <label class="form-label">To Date</label>
+            <input type="date" class="form-control" name="toDate" [(ngModel)]="currentTraining.toDate">
+          </div>
+        </div>
+        <div class="row">
+          <div class="col-md-6 mb-3">
+            <label class="form-label">Thumbnail Image (Optional - Max 5MB, Approx 800x500px)</label>
+            <input type="file" class="form-control" accept="image/*" (change)="onThumbnailSelected($event)">
+            <div *ngIf="thumbnailError" class="text-danger mt-1 small">{{ thumbnailError }}</div>
+            <div *ngIf="thumbnailPreview" class="mt-2">
+              <img [src]="thumbnailPreview" class="img-thumbnail" style="max-height: 100px;">
+            </div>
+          </div>
+          <div class="col-md-6 mb-3">
+            <label class="form-label">Government Letter / Document (Optional - Max 5MB)</label>
+            <input type="file" class="form-control" accept="image/*,application/pdf" (change)="onDocumentSelected($event)">
+            <div *ngIf="documentError" class="text-danger mt-1 small">{{ documentError }}</div>
+            <small class="text-muted" *ngIf="currentTraining.documentOriginalName && !documentFile">Current: {{ currentTraining.documentOriginalName }}</small>
+          </div>
+        </div>
+        <div class="mb-3 form-check">
+          <input type="checkbox" class="form-check-input" name="isActive" id="isActiveCheck" [(ngModel)]="currentTraining.isActive">
+          <label class="form-check-label" for="isActiveCheck">Is Active</label>
+        </div>
+        <div class="d-flex gap-2">
+          <button type="submit" class="btn btn-success" [disabled]="isSaving">
+            {{ isSaving ? 'Saving...' : 'Save Training' }}
+          </button>
+          <button type="button" class="btn btn-secondary" (click)="closeForm()">Cancel</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Trainings Table -->
+  <div class="table-responsive bg-white rounded shadow-sm" *ngIf="!isLoading && !showForm">
+    <table class="table table-hover align-middle mb-0">
+      <thead class="table-light">
+        <tr>
+          <th>Order</th>
+          <th>Title</th>
+          <th>Category</th>
+          <th>Status</th>
+          <th>Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let t of trainings">
+          <td>{{ t.displayOrder }}</td>
+          <td><strong>{{ t.title }}</strong></td>
+          <td><span class="badge bg-secondary">{{ t.category }}</span></td>
+          <td>
+            <span class="badge" [ngClass]="t.isActive ? 'bg-success' : 'bg-danger'">
+              {{ t.isActive ? 'Active' : 'Inactive' }}
+            </span>
+          </td>
+          <td>
+            <button class="btn btn-sm btn-outline-primary me-2" (click)="openEditForm(t)">Edit</button>
+            <button class="btn btn-sm btn-outline-danger" (click)="deleteTraining(t._id)">Delete</button>
+          </td>
+        </tr>
+        <tr *ngIf="trainings.length === 0">
+          <td colspan="5" class="text-center text-muted py-4">No trainings found. Click "+ Add New Training" to create one.</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</div>

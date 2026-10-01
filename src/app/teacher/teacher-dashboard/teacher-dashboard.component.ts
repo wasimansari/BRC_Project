@@ -1,6 +1,7 @@
 import { Component, OnInit, ViewChild, ElementRef } from '@angular/core';
 import { Router } from '@angular/router';
 import { TeacherAuthService, TeacherDocument } from '../../services/teacher-auth.service';
+import { getFullUrl } from '../../core/constants/api-endpoints';
 
 @Component({
   selector: 'app-teacher-dashboard',
@@ -114,6 +115,10 @@ export class TeacherDashboardComponent implements OnInit {
         console.error('Failed to load documents', err);
       }
     });
+  }
+
+  getDocumentUrl(id: string): string {
+    return getFullUrl(`/teacher-docs/${id}/document`);
   }
 
   deleteDocument(id: string) {

@@ -1,0 +1,12 @@
+.page-header {
+  background: linear-gradient(135deg, #1a5276 0%, #16a085 100%) !important;
+}
+
+.training-section {
+  border-radius: 8px;
+  transition: transform 0.2s;
+}
+
+.training-section:hover {
+  transform: translateY(-2px);
+}

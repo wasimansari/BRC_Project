@@ -33,6 +33,8 @@ export interface TeacherDocument {
   fileUrl: string;
   fileName: string;
   uploadedAt: string;
+  status?: string;
+  adminRemarks?: string;
 }
 
 @Injectable({

@@ -208,7 +208,7 @@ router.get('/:id/download', async (req, res) => {
     const fileName = download.originalFileName || `${download.title}.${download.fileType === 'pdf' ? 'pdf' : 'jpg'}`;
 
     // Set appropriate headers for download
-    res.setHeader('Content-Disposition', `attachment; filename="${fileName}"`);
+    res.setHeader('Content-Disposition', `inline; filename="${fileName}"`);
 
     if (download.fileType === 'pdf') {
       res.setHeader('Content-Type', 'application/pdf');

@@ -115,6 +115,7 @@
               <tr>
                 <th>Title & Type</th>
                 <th>Upload Date</th>
+                <th>Status</th>
                 <th>File</th>
                 <th class="text-end">Actions</th>
               </tr>
@@ -130,7 +131,19 @@
                   {{ doc.uploadedAt | date:'shortTime' }}
                 </td>
                 <td>
-                  <a [href]="doc.fileUrl" target="_blank" class="btn btn-sm btn-light border">
+                  <span class="badge" 
+                        [class.bg-warning]="doc.status === 'Pending' || !doc.status" 
+                        [class.text-dark]="doc.status === 'Pending' || !doc.status"
+                        [class.bg-success]="doc.status === 'Approved'" 
+                        [class.bg-danger]="doc.status === 'Rejected'">
+                    {{ doc.status || 'Pending' }}
+                  </span>
+                  <div *ngIf="doc.adminRemarks" class="small text-muted mt-1" style="max-width: 150px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;" [title]="doc.adminRemarks">
+                    <i class="fa-solid fa-comment-dots"></i> {{ doc.adminRemarks }}
+                  </div>
+                </td>
+                <td>
+                  <a [href]="getDocumentUrl(doc._id)" target="_blank" class="btn btn-sm btn-light border">
                     <i class="fa-solid fa-eye me-1"></i> View
                   </a>
                 </td>

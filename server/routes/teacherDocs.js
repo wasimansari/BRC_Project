@@ -44,13 +44,25 @@ const upload = multer({
 });
 
 // ── Cloudinary upload helper ──────────────────────────────
-function uploadToCloudinary(buffer, folder, filename) {
+function uploadToCloudinary(buffer, folder, filename, isPdf) {
   return new Promise((resolve, reject) => {
+    const resourceType = isPdf ? 'raw' : 'auto';
     const stream = cloudinary.uploader.upload_stream(
-      { folder: `brc/teacher-docs/${folder}`, public_id: filename, resource_type: 'auto' },
+      { folder: `brc/teacher-docs/${folder}`, public_id: filename, resource_type: resourceType },
       (error, result) => {
-        if (error) reject(error);
-        else resolve(result);
+        if (error) {
+          reject(error);
+          return;
+        }
+        
+        let finalUrl = result.secure_url;
+        if (isPdf) {
+          finalUrl = finalUrl.replace('/image/upload/', '/raw/upload/');
+          if (!finalUrl.endsWith('.pdf')) {
+            finalUrl += '.pdf';
+          }
+        }
+        resolve({ ...result, secure_url: finalUrl });
       }
     );
     stream.end(buffer);
@@ -79,7 +91,8 @@ router.post('/upload', authenticateTeacher, upload.single('file'), async (req, r
     let filePublicId = '';
 
     try {
-      const result = await uploadToCloudinary(req.file.buffer, udiseCode, filename);
+      const isPdf = req.file.mimetype === 'application/pdf';
+      const result = await uploadToCloudinary(req.file.buffer, udiseCode, filename, isPdf);
       fileUrl = result.secure_url;
       filePublicId = result.public_id;
     } catch (cloudErr) {
@@ -160,6 +173,57 @@ router.delete('/:id', authenticateTeacher, async (req, res) => {
   } catch (error) {
     console.error('Delete doc error:', error);
     res.status(500).json({ message: 'Server error.', error: error.message });
+  }
+});
+
+// ─────────────────────────────────────────────────────────────────────────────
+// GET /api/teacher-docs/:id/document
+// View a document inline
+// ─────────────────────────────────────────────────────────────────────────────
+router.get('/:id/document', async (req, res) => {
+  try {
+    const doc = await TeacherDocument.findById(req.params.id);
+    if (!doc || !doc.fileUrl) {
+      return res.status(404).json({ message: 'Document not found' });
+    }
+
+    const isPdf = doc.fileUrl.endsWith('.pdf') || doc.mimeType === 'application/pdf';
+    const fileName = doc.fileName || (isPdf ? 'document.pdf' : 'document.jpg');
+
+    res.setHeader('Content-Disposition', `inline; filename="${fileName}"`);
+    res.setHeader('Content-Type', isPdf ? 'application/pdf' : (doc.mimeType || 'image/jpeg'));
+
+    let fetchUrl = doc.fileUrl;
+    if (isPdf && fetchUrl.includes('/raw/upload/') && fetchUrl.endsWith('.pdf')) {
+      fetchUrl = fetchUrl.slice(0, -4);
+    }
+    
+    // For legacy uploads that were uploaded as raw but don't have .pdf extension in db
+    if (isPdf && fetchUrl.includes('/image/upload/')) {
+       fetchUrl = fetchUrl.replace('/image/upload/', '/raw/upload/');
+    }
+
+    const https = require('https');
+    const request = https.get(fetchUrl, { timeout: 30000 }, (cloudinaryRes) => {
+      if (cloudinaryRes.statusCode !== 200) {
+        return res.status(cloudinaryRes.statusCode).json({ message: 'Failed to fetch file from storage' });
+      }
+      cloudinaryRes.pipe(res);
+    });
+
+    request.on('timeout', () => {
+      request.destroy();
+      res.status(504).json({ message: 'Request timed out' });
+    });
+
+    request.on('error', (error) => {
+      console.error('Error fetching document:', error);
+      res.status(500).json({ message: 'Error viewing document' });
+    });
+
+  } catch (error) {
+    console.error('Document view error:', error);
+    res.status(500).json({ message: error.message });
   }
 });
 

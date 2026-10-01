@@ -37,6 +37,24 @@ const newsSchema = new mongoose.Schema({
   image: { type: String }
 }, { timestamps: true });
 
+// Training Schema
+const trainingSchema = new mongoose.Schema({
+  title: { type: String, required: true },
+  description: { type: String, required: true },
+  link: { type: String }, // Custom route link for frontend
+  category: { type: String }, // e.g. Academic, Digital, etc.
+  fromDate: { type: Date },
+  toDate: { type: Date },
+  thumbnailUrl: { type: String },
+  thumbnailPublicId: { type: String },
+  documentUrl: { type: String },
+  documentPublicId: { type: String },
+  documentOriginalName: { type: String },
+  isActive: { type: Boolean, default: true },
+  displayOrder: { type: Number, default: 0 },
+  createdAt: { type: Date, default: Date.now }
+});
+
 // Course Schema
 const courseSchema = new mongoose.Schema({
   title: { type: String, required: true },
@@ -82,7 +100,9 @@ const teacherDocumentSchema = new mongoose.Schema({
   fileName:    { type: String, default: '' },
   fileSize:    { type: Number, default: 0 },
   mimeType:    { type: String, default: '' },
-  uploadedAt:  { type: Date, default: Date.now }
+  uploadedAt:  { type: Date, default: Date.now },
+  status:      { type: String, enum: ['Pending', 'Approved', 'Rejected'], default: 'Pending' },
+  adminRemarks:{ type: String, default: '' }
 });
 
 // Banner Schema
@@ -184,7 +204,7 @@ const announcementSchema = new mongoose.Schema({
 
 // Page Background Schema
 const pageBackgroundSchema = new mongoose.Schema({
-  pageName: { type: String, required: true, enum: ['home', 'about', 'contact', 'courses', 'events', 'blog', 'gallery', 'searchSchool', 'downloads'] },
+  pageName: { type: String, required: true, enum: ['home', 'about', 'contact', 'courses', 'events', 'blog', 'gallery', 'searchSchool', 'downloads', 'trainings'] },
   backgroundImage: { type: String, default: '' },
   backgroundImagePublicId: { type: String, default: '' },
   isActive: { type: Boolean, default: true },
@@ -225,6 +245,7 @@ const teacherDirectorySchema = new mongoose.Schema({
 const Event = mongoose.model('Event', eventSchema);
 const News = mongoose.model('News', newsSchema);
 const Course = mongoose.model('Course', courseSchema);
+const Training = mongoose.model('Training', trainingSchema);
 const Admin = mongoose.model('Admin', adminSchema);
 const Teacher = mongoose.model('Teacher', teacherSchema);
 const Banner = mongoose.model('Banner', bannerSchema);
@@ -243,6 +264,7 @@ module.exports = {
   Event,
   News,
   Course,
+  Training,
   Admin,
   Teacher,
   Banner,

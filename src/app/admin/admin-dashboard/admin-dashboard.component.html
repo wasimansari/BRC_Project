@@ -46,6 +46,11 @@
                 </a>
               </li>
               <li class="nav-item">
+                <a class="nav-link" href="#trainings" data-bs-toggle="pill" appSmoothScroll [scrollOffset]="80" (click)="setActiveTab('trainings')">
+                  <i class="fas fa-chalkboard-teacher"></i> <span class="nav-text">Trainings</span>
+                </a>
+              </li>
+              <li class="nav-item">
                 <a class="nav-link" href="#about" data-bs-toggle="pill" appSmoothScroll [scrollOffset]="80" (click)="setActiveTab('about')">
                   <i class="fas fa-info-circle"></i> <span class="nav-text">About Page</span>
                 </a>
@@ -68,6 +73,11 @@
               <li class="nav-item">
                 <a class="nav-link" href="#teacher-directory" data-bs-toggle="pill" appSmoothScroll [scrollOffset]="80" (click)="setActiveTab('teacher-directory')">
                   <i class="fas fa-chalkboard-teacher"></i> <span class="nav-text">Teacher Directory</span>
+                </a>
+              </li>
+              <li class="nav-item">
+                <a class="nav-link" href="#teacher-docs" data-bs-toggle="pill" appSmoothScroll [scrollOffset]="80" (click)="setActiveTab('teacher-docs')">
+                  <i class="fas fa-file-alt"></i> <span class="nav-text">Teacher Docs</span>
                 </a>
               </li>
               <li class="nav-item">
@@ -259,6 +269,11 @@
             <!-- News Tab -->
             <div class="tab-pane fade" id="news" [class.tab-active]="activeTab === 'news'">
               <app-admin-news></app-admin-news>
+            </div>
+
+            <!-- Trainings Tab -->
+            <div class="tab-pane fade" id="trainings" [class.tab-active]="activeTab === 'trainings'">
+              <app-admin-trainings></app-admin-trainings>
             </div>
 
             <!-- Courses Tab -->
@@ -583,6 +598,11 @@
               <app-admin-teacher-directory></app-admin-teacher-directory>
             </div>
 
+            <!-- Teacher Docs Tab -->
+            <div class="tab-pane fade" id="teacher-docs" role="tabpanel" [class.tab-active]="activeTab === 'teacher-docs'">
+              <app-admin-teacher-docs></app-admin-teacher-docs>
+            </div>
+
             <!-- Page Backgrounds Tab -->
             <div class="tab-pane fade" id="pageBackgrounds" [class.tab-active]="activeTab === 'pageBackgrounds'">
               <div class="content-card">
@@ -643,7 +663,7 @@
                     <input type="file" (change)="onPageBackgroundImageSelected($event)" class="form-control" accept="image/*">
                     <div class="page-bg-size-note mt-2">
                       <i class="fas fa-info-circle"></i>
-                      <strong> Recommended size: {{ PAGE_BACKGROUND_WIDTH }} x {{ PAGE_BACKGROUND_HEIGHT }} pixels (16:10 ratio)</strong>
+                      <strong> Recommended size: {{ PAGE_BACKGROUND_WIDTH }} x {{ PAGE_BACKGROUND_HEIGHT }} pixels (Wide banner ratio)</strong>
                     </div>
                     <small class="text-muted d-block">Leave empty to keep the current image</small>
                     <div *ngIf="pageBackgroundSizeError" class="alert alert-danger mt-2 py-2" role="alert">

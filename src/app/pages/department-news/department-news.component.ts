@@ -1,6 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { EnhancedNewsService, DepartmentNews, NewsContentType } from '../../services/enhanced-news.service';
 import { ActivatedRoute } from '@angular/router';
+import { getFullUrl } from '../../core/constants/api-endpoints';
 
 @Component({
   selector: 'app-department-news',
@@ -119,8 +120,8 @@ export class DepartmentNewsComponent implements OnInit {
     document.body.removeChild(link);
   }
 
-  openPdfInNewTab(pdfUrl: string) {
-    window.open(pdfUrl, '_blank');
+  openPdfInNewTab(id: string) {
+    window.open(getFullUrl(`/news/${id}/document`), '_blank');
   }
 
   truncateText(text: string, maxLength: number = 150): string {

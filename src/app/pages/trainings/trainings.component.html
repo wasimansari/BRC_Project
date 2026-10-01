@@ -1,0 +1,78 @@
+@if (showBanner) {
+<app-header></app-header>
+
+<!-- Training Banner -->
+<section class="page-banner" appScrollAnimate animationType="fadeInUp" 
+         [style.background-image]="backgroundImageStyle">
+  <div class="page-banner-content">
+    <div class="banner-text-wrapper">
+      <h1 class="page-banner-title">{{ pageBackground?.title || 'Our Training Programs' }}</h1>
+      <p class="page-banner-subtitle">{{ pageBackground?.subtitle || 'Capacity Building & Training for Teachers' }}</p>
+      <nav aria-label="breadcrumb">
+        <ol class="breadcrumb">
+          <li class="breadcrumb-item"><a routerLink="/">Home</a></li>
+          <li class="breadcrumb-item active" aria-current="page">{{ pageBackground?.title || 'Trainings' }}</li>
+        </ol>
+      </nav>
+    </div>
+  </div>
+</section>
+}
+
+<div class="trainings-page">
+  <div class="container my-5">
+    <div *ngIf="isLoading" class="text-center my-5">
+      <div class="spinner-border text-primary" role="status"></div>
+    </div>
+    
+    <div *ngIf="!isLoading && trainings.length === 0" class="alert alert-info">
+      No training programs are available at the moment.
+    </div>
+
+    <!-- Section-wise layout grouped by category -->
+    <div class="training-sections" *ngIf="!isLoading && categories.length > 0">
+      <div *ngFor="let category of categories" class="mb-5 category-group">
+        <h3 class="mb-4 text-secondary border-bottom pb-2"><i class="fas fa-layer-group me-2"></i>{{ category }} Trainings</h3>
+        
+        <div class="row">
+          <div *ngFor="let training of groupedTrainings[category]" class="col-md-4 mb-4 d-flex align-items-stretch">
+            <div class="training-section card shadow-sm border-0 w-100">
+              <img *ngIf="training.thumbnailUrl" [src]="training.thumbnailUrl" class="card-img-top" [alt]="training.title" style="object-fit: cover; height: 200px; width: 100%;">
+              <div class="card-body p-4 d-flex flex-column">
+                <h4 class="card-title text-primary border-bottom pb-2">{{ training.title }}</h4>
+                <div *ngIf="training.fromDate || training.toDate" class="text-muted mb-2 font-monospace small">
+                  <i class="far fa-calendar-alt me-1"></i>
+                  <span *ngIf="training.fromDate">{{ training.fromDate | date:'dd-MMM-yyyy' }}</span>
+                  <span *ngIf="training.fromDate && training.toDate"> to </span>
+                  <span *ngIf="training.toDate">{{ training.toDate | date:'dd-MMM-yyyy' }}</span>
+                </div>
+                
+                <div class="card-text mt-2 flex-grow-1" style="white-space: pre-line;">
+                  <ng-container *ngIf="!training.showFull && training.description.length > 100">
+                    {{ training.description | slice:0:100 }}...
+                    <a href="javascript:void(0)" (click)="training.showFull = true" class="text-primary text-decoration-none small d-block mt-1">Read more</a>
+                  </ng-container>
+                  <ng-container *ngIf="training.showFull || training.description.length <= 100">
+                    {{ training.description }}
+                    <a *ngIf="training.showFull" href="javascript:void(0)" (click)="training.showFull = false" class="text-primary text-decoration-none small d-block mt-1">Show less</a>
+                  </ng-container>
+                </div>
+                
+                <div class="mt-3 pt-3 border-top">
+                  <a *ngIf="training.link" [href]="training.link" class="btn btn-sm btn-outline-primary me-2">Details</a>
+                  <a *ngIf="training.documentUrl" [href]="getDocumentUrl(training._id)" target="_blank" class="btn btn-sm btn-outline-success">
+                    <i class="fas" [ngClass]="training.documentUrl.includes('.pdf') ? 'fa-file-pdf' : 'fa-file-image'"></i> View Doc
+                  </a>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    
+    <div *ngIf="!isLoading && categories.length === 0" class="alert alert-info text-center">
+      No training programs are available at the moment.
+    </div>
+  </div>
+</div>

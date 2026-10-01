@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, Input } from '@angular/core';
 import { PageBackgroundService, PageBackground } from '../../services/page-background.service';
 
 @Component({
@@ -7,13 +7,16 @@ import { PageBackgroundService, PageBackground } from '../../services/page-backg
   styleUrls: ['./events.component.css']
 })
 export class EventsPageComponent implements OnInit {
+  @Input() showBanner: boolean = true;
   pageBackground: PageBackground | null = null;
   pageBackgroundLoading = true;
 
   constructor(private pageBackgroundService: PageBackgroundService) {}
 
   ngOnInit() {
-    this.loadPageBackground();
+    if (this.showBanner) {
+      this.loadPageBackground();
+    }
   }
 
   loadPageBackground() {

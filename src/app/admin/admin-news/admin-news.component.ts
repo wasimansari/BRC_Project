@@ -1,5 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { EnhancedNewsService, DepartmentNews, NewsFormData, NewsContentType } from '../../services/enhanced-news.service';
+import { getFullUrl } from '../../core/constants/api-endpoints';
 
 @Component({
   selector: 'app-admin-news',
@@ -451,8 +452,8 @@ export class AdminNewsComponent implements OnInit {
     });
   }
 
-  openPdfInNewTab(pdfUrl: string) {
-    window.open(pdfUrl, '_blank');
+  openPdfInNewTab(id: string) {
+    window.open(getFullUrl(`/news/${id}/document`), '_blank');
   }
 
   // Content Type Change Handler

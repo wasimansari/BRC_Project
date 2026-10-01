@@ -19,17 +19,8 @@
            [style.backgroundImage]="'url(' + slide.image + ')'">
         <div class="carousel-overlay"></div>
         <div class="carousel-caption-custom">
-          <div class="container">
-            <div class="row align-items-center">
-              <div class="col-lg-7">
-                <h1 class="hero-title">{{ slide.title }}</h1>
-                <p class="hero-description">{{ slide.description }}</p>
-                <div class="hero-buttons">
-                  <button class="btn btn-primary btn-lg">VIEW COURSES</button>
-                  <!-- <button class="btn btn-outline-light btn-lg">LEARN MORE</button> -->
-                </div>
-              </div>
-            </div>
+          <div class="container text-center">
+            <h1 class="hero-title" [innerHTML]="formatTitle(slide.title)"></h1>
           </div>
         </div>
       </div>
@@ -45,3 +36,38 @@
     </button>
   </div>
 </section>
+
+<!-- Overlapping Hero Boxes -->
+<div class="hero_boxes">
+  <div class="container">
+    <div class="row gx-0">
+      <div class="col-lg-4 hero_box_col">
+        <div class="hero_box">
+          <i class="fas fa-globe"></i>
+          <div class="hero_box_content">
+            <h2 class="hero_box_title">Online Courses</h2>
+            <a routerLink="/trainings" class="hero_box_link">view more</a>
+          </div>
+        </div>
+      </div>
+      <div class="col-lg-4 hero_box_col">
+        <div class="hero_box">
+          <i class="fas fa-book"></i>
+          <div class="hero_box_content">
+            <h2 class="hero_box_title">Our Library</h2>
+            <a routerLink="/downloads" class="hero_box_link">view more</a>
+          </div>
+        </div>
+      </div>
+      <div class="col-lg-4 hero_box_col">
+        <div class="hero_box">
+          <i class="fas fa-user-graduate"></i>
+          <div class="hero_box_content">
+            <h2 class="hero_box_title">Our Teachers</h2>
+            <a routerLink="/about" class="hero_box_link">view more</a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

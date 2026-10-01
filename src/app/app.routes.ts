@@ -10,6 +10,7 @@ import { GalleryPageComponent } from './pages/gallery/gallery.component';
 import { DownloadsPageComponent } from './pages/downloads/downloads.component';
 import { SearchSchoolComponent } from './pages/search-school/search-school.component';
 import { DepartmentNewsComponent } from './pages/department-news/department-news.component';
+import { TrainingsPageComponent } from './pages/trainings/trainings.component';
 import { AdminLoginComponent } from './admin/admin-login/admin-login.component';
 import { AdminDashboardComponent } from './admin/admin-dashboard/admin-dashboard.component';
 import { AdminSignupComponent } from './admin/admin-login/admin-signup.component';
@@ -35,6 +36,10 @@ const routes: Routes = [
   { 
     path: 'courses', 
     component: CoursesPageComponent 
+  },
+  {
+    path: 'trainings',
+    component: TrainingsPageComponent
   },
   { 
     path: 'events', 

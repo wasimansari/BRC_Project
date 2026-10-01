@@ -10,6 +10,7 @@ const aboutRoutes = require('./about');
 const galleryRoutes = require('./gallery');
 const downloadRoutes = require('./downloads');
 const courseRoutes = require('./courses');
+const trainingRoutes = require('./trainings');
 const settingsRoutes = require('./settings');
 const schoolRoutes = require('./schools');
 const announcementRoutes = require('./announcements');
@@ -18,6 +19,7 @@ const teacherRoutes = require('./teacher');
 const testimonialRoutes = require('./testimonial');
 const teacherDirectoryRoutes = require('./teacherDirectory');
 const teacherDocsRoutes = require('./teacherDocs');
+const adminTeacherDocsRoutes = require('./adminTeacherDocs');
 
 // Use routes
 router.use('/auth', authRoutes);
@@ -30,11 +32,13 @@ router.use('/about', aboutRoutes);
 router.use('/gallery', galleryRoutes);
 router.use('/downloads', downloadRoutes);
 router.use('/courses', courseRoutes);
+router.use('/trainings', trainingRoutes);
 router.use('/settings', settingsRoutes);
 router.use('/schools', schoolRoutes);
 router.use('/announcements', announcementRoutes);
 router.use('/page-backgrounds', pageBackgroundRoutes);
 router.use('/testimonials', testimonialRoutes);
 router.use('/teacher-directory', teacherDirectoryRoutes);
+router.use('/admin-teacher-docs', adminTeacherDocsRoutes);
 
 module.exports = router;

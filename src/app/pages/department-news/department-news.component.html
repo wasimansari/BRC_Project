@@ -190,7 +190,7 @@
                 <button class="btn btn-primary" (click)="downloadPdf(selectedNews.content.pdfUrl!, selectedNews.content.fileName || 'document.pdf')">
                   <i class="fas fa-download"></i> Download PDF
                 </button>
-                <button class="btn btn-secondary" (click)="openPdfInNewTab(selectedNews.content.pdfUrl!)">
+                <button class="btn btn-secondary" (click)="openPdfInNewTab(selectedNews._id!)">
                   <i class="fas fa-external-link-alt"></i> Open in New Tab
                 </button>
               </div>

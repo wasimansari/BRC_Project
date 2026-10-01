@@ -79,4 +79,16 @@ export class HeroSectionComponent implements OnInit {
       carousel.to(index);
     }
   }
+
+  formatTitle(title: string): string {
+    if (!title) return '';
+    const words = title.split(' ');
+    if (words.length > 1) {
+      // Highlight the middle word (like Colorlib's 'Education')
+      const highlightIndex = Math.floor(words.length / 2);
+      words[highlightIndex] = `<span>${words[highlightIndex]}</span>`;
+      return words.join(' ');
+    }
+    return title;
+  }
 }

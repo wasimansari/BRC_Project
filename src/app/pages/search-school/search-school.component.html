@@ -11,18 +11,16 @@
 </div>
 } @else {
 <!-- Search School Hero Section -->
-<section class="search-school-hero"
+<section class="page-banner"
   [style.background-image]="pageBackground?.backgroundImage ? 'url(' + pageBackground?.backgroundImage + ')' : ''">
-  <!-- <div class="hero-overlay"></div> -->
-  <div class="hero-content">
+  <!-- <div class="page-banner-overlay"></div> -->
+  <div class="page-banner-content">
     <div class="container">
       <div class="row">
         <div class="col-lg-12 text-center">
-          <div class="hero-icon">
-            <i class="fas fa-school"></i>
-          </div>
-          <h1 class="hero-title">{{ pageBackground?.title || 'Search School' }}</h1>
-          <p class="hero-subtitle">{{ pageBackground?.subtitle || 'Find schools in your area using UDISE Plus database'
+
+          <h1 class="page-banner-title">{{ pageBackground?.title || 'Search School' }}</h1>
+          <p class="page-banner-subtitle">{{ pageBackground?.subtitle || 'Find schools in your area using UDISE Plus database'
             }}</p>
           <nav aria-label="breadcrumb">
             <ol class="breadcrumb justify-content-center">

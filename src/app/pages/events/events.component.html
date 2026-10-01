@@ -1,3 +1,4 @@
+@if (showBanner) {
 <app-header></app-header>
 
 @if (pageBackgroundLoading) {
@@ -11,14 +12,14 @@
   </div>
 } @else {
 <!-- Events Banner -->
-<section class="events-banner" appScrollAnimate animationType="fadeInUp" [style.background-image]="backgroundImageStyle">
-  <!-- <div class="banner-overlay"></div> -->
-  <div class="banner-content">
+<section class="page-banner" appScrollAnimate animationType="fadeInUp" [style.background-image]="backgroundImageStyle">
+  <!-- <div class="page-banner-overlay"></div> -->
+  <div class="page-banner-content">
     <div class="container">
       <div class="row">
         <div class="col-lg-12 text-center">
-          <h1 class="banner-title">{{ pageBackground?.title || 'Our Events' }}</h1>
-          <p class="banner-subtitle">{{ pageBackground?.subtitle || 'Discover upcoming events and activities at Eduubuzz' }}</p>
+          <h1 class="page-banner-title">{{ pageBackground?.title || 'Our Events' }}</h1>
+          <p class="page-banner-subtitle">{{ pageBackground?.subtitle || 'Discover upcoming events and activities at Eduubuzz' }}</p>
           <nav aria-label="breadcrumb">
             <ol class="breadcrumb justify-content-center">
               <li class="breadcrumb-item"><a href="#">Home</a></li>
@@ -30,6 +31,7 @@
     </div>
   </div>
 </section>
+}
 }
 
 <section class="events-page">

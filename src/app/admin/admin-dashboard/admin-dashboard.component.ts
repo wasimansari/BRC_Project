@@ -163,7 +163,7 @@ export class AdminDashboardComponent implements OnInit {
   existingPageBackgroundImage: string | null = null;
   pageBackgroundSizeError = '';
   readonly PAGE_BACKGROUND_WIDTH = 1920;
-  readonly PAGE_BACKGROUND_HEIGHT = 600;
+  readonly PAGE_BACKGROUND_HEIGHT = 280;
 
   // Page options for background management
   pageOptions = [
@@ -174,7 +174,8 @@ export class AdminDashboardComponent implements OnInit {
     { value: 'blog', label: 'Blog', icon: 'fa-newspaper' },
     { value: 'gallery', label: 'Gallery', icon: 'fa-images' },
     { value: 'searchSchool', label: 'Search School', icon: 'fa-school' },
-    { value: 'downloads', label: 'Downloads', icon: 'fa-download' }
+    { value: 'downloads', label: 'Downloads', icon: 'fa-download' },
+    { value: 'trainings', label: 'Trainings', icon: 'fa-chalkboard-teacher' }
   ];
 
   constructor(

@@ -1,13 +1,13 @@
 /* ============================================
-   HERO SECTION — Homepage Carousel
+   HERO SECTION — Homepage Carousel (Colorlib Course Theme Style)
    ============================================ */
 
 .hero-section {
-  height: 680px;
+  height: 800px; /* Taller banner for overlap effect */
   position: relative;
   display: flex;
   align-items: center;
-  overflow: hidden;
+  overflow: visible; /* Important for overlapping boxes */
   margin: 0;
   padding: 0;
 }
@@ -28,16 +28,11 @@
   position: relative;
 }
 
-/* Clean gradient overlay using brand colors */
+/* Colorlib Course uses a simple dark overlay instead of gradient */
 .carousel-overlay {
   position: absolute;
   inset: 0;
-  background: linear-gradient(
-    135deg,
-    rgba(26, 82, 118, 0.91) 0%,
-    rgba(22, 160, 133, 0.70) 60%,
-    rgba(26, 82, 118, 0.82) 100%
-  );
+  background: rgba(0, 0, 0, 0.45);
   z-index: 5;
 }
 
@@ -50,62 +45,71 @@
   bottom: 0;
   display: flex;
   align-items: center;
+  justify-content: center;
   z-index: 10;
   padding-top: 68px; /* navbar height offset */
 }
 
-/* Carousel Indicators */
-.carousel-indicators {
-  z-index: 20;
-  bottom: 36px;
-  gap: 8px;
-  margin: 0;
+.hero-title {
+  font-size: 5rem;
+  font-weight: 700;
+  margin-bottom: 0;
+  line-height: 1.2;
+  color: var(--white);
+  /* Removed text-transform: uppercase to match Colorlib */
 }
 
-.carousel-indicators button {
-  width: 8px;
-  height: 8px;
-  border-radius: 50%;
-  background-color: rgba(255,255,255,0.35);
-  border: none;
-  margin: 0;
-  padding: 0;
-  transition: all 0.35s ease;
+/* Use ::ng-deep because the span is injected dynamically via innerHTML */
+.hero-title ::ng-deep span {
+  color: #ffb606; /* Colorlib Yellow Accent */
 }
 
-.carousel-indicators button:hover {
-  background-color: rgba(255,255,255,0.65);
+/* Dramatic Zoom In Entrance Animation Effect */
+.carousel-item.active .hero-title {
+  /* Increased duration to 1.8s, added a slight over-shoot bounce at the end */
+  animation: dramaticZoomIn 1.8s cubic-bezier(0.2, 1.2, 0.4, 1) forwards;
+  opacity: 0; /* Ensures it is hidden before the animation kicks in */
 }
 
-.carousel-indicators button.active {
-  background-color: var(--white);
-  width: 24px;
-  border-radius: 4px;
+@keyframes dramaticZoomIn {
+  0% {
+    opacity: 0;
+    transform: scale(0.4) translateY(60px);
+    letter-spacing: -2px;
+  }
+  70% {
+    opacity: 1;
+    transform: scale(1.05) translateY(-5px);
+    letter-spacing: 2px;
+  }
+  100% {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+    letter-spacing: 0;
+  }
 }
 
 /* Carousel Controls */
 .carousel-control-prev,
 .carousel-control-next {
   z-index: 20;
-  width: 48px;
-  height: 48px;
+  width: 50px;
+  height: 50px;
   top: 50%;
   transform: translateY(-50%);
-  background: rgba(255,255,255,0.15);
-  border: 1.5px solid rgba(255,255,255,0.30);
-  border-radius: var(--radius-sm);
-  backdrop-filter: blur(4px);
-  transition: all var(--ease-normal);
+  background: rgba(0, 0, 0, 0.5);
+  border: none;
+  border-radius: 0;
+  transition: all 0.3s ease;
+  opacity: 1;
 }
 
-.carousel-control-prev { left: 32px; }
-.carousel-control-next { right: 32px; }
+.carousel-control-prev { left: 0; }
+.carousel-control-next { right: 0; }
 
 .carousel-control-prev:hover,
 .carousel-control-next:hover {
-  background: var(--brand-accent);
-  border-color: var(--brand-accent);
-  transform: translateY(-50%);
+  background: #ffb606;
 }
 
 .carousel-control-prev-icon,
@@ -120,7 +124,7 @@
   font-family: 'Font Awesome 6 Free';
   font-weight: 900;
   color: white;
-  font-size: 18px;
+  font-size: 20px;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -136,135 +140,101 @@
 }
 
 /* ============================================
-   Hero Content
+   Overlapping Hero Boxes (Colorlib Style)
    ============================================ */
-.hero-content-wrapper {
-  opacity: 0;
-  transform: translateY(28px);
-  animation: fadeInUp 0.65s cubic-bezier(0.215, 0.61, 0.355, 1) forwards;
-  animation-delay: 0.15s;
+.hero_boxes {
+  position: relative;
+  z-index: 30;
+  margin-top: -120px; /* Pull it up over the slider */
 }
 
-.hero-title {
-  font-size: 3rem;
-  font-weight: 800;
-  margin-bottom: 18px;
-  line-height: 1.2;
-  color: var(--white);
-  text-shadow: 0 2px 14px rgba(0,0,0,0.18);
-  letter-spacing: -0.5px;
+.hero_box_col {
+  padding: 0; /* Important for edge-to-edge boxes */
 }
 
-.hero-title span {
-  color: #ffd166;
-}
-
-.hero-description {
-  font-size: 1.1rem;
-  margin-bottom: 32px;
-  line-height: 1.8;
-  color: rgba(255,255,255,0.88);
-  max-width: 560px;
-  font-weight: 400;
-}
-
-.hero-buttons {
+.hero_box {
   display: flex;
-  gap: 14px;
-  flex-wrap: wrap;
+  flex-direction: row;
   align-items: center;
+  justify-content: flex-start;
+  padding: 40px;
+  height: 140px;
+  transition: all 0.3s ease;
 }
 
-/* Hero CTA buttons — override global to use gold */
-.hero-buttons .btn-primary {
-  background: var(--brand-gold);
-  color: var(--brand-dark) !important;
-  padding: 14px 32px;
-  font-size: 14px;
-  font-weight: 700;
-  border-radius: var(--radius-sm);
-  box-shadow: 0 6px 22px rgba(230, 126, 34, 0.38);
+/* Colorlib Course Theme exact colors for the boxes */
+.hero_box_col:nth-child(1) .hero_box { background: #d49a03; }
+.hero_box_col:nth-child(2) .hero_box { background: #ffb606; }
+.hero_box_col:nth-child(3) .hero_box { background: #1a1a1a; }
+
+.hero_box i {
+  font-size: 60px;
+  color: white;
+  margin-right: 30px;
 }
 
-.hero-buttons .btn-primary:hover {
-  background: var(--brand-gold-dk);
-  transform: translateY(-2px);
-  box-shadow: 0 10px 28px rgba(230, 126, 34, 0.45);
-  color: var(--white) !important;
-}
-
-.hero-buttons .btn-secondary {
-  background: transparent;
-  color: var(--white);
-  border: 1.5px solid rgba(255,255,255,0.50);
-  padding: 13px 28px;
-  font-size: 14px;
-  border-radius: var(--radius-sm);
-}
-
-.hero-buttons .btn-secondary:hover {
-  background: rgba(255,255,255,0.12);
-  border-color: rgba(255,255,255,0.80);
-  color: var(--white);
-  transform: translateY(-2px);
-}
-
-/* Scroll Down */
-.scroll-down {
-  position: absolute;
-  bottom: 28px;
-  left: 50%;
-  transform: translateX(-50%);
-  z-index: 20;
-}
-
-.scroll-down a {
+.hero_box_content {
   display: flex;
   flex-direction: column;
-  align-items: center;
-  color: rgba(255,255,255,0.60);
-  font-size: 11px;
-  font-weight: 500;
-  text-transform: uppercase;
-  letter-spacing: 1.5px;
-  cursor: pointer;
-  transition: color var(--ease-fast);
-  animation: scrollBounce 2s ease-in-out infinite;
 }
 
-.scroll-down a:hover { color: white; }
-.scroll-down i { font-size: 18px; margin-top: 6px; }
+.hero_box_title {
+  font-size: 26px;
+  font-weight: 700;
+  color: white;
+  margin-bottom: 5px;
+  text-transform: uppercase;
+  margin-top: 0;
+}
 
-@keyframes scrollBounce {
-  0%, 100% { transform: translateY(0); }
-  50%       { transform: translateY(6px); }
+.hero_box_link {
+  font-size: 14px;
+  font-weight: 600;
+  color: white;
+  text-transform: uppercase;
+  text-decoration: none;
+  transition: all 0.3s;
+}
+
+.hero_box_link:hover {
+  color: #ffb606;
+}
+
+/* Contrast hover states */
+.hero_box_col:nth-child(1) .hero_box_link:hover,
+.hero_box_col:nth-child(2) .hero_box_link:hover {
+  color: #1a1a1a;
 }
 
 /* ============================================
    Responsive
    ============================================ */
 @media (max-width: 1199px) {
-  .hero-section { height: 620px; }
-  .hero-title { font-size: 2.6rem; }
+  .hero-section { height: 700px; }
+  .hero-title { font-size: 4rem; }
 }
 
 @media (max-width: 991px) {
-  .hero-section { height: 560px; }
-  .hero-title { font-size: 2.1rem; }
-  .hero-description { font-size: 1rem; }
-  .carousel-control-prev { left: 16px; }
-  .carousel-control-next { right: 16px; }
+  .hero-section { height: 600px; }
+  .hero-title { font-size: 3rem; }
+  
+  .hero_boxes {
+    margin-top: 0;
+    padding-bottom: 50px;
+  }
+  .hero_box {
+    margin-bottom: 10px;
+  }
 }
 
 @media (max-width: 768px) {
   .hero-section { height: 500px; }
-  .hero-title { font-size: 1.75rem; }
-  .hero-description { font-size: 0.95rem; margin-bottom: 24px; }
-  .hero-buttons { gap: 10px; }
-  .hero-buttons .btn-primary,
-  .hero-buttons .btn-secondary { padding: 12px 22px; font-size: 13px; }
-  .carousel-control-prev,
-  .carousel-control-next { width: 38px; height: 38px; }
-  .carousel-control-prev-icon::before,
-  .carousel-control-next-icon::before { font-size: 14px; }
+  .hero-title { font-size: 2rem; }
+  .hero_box i {
+    font-size: 40px;
+    margin-right: 20px;
+  }
+  .hero_box_title {
+    font-size: 20px;
+  }
 }

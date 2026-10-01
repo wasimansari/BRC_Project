@@ -1,0 +1,124 @@
+<div class="content-card">
+  <h2>Teacher Document Requests</h2>
+  <p class="text-muted">Review, approve, or reject documents uploaded by teachers.</p>
+
+  <div class="row mb-4 stats-row">
+    <div class="col-md-3">
+      <div class="stat-card bg-primary text-white p-3 rounded">
+        <h5>Total Documents</h5>
+        <h3>{{ stats.total }}</h3>
+      </div>
+    </div>
+    <div class="col-md-3">
+      <div class="stat-card bg-warning text-dark p-3 rounded">
+        <h5>Pending</h5>
+        <h3>{{ stats.pending }}</h3>
+      </div>
+    </div>
+    <div class="col-md-3">
+      <div class="stat-card bg-success text-white p-3 rounded">
+        <h5>Approved</h5>
+        <h3>{{ stats.approved }}</h3>
+      </div>
+    </div>
+    <div class="col-md-3">
+      <div class="stat-card bg-danger text-white p-3 rounded">
+        <h5>Rejected</h5>
+        <h3>{{ stats.rejected }}</h3>
+      </div>
+    </div>
+  </div>
+
+  <div class="row mb-3">
+    <div class="col-md-4">
+      <input type="text" class="form-control" placeholder="Search by name, UDISE or title..." [(ngModel)]="searchQuery" (input)="onFilterChange()">
+    </div>
+    <div class="col-md-3">
+      <select class="form-select" [(ngModel)]="statusFilter" (change)="onFilterChange()">
+        <option value="">All Statuses</option>
+        <option value="Pending">Pending</option>
+        <option value="Approved">Approved</option>
+        <option value="Rejected">Rejected</option>
+      </select>
+    </div>
+  </div>
+
+  <div class="table-responsive">
+    <table class="table table-hover align-middle">
+      <thead class="table-light">
+        <tr>
+          <th>Date</th>
+          <th>Teacher</th>
+          <th>UDISE</th>
+          <th>Document Title</th>
+          <th>Type</th>
+          <th>Status</th>
+          <th>Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let doc of filteredDocuments">
+          <td>{{ doc.uploadedAt | date:'shortDate' }}</td>
+          <td>{{ doc.teacherName || 'N/A' }}</td>
+          <td>{{ doc.udiseCode }}</td>
+          <td>
+            <strong>{{ doc.title }}</strong>
+            <br>
+            <small class="text-muted">{{ formatSize(doc.fileSize) }}</small>
+          </td>
+          <td>{{ doc.docType }}</td>
+          <td>
+            <span [class]="getStatusBadgeClass(doc.status)">{{ doc.status }}</span>
+          </td>
+          <td>
+            <a [href]="getDocumentUrl(doc._id)" target="_blank" class="btn btn-sm btn-outline-primary me-2">
+              <i class="fas fa-eye"></i> View
+            </a>
+            <button class="btn btn-sm btn-primary" (click)="openActionModal(doc)">
+              <i class="fas fa-edit"></i> Action
+            </button>
+          </td>
+        </tr>
+        <tr *ngIf="filteredDocuments.length === 0">
+          <td colspan="7" class="text-center py-4">
+            <p class="mb-0 text-muted">No documents found matching your filters.</p>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<!-- Action Modal overlay -->
+<div class="modal fade show" tabindex="-1" style="display: block; background: rgba(0,0,0,0.5);" *ngIf="selectedDoc">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">Review Document: {{ selectedDoc.title }}</h5>
+        <button type="button" class="btn-close" (click)="closeActionModal()"></button>
+      </div>
+      <div class="modal-body">
+        <div class="mb-3">
+          <label class="form-label">Update Status</label>
+          <select class="form-select" [(ngModel)]="actionStatus">
+            <option value="Pending">Pending</option>
+            <option value="Approved">Approve</option>
+            <option value="Rejected">Reject</option>
+          </select>
+        </div>
+        <div class="mb-3">
+          <label class="form-label">Remarks / Comments to Teacher</label>
+          <textarea class="form-control" rows="3" [(ngModel)]="adminRemarks" placeholder="Enter reason for rejection or approval notes..."></textarea>
+          <small class="text-muted">These remarks will be emailed to the teacher.</small>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" (click)="closeActionModal()" [disabled]="isSubmitting">Cancel</button>
+        <button type="button" class="btn btn-primary" (click)="submitAction()" [disabled]="isSubmitting">
+          <span *ngIf="isSubmitting" class="spinner-border spinner-border-sm me-1" role="status" aria-hidden="true"></span>
+          Save & Notify
+        </button>
+      </div>
+    </div>
+  </div>
+</div>

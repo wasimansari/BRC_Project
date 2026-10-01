@@ -11,14 +11,14 @@
   </div>
 } @else {
 <!-- Gallery Banner -->
-<section class="gallery-banner" appScrollAnimate animationType="fadeInUp" [style.background-image]="pageBackground?.backgroundImage ? 'url(' + pageBackground?.backgroundImage + ')' : ''">
-  <!-- <div class="gallery-banner-overlay"></div> -->
-  <div class="gallery-banner-content">
+<section class="page-banner" appScrollAnimate animationType="fadeInUp" [style.background-image]="pageBackground?.backgroundImage ? 'url(' + pageBackground?.backgroundImage + ')' : ''">
+  <!-- <div class="page-banner-overlay"></div> -->
+  <div class="page-banner-content">
     <div class="container">
       <div class="row">
         <div class="col-lg-12 text-center">
-          <h1 class="gallery-banner-title">{{ pageBackground?.title || 'Photo Gallery' }}</h1>
-          <p class="gallery-banner-subtitle">{{ pageBackground?.subtitle || 'Capturing memories of our vibrant events and activities' }}</p>
+          <h1 class="page-banner-title">{{ pageBackground?.title || 'Photo Gallery' }}</h1>
+          <p class="page-banner-subtitle">{{ pageBackground?.subtitle || 'Capturing memories of our vibrant events and activities' }}</p>
           <nav aria-label="breadcrumb">
             <ol class="breadcrumb justify-content-center">
               <li class="breadcrumb-item"><a href="#">Home</a></li>

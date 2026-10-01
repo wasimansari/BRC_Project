@@ -11,14 +11,14 @@
   </div>
 } @else {
 <!-- Download Banner -->
-<section class="download-banner" [style.background-image]="pageBackground?.backgroundImage ? 'url(' + pageBackground?.backgroundImage + ')' : ''">
-  <div class="download-banner-overlay"></div>
-  <div class="download-banner-content">
+<section class="page-banner" [style.background-image]="pageBackground?.backgroundImage ? 'url(' + pageBackground?.backgroundImage + ')' : ''">
+  <div class="page-banner-overlay"></div>
+  <div class="page-banner-content">
     <div class="container">
       <div class="row">
         <div class="col-lg-12 text-center">
-          <h1 class="download-banner-title">{{ pageBackground?.title || 'Downloads' }}</h1>
-          <p class="download-banner-subtitle">{{ pageBackground?.subtitle || 'Access important documents, forms, and resources' }}</p>
+          <h1 class="page-banner-title">{{ pageBackground?.title || 'Downloads' }}</h1>
+          <p class="page-banner-subtitle">{{ pageBackground?.subtitle || 'Access important documents, forms, and resources' }}</p>
           <nav aria-label="breadcrumb">
             <ol class="breadcrumb justify-content-center">
               <li class="breadcrumb-item"><a href="#">Home</a></li>

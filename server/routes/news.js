@@ -94,10 +94,17 @@ router.post('/', upload.single('file'), async (req, res) => {
         // Bug Fix 3: Use upload_stream with buffer (memoryStorage) instead of upload with file path (diskStorage)
         const uploadResult = await new Promise((resolve, reject) => {
           const uploadStream = cloudinary.uploader.upload_stream(
-            { folder: 'brc-project/department-news', resource_type: 'auto' },
+            { folder: 'brc-project/department-news', resource_type: contentType === 'pdf' ? 'raw' : 'auto' },
             (error, result) => {
               if (error) return reject(error);
-              resolve(result);
+              let finalUrl = result.secure_url;
+              if (contentType === 'pdf') {
+                finalUrl = finalUrl.replace('/image/upload/', '/raw/upload/');
+                if (!finalUrl.endsWith('.pdf')) {
+                  finalUrl += '.pdf';
+                }
+              }
+              resolve({ ...result, secure_url: finalUrl });
             }
           );
           uploadStream.end(req.file.buffer);
@@ -170,10 +177,17 @@ router.put('/:id', upload.single('file'), async (req, res) => {
         // Bug Fix 3: Use upload_stream with buffer (memoryStorage) instead of upload with file path
         const uploadResult = await new Promise((resolve, reject) => {
           const uploadStream = cloudinary.uploader.upload_stream(
-            { folder: 'brc-project/department-news', resource_type: 'auto' },
+            { folder: 'brc-project/department-news', resource_type: contentType === 'pdf' ? 'raw' : 'auto' },
             (error, result) => {
               if (error) return reject(error);
-              resolve(result);
+              let finalUrl = result.secure_url;
+              if (contentType === 'pdf') {
+                finalUrl = finalUrl.replace('/image/upload/', '/raw/upload/');
+                if (!finalUrl.endsWith('.pdf')) {
+                  finalUrl += '.pdf';
+                }
+              }
+              resolve({ ...result, secure_url: finalUrl });
             }
           );
           uploadStream.end(req.file.buffer);
@@ -318,6 +332,56 @@ router.get('/categories/list', async (req, res) => {
     res.json({ success: true, data: merged });
   } catch (error) {
     res.status(500).json({ message: 'Error fetching categories', error: error.message });
+  }
+});
+
+// @route   GET /api/news/:id/document
+// @desc    View a news PDF inline
+// @access  Public
+router.get('/:id/document', async (req, res) => {
+  try {
+    const news = await News.findById(req.params.id);
+    if (!news || !news.content || !news.content.pdfUrl) {
+      return res.status(404).json({ message: 'Document not found' });
+    }
+
+    const isPdf = true;
+    const fileName = news.content.fileName || 'document.pdf';
+
+    res.setHeader('Content-Disposition', `inline; filename="${fileName}"`);
+    res.setHeader('Content-Type', 'application/pdf');
+
+    let fetchUrl = news.content.pdfUrl;
+    if (isPdf && fetchUrl.includes('/raw/upload/') && fetchUrl.endsWith('.pdf')) {
+      fetchUrl = fetchUrl.slice(0, -4);
+    }
+    
+    // For legacy uploads
+    if (isPdf && fetchUrl.includes('/image/upload/')) {
+       fetchUrl = fetchUrl.replace('/image/upload/', '/raw/upload/');
+    }
+
+    const https = require('https');
+    const request = https.get(fetchUrl, { timeout: 30000 }, (cloudinaryRes) => {
+      if (cloudinaryRes.statusCode !== 200) {
+        return res.status(cloudinaryRes.statusCode).json({ message: 'Failed to fetch file from storage' });
+      }
+      cloudinaryRes.pipe(res);
+    });
+
+    request.on('timeout', () => {
+      request.destroy();
+      res.status(504).json({ message: 'Request timed out' });
+    });
+
+    request.on('error', (error) => {
+      console.error('Error fetching document:', error);
+      res.status(500).json({ message: 'Error viewing document' });
+    });
+
+  } catch (error) {
+    console.error('Document view error:', error);
+    res.status(500).json({ message: error.message });
   }
 });
 

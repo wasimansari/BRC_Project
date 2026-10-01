@@ -41,6 +41,9 @@ import { AdminNewsComponent } from './admin/admin-news/admin-news.component';
 import { AdminTeacherDirectoryComponent } from './admin/admin-teacher-directory/admin-teacher-directory.component';
 import { DepartmentNewsComponent } from './pages/department-news/department-news.component';
 import { NewsPreviewComponent } from './components/news-preview/news-preview.component';
+import { TrainingsPageComponent } from './pages/trainings/trainings.component';
+import { AdminTrainingsComponent } from './admin/admin-trainings/admin-trainings.component';
+import { AdminTeacherDocsComponent } from './admin/admin-teacher-docs/admin-teacher-docs.component';
 import { AppComponent } from './app.component';
 
 @NgModule({
@@ -78,6 +81,9 @@ import { AppComponent } from './app.component';
     AdminNewsComponent,
     DepartmentNewsComponent,
     NewsPreviewComponent,
+    TrainingsPageComponent,
+    AdminTrainingsComponent,
+    AdminTeacherDocsComponent,
     ScrollAnimateDirective,
     SmoothScrollDirective
   ],
