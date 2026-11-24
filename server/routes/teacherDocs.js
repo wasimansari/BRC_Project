@@ -3,6 +3,7 @@ const router = express.Router();
 const multer = require('multer');
 const cloudinary = require('cloudinary').v2;
 const { TeacherDocument, Teacher } = require('../models');
+const { proxyCloudinaryFile } = require('../utils/cloudinaryProxy');
 const jwt = require('jsonwebtoken');
 
 // ── Teacher JWT Auth Middleware (inline) ──────────────────
@@ -189,36 +190,11 @@ router.get('/:id/document', async (req, res) => {
 
     const isPdf = doc.fileUrl.endsWith('.pdf') || doc.mimeType === 'application/pdf';
     const fileName = doc.fileName || (isPdf ? 'document.pdf' : 'document.jpg');
+    const contentType = isPdf ? 'application/pdf' : (doc.mimeType || 'image/jpeg');
 
-    res.setHeader('Content-Disposition', `inline; filename="${fileName}"`);
-    res.setHeader('Content-Type', isPdf ? 'application/pdf' : (doc.mimeType || 'image/jpeg'));
-
-    let fetchUrl = doc.fileUrl;
-    if (isPdf && fetchUrl.includes('/raw/upload/') && fetchUrl.endsWith('.pdf')) {
-      fetchUrl = fetchUrl.slice(0, -4);
-    }
-    
-    // For legacy uploads that were uploaded as raw but don't have .pdf extension in db
-    if (isPdf && fetchUrl.includes('/image/upload/')) {
-       fetchUrl = fetchUrl.replace('/image/upload/', '/raw/upload/');
-    }
-
-    const https = require('https');
-    const request = https.get(fetchUrl, { timeout: 30000 }, (cloudinaryRes) => {
-      if (cloudinaryRes.statusCode !== 200) {
-        return res.status(cloudinaryRes.statusCode).json({ message: 'Failed to fetch file from storage' });
-      }
-      cloudinaryRes.pipe(res);
-    });
-
-    request.on('timeout', () => {
-      request.destroy();
-      res.status(504).json({ message: 'Request timed out' });
-    });
-
-    request.on('error', (error) => {
-      console.error('Error fetching document:', error);
-      res.status(500).json({ message: 'Error viewing document' });
+    await proxyCloudinaryFile(doc.fileUrl, res, {
+      fileName,
+      contentType
     });
 
   } catch (error) {

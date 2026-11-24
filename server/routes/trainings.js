@@ -2,8 +2,8 @@ const express = require('express');
 const router = express.Router();
 const multer = require('multer');
 const cloudinary = require('cloudinary').v2;
-const https = require('https');
 const { Training } = require('../models');
+const { proxyCloudinaryFile } = require('../utils/cloudinaryProxy');
 
 // Multer storage
 const upload = multer({
@@ -43,7 +43,15 @@ router.get('/', async (req, res) => {
 
 router.post('/', upload.fields([{ name: 'thumbnail', maxCount: 1 }, { name: 'document', maxCount: 1 }]), async (req, res) => {
   try {
-    const { title, description, link, category, fromDate, toDate, isActive, displayOrder } = req.body;
+    const { title, description, link, category, fromDate, toDate, expireDate, isActive, displayOrder } = req.body;
+    
+    // Check for unique display order
+    const orderNum = parseInt(displayOrder) || 0;
+    const existingOrder = await Training.findOne({ displayOrder: orderNum });
+    if (existingOrder) {
+      return res.status(400).json({ message: `Display order ${orderNum} is already used. Please choose a unique order.` });
+    }
+
     let thumbnailUrl = '';
     let thumbnailPublicId = '';
     let documentUrl = '';
@@ -68,9 +76,9 @@ router.post('/', upload.fields([{ name: 'thumbnail', maxCount: 1 }, { name: 'doc
     }
 
     const training = new Training({
-      title, description, link, category, fromDate, toDate,
+      title, description, link, category, fromDate, toDate, expireDate,
       isActive: isActive !== undefined ? (isActive === 'true' || isActive === true) : true,
-      displayOrder: parseInt(displayOrder) || 0,
+      displayOrder: orderNum,
       thumbnailUrl, thumbnailPublicId, documentUrl, documentPublicId, documentOriginalName
     });
 
@@ -86,7 +94,17 @@ router.put('/:id', upload.fields([{ name: 'thumbnail', maxCount: 1 }, { name: 'd
     const training = await Training.findById(req.params.id);
     if (!training) return res.status(404).json({ message: 'Training not found' });
 
-    const { title, description, link, category, fromDate, toDate, isActive, displayOrder } = req.body;
+    const { title, description, link, category, fromDate, toDate, expireDate, isActive, displayOrder } = req.body;
+    
+    if (displayOrder !== undefined) {
+      const orderNum = parseInt(displayOrder) || 0;
+      if (orderNum !== training.displayOrder) {
+        const existingOrder = await Training.findOne({ displayOrder: orderNum, _id: { $ne: req.params.id } });
+        if (existingOrder) {
+          return res.status(400).json({ message: `Display order ${orderNum} is already used. Please choose a unique order.` });
+        }
+      }
+    }
 
     if (req.files && req.files['thumbnail']) {
       if (training.thumbnailPublicId) {
@@ -117,6 +135,7 @@ router.put('/:id', upload.fields([{ name: 'thumbnail', maxCount: 1 }, { name: 'd
     if (category !== undefined) training.category = category;
     if (fromDate !== undefined) training.fromDate = fromDate;
     if (toDate !== undefined) training.toDate = toDate;
+    if (expireDate !== undefined) training.expireDate = expireDate;
     if (isActive !== undefined) training.isActive = (isActive === 'true' || isActive === true);
     if (displayOrder !== undefined) training.displayOrder = parseInt(displayOrder) || 0;
 
@@ -147,6 +166,19 @@ router.delete('/:id', async (req, res) => {
   }
 });
 
+router.patch('/:id/toggle', async (req, res) => {
+  try {
+    const training = await Training.findById(req.params.id);
+    if (!training) return res.status(404).json({ message: 'Training not found' });
+
+    training.isActive = !training.isActive;
+    const updatedTraining = await training.save();
+    res.json(updatedTraining);
+  } catch (error) {
+    res.status(500).json({ message: 'Error toggling training status', error: error.message });
+  }
+});
+
 router.get('/:id/document', async (req, res) => {
   try {
     const training = await Training.findById(req.params.id);
@@ -156,32 +188,11 @@ router.get('/:id/document', async (req, res) => {
 
     const isPdf = training.documentUrl.endsWith('.pdf');
     const fileName = training.documentOriginalName || (isPdf ? 'document.pdf' : 'document.jpg');
+    const contentType = isPdf ? 'application/pdf' : 'image/jpeg';
 
-    res.setHeader('Content-Disposition', `inline; filename="${fileName}"`);
-    res.setHeader('Content-Type', isPdf ? 'application/pdf' : 'image/jpeg');
-
-    let fetchUrl = training.documentUrl;
-    if (isPdf && fetchUrl.includes('/raw/upload/') && fetchUrl.endsWith('.pdf')) {
-      // Cloudinary stores raw files without the .pdf extension internally, 
-      // even though we appended it to the database URL for reference.
-      fetchUrl = fetchUrl.slice(0, -4);
-    }
-
-    const request = https.get(fetchUrl, { timeout: 30000 }, (cloudinaryRes) => {
-      if (cloudinaryRes.statusCode !== 200) {
-        return res.status(cloudinaryRes.statusCode).json({ message: 'Failed to fetch file from storage' });
-      }
-      cloudinaryRes.pipe(res);
-    });
-
-    request.on('timeout', () => {
-      request.destroy();
-      res.status(504).json({ message: 'Request timed out' });
-    });
-
-    request.on('error', (error) => {
-      console.error('Error fetching document:', error);
-      res.status(500).json({ message: 'Error viewing document' });
+    await proxyCloudinaryFile(training.documentUrl, res, {
+      fileName,
+      contentType
     });
 
   } catch (error) {

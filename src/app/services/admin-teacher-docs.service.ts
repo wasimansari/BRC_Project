@@ -3,6 +3,15 @@ import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { getFullUrl } from '../core/constants/api-endpoints';
 
+export interface DocumentActionBy {
+  adminId?: string;
+  adminUsername?: string;
+  adminName?: string;
+  adminDesignation?: string;
+  signatureUrl?: string;
+  actionDate?: string | Date;
+}
+
 export interface TeacherDocument {
   _id: string;
   udiseCode: string;
@@ -17,6 +26,7 @@ export interface TeacherDocument {
   uploadedAt: string;
   status: string;
   adminRemarks: string;
+  actionBy?: DocumentActionBy;
 }
 
 @Injectable({
@@ -40,6 +50,6 @@ export class AdminTeacherDocsService {
   }
 
   getStats(): Observable<any> {
-    return this.http.get(`${this.apiUrl}/stats`);
+    return this.http.get<any>(`${this.apiUrl}/stats`);
   }
 }

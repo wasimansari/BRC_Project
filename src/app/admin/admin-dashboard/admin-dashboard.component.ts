@@ -9,6 +9,7 @@ import { AboutService, AboutContent, BEOProfile, OrgStructure, StaffMember } fro
 import { AnnouncementService, Announcement } from '../../services/announcement.service';
 import { PageBackgroundService, PageBackground } from '../../services/page-background.service';
 import { TestimonialService, Testimonial } from '../../services/testimonial.service';
+import { DashboardService, DashboardStats } from '../../services/dashboard.service';
 import { app_constants } from '../../../constant';
 
 @Component({
@@ -18,9 +19,29 @@ import { app_constants } from '../../../constant';
 })
 export class AdminDashboardComponent implements OnInit {
   isSidebarCollapsed = false;
+  isMasterAdmin = false;
   
   // Animation state for content cards
-  activeTab = 'banners';
+  activeTab = 'dashboard';
+  // Dashboard Overview State (Novus Admin Panel Look & Feel)
+  dashboardStats: DashboardStats = {
+    totalSchools: 0,
+    totalTeachers: 0,
+    schools1to5: 0,
+    schools1to8: 0,
+    schools9to12: 0,
+    schools6to12: 0,
+    pendingTeacherRequests: 0,
+    allTrainingsCount: 0,
+    totalNewsCount: 0
+  };
+  runningTrainings: any[] = [];
+  dashboardLatestNews: any[] = [];
+  pendingRequestsList: any[] = [];
+  isLoadingDashboard: boolean = false;
+  currentAdminUser: any = null;
+  currentDateStr: string = '';
+
   isAnimating = false;
 
   adminDashboard = app_constants.adminDashboard;
@@ -188,7 +209,8 @@ export class AdminDashboardComponent implements OnInit {
     private aboutService: AboutService,
     private announcementService: AnnouncementService,
     private pageBackgroundService: PageBackgroundService,
-    private testimonialService: TestimonialService
+    private testimonialService: TestimonialService,
+    private dashboardService: DashboardService
   ) {}
 
   ngOnInit() {
@@ -197,10 +219,29 @@ export class AdminDashboardComponent implements OnInit {
     }
     this.loadStoredData();
     this.loadBanners();
+    this.currentAdminUser = this.authService.getCurrentAdmin();
+    this.currentDateStr = new Date().toLocaleDateString('en-US', {
+      weekday: 'long',
+      year: 'numeric',
+      month: 'long',
+      day: 'numeric'
+    });
+    this.loadDashboardOverview();
+
     this.loadAboutContent();
     this.loadAnnouncements();
     this.loadPageBackgrounds();
     this.loadTestimonials();
+    this.isMasterAdmin = this.authService.isMasterAdmin();
+    this.checkInitialTabAccess();
+
+    this.authService.getMyProfile().subscribe({
+      next: (admin) => {
+        this.isMasterAdmin = admin.role === 'superadmin';
+        this.checkInitialTabAccess();
+      },
+      error: () => {}
+    });
   }
 
   toggleSidebar() {
@@ -211,8 +252,68 @@ export class AdminDashboardComponent implements OnInit {
     }, 300);
   }
 
+  // Check if admin is authorized for a page
+  hasPageAccess(pageKey: string): boolean {
+    return this.authService.canAccessPage(pageKey);
+  }
+
+  // Ensure initial active tab is a tab the user has permission to view
+  checkInitialTabAccess(): void {
+    if (!this.hasPageAccess(this.activeTab)) {
+      const allTabs = [
+        'dashboard', 'schools', 'teacher-directory', 'teacher-docs', 'trainings', 'news', 'banners', 'events', 'news', 'courses', 'trainings',
+        'about', 'gallery', 'downloads', 'schools',
+        'teacher-directory', 'announcements', 'pageBackgrounds', 'testimonials'
+      ];
+      const firstAllowed = allTabs.find(tab => this.hasPageAccess(tab));
+      if (firstAllowed) {
+        this.activeTab = firstAllowed;
+      }
+    }
+  }
+
+  
+  loadDashboardOverview(): void {
+    this.isLoadingDashboard = true;
+    this.dashboardService.getOverview().subscribe({
+      next: (res) => {
+        if (res && res.stats) {
+          this.dashboardStats = res.stats;
+          this.runningTrainings = res.runningTrainings || [];
+          this.dashboardLatestNews = res.latestNews || [];
+          this.pendingRequestsList = res.pendingRequestsList || [];
+        }
+        this.isLoadingDashboard = false;
+      },
+      error: (err) => {
+        console.error('Failed to load dashboard overview stats:', err);
+        this.isLoadingDashboard = false;
+      }
+    });
+  }
+
+  formatDate(date: any): string {
+    if (!date) return 'N/A';
+    try {
+      return new Date(date).toLocaleDateString('en-US', {
+        month: 'short',
+        day: 'numeric',
+        year: 'numeric'
+      });
+    } catch (e) {
+      return String(date);
+    }
+  }
+
+  goToTab(tabName: string): void {
+    this.setActiveTab(tabName);
+  }
+
   // Set active tab for animation tracking
   setActiveTab(tab: string) {
+    if (!this.hasPageAccess(tab)) {
+      return;
+    }
     this.activeTab = tab;
   }
 
@@ -238,6 +339,19 @@ export class AdminDashboardComponent implements OnInit {
     this.announcementCategory = category;
     const option = this.categoryOptions.find(c => c.value === category);
     this.announcementCategoryClass = option?.class || 'category-academic';
+  }
+
+  onAnnouncementDatePick(dateStr: string): void {
+    if (!dateStr) return;
+    const parts = dateStr.split('-');
+    if (parts.length === 3) {
+      const day = parseInt(parts[2], 10);
+      const monthIdx = parseInt(parts[1], 10) - 1;
+      this.announcementDay = String(day);
+      if (this.monthOptions && this.monthOptions[monthIdx]) {
+        this.announcementMonth = this.monthOptions[monthIdx];
+      }
+    }
   }
 
   addAnnouncement() {

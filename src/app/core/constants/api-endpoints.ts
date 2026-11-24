@@ -7,8 +7,12 @@
 import { app_constants } from '../../../constant';
 
 // Helper function to get full URL - used by services
+// Safely handles both '/endpoint' and '/api/endpoint' without duplicating '/api'
 export function getFullUrl(endpoint: string): string {
-  return `${app_constants.baseUrl}${endpoint}`;
+  const normalizedEndpoint = endpoint.startsWith('/api/')
+    ? endpoint.substring(4)
+    : endpoint.startsWith('/') ? endpoint : '/' + endpoint;
+  return `${app_constants.baseUrl}${normalizedEndpoint}`;
 }
 
 // Re-export search types for backward compatibility

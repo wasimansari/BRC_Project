@@ -1,6 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { app_constants } from '../../../constant';
+import { DomSanitizer, SafeResourceUrl } from '@angular/platform-browser';
 
 @Component({
   selector: 'app-admin-trainings',
@@ -14,8 +15,9 @@ export class AdminTrainingsComponent implements OnInit {
   apiUrl = app_constants.baseUrl + '/trainings';
   
   showForm = false;
-  currentTraining: any = { title: '', description: '', category: '', link: '', fromDate: '', toDate: '', isActive: true, displayOrder: 0 };
+  currentTraining: any = { title: '', description: '', category: '', link: '', fromDate: '', toDate: '', expireDate: '', isActive: true, displayOrder: 0 };
   isEditing = false;
+  errorMessage = '';
   
   thumbnailFile: File | null = null;
   documentFile: File | null = null;
@@ -23,7 +25,11 @@ export class AdminTrainingsComponent implements OnInit {
   thumbnailError = '';
   documentError = '';
 
-  constructor(private http: HttpClient) {}
+  showDocumentModal = false;
+  documentPreviewUrl = '';
+  documentPreviewTitle = '';
+
+  constructor(private http: HttpClient, private sanitizer: DomSanitizer) {}
 
   ngOnInit(): void {
     this.fetchTrainings();
@@ -45,23 +51,30 @@ export class AdminTrainingsComponent implements OnInit {
 
   openAddForm() {
     this.isEditing = false;
-    this.currentTraining = { title: '', description: '', category: '', link: '', fromDate: '', toDate: '', isActive: true, displayOrder: 0 };
+    this.currentTraining = { title: '', description: '', category: '', link: '', fromDate: '', toDate: '', expireDate: '', isActive: true, displayOrder: 0 };
     this.thumbnailFile = null;
     this.documentFile = null;
     this.thumbnailPreview = null;
     this.thumbnailError = '';
     this.documentError = '';
+    this.errorMessage = '';
     this.showForm = true;
   }
 
   openEditForm(training: any) {
     this.isEditing = true;
     this.currentTraining = { ...training };
+    // Format dates for input type="date"
+    if (this.currentTraining.fromDate) this.currentTraining.fromDate = this.currentTraining.fromDate.split('T')[0];
+    if (this.currentTraining.toDate) this.currentTraining.toDate = this.currentTraining.toDate.split('T')[0];
+    if (this.currentTraining.expireDate) this.currentTraining.expireDate = this.currentTraining.expireDate.split('T')[0];
+    
     this.thumbnailFile = null;
     this.documentFile = null;
     this.thumbnailPreview = training.thumbnailUrl || null;
     this.thumbnailError = '';
     this.documentError = '';
+    this.errorMessage = '';
     this.showForm = true;
   }
 
@@ -125,6 +138,7 @@ export class AdminTrainingsComponent implements OnInit {
     formData.append('link', this.currentTraining.link || '');
     if (this.currentTraining.fromDate) formData.append('fromDate', this.currentTraining.fromDate);
     if (this.currentTraining.toDate) formData.append('toDate', this.currentTraining.toDate);
+    if (this.currentTraining.expireDate) formData.append('expireDate', this.currentTraining.expireDate);
     formData.append('isActive', this.currentTraining.isActive ? 'true' : 'false');
     formData.append('displayOrder', this.currentTraining.displayOrder?.toString() || '0');
     
@@ -140,6 +154,7 @@ export class AdminTrainingsComponent implements OnInit {
         },
         error: (err) => {
           console.error(err);
+          this.errorMessage = err.error?.message || 'Error updating training.';
           this.isSaving = false;
         }
       });
@@ -152,6 +167,7 @@ export class AdminTrainingsComponent implements OnInit {
         },
         error: (err) => {
           console.error(err);
+          this.errorMessage = err.error?.message || 'Error creating training.';
           this.isSaving = false;
         }
       });
@@ -165,5 +181,33 @@ export class AdminTrainingsComponent implements OnInit {
         error: (err) => console.error(err)
       });
     }
+  }
+
+  toggleStatus(training: any) {
+    this.http.patch(`${this.apiUrl}/${training._id}/toggle`, {}).subscribe({
+      next: () => {
+        training.isActive = !training.isActive;
+      },
+      error: (err) => {
+        console.error('Error toggling status', err);
+        alert('Failed to change status. Please try again.');
+      }
+    });
+  }
+
+  viewDocument(training: any) {
+    if (!training.documentUrl) return;
+    this.documentPreviewUrl = `${this.apiUrl}/${training._id}/document`;
+    this.documentPreviewTitle = training.title;
+    this.showDocumentModal = true;
+  }
+
+  closeDocumentModal() {
+    this.showDocumentModal = false;
+    this.documentPreviewUrl = '';
+  }
+
+  getSafeUrl(url: string): SafeResourceUrl {
+    return this.sanitizer.bypassSecurityTrustResourceUrl(url);
   }
 }

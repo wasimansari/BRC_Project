@@ -20,11 +20,17 @@ const testimonialRoutes = require('./testimonial');
 const teacherDirectoryRoutes = require('./teacherDirectory');
 const teacherDocsRoutes = require('./teacherDocs');
 const adminTeacherDocsRoutes = require('./adminTeacherDocs');
+const dashboardRoutes = require('./dashboard');
+const salarySlipRoutes = require('./salarySlip');
+const teacherMasterRoutes = require('./teacherMaster');
 
 // Use routes
+router.use('/dashboard', dashboardRoutes);
 router.use('/auth', authRoutes);
 router.use('/teacher', teacherRoutes);
 router.use('/teacher-docs', teacherDocsRoutes);
+router.use('/salary-slip', salarySlipRoutes);
+router.use('/teacher-master', teacherMasterRoutes);
 router.use('/banners', bannerRoutes);
 router.use('/events', eventRoutes);
 router.use('/news', newsRoutes);

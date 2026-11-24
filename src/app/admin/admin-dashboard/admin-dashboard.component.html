@@ -3,14 +3,56 @@
   <div class="dashboard-header" [class.header-expanded]="!isSidebarCollapsed">
     <div class="container-fluid">
       <div class="row align-items-center">
-        <div class="col d-flex align-items-center">
-          <!-- <button class="sidebar-toggle-btn" (click)="toggleSidebar()">
+        <div class="col d-flex align-items-center gap-3">
+          <button class="header-toggle-btn" (click)="toggleSidebar()" title="Toggle Sidebar">
             <i class="fas fa-bars"></i>
-          </button> -->
-          <h1 class="ms-3 mb-0">Admin Dashboard</h1>
+          </button>
+          <div class="d-flex align-items-center gap-2">
+            <span class="portal-logo-icon"><i class="fas fa-graduation-cap"></i></span>
+            <div>
+              <h1 class="mb-0 fs-5 fw-bold text-white">BRC Admin Portal</h1>
+              <small class="text-white-50 d-none d-md-inline" style="font-size: 0.72rem;">Block Resource Centre, Mehsi</small>
+            </div>
+          </div>
+          <span *ngIf="isMasterAdmin" class="badge bg-warning text-dark px-2 py-1 small fw-bold">
+            <i class="fas fa-crown me-1"></i> Master Admin
+          </span>
+          <span *ngIf="!isMasterAdmin" class="badge bg-info text-white px-2 py-1 small fw-bold">
+            <i class="fas fa-user-shield me-1"></i> Sub-Admin
+          </span>
         </div>
-        <div class="col-auto">
-          <button class="btn btn-danger" (click)="logout()">Logout</button>
+        <div class="col-auto d-flex align-items-center gap-2">
+          <!-- Pending Requests Indicator Pill -->
+          <button type="button" class="btn btn-outline-light btn-sm position-relative d-flex align-items-center gap-1"
+                  (click)="goToTab('teacher-docs')" title="Pending Teacher Requests">
+            <i class="fas fa-bell"></i>
+            <span class="d-none d-md-inline small">Pending</span>
+            <span *ngIf="dashboardStats.pendingTeacherRequests > 0" class="badge bg-danger ms-1">
+              {{ dashboardStats.pendingTeacherRequests }}
+            </span>
+          </button>
+          
+          <!-- View Live Website -->
+          <a href="/" target="_blank" class="btn btn-outline-light btn-sm d-none d-sm-flex align-items-center gap-1" title="Open Public Website">
+            <i class="fas fa-external-link-alt"></i>
+            <span>Website</span>
+          </a>
+
+          <!-- User Profile Chip -->
+          <div class="admin-user-chip d-none d-lg-flex align-items-center gap-2 px-2 py-1 rounded bg-white bg-opacity-10 text-white">
+            <div class="user-chip-avatar">
+              <i class="fas fa-user"></i>
+            </div>
+            <div class="user-chip-info text-start leading-tight">
+              <div class="small fw-bold">{{ currentAdminUser?.name || currentAdminUser?.username || 'Administrator' }}</div>
+              <div style="font-size: 0.68rem; opacity: 0.85;">{{ isMasterAdmin ? 'Master Authority' : 'Sub Administrator' }}</div>
+            </div>
+          </div>
+
+          <!-- Logout Button -->
+          <button class="btn btn-danger btn-sm px-3 fw-bold shadow-xs" (click)="logout()">
+            <i class="fas fa-power-off me-1"></i> Logout
+          </button>
         </div>
       </div>
     </div>
@@ -25,73 +67,87 @@
           <div class="sidebar">
             <h3>Management</h3>
             <ul class="nav flex-column">
+              <!-- Primary Dashboard Overview Tab -->
               <li class="nav-item">
-                <a class="nav-link active" href="#banners" data-bs-toggle="pill" appSmoothScroll (click)="setActiveTab('banners')">
+                <a class="nav-link" [class.active]="activeTab === 'dashboard'" href="#dashboard" data-bs-toggle="pill" (click)="setActiveTab('dashboard')">
+                  <i class="fas fa-gauge-high"></i> <span class="nav-text">Dashboard</span>
+                  <span class="badge bg-primary ms-auto" style="font-size: 0.65rem;">Overview</span>
+                </a>
+              </li>
+              <li class="nav-item" *ngIf="hasPageAccess('banners')">
+                <a class="nav-link" [class.active]="activeTab === 'banners'" href="#banners" data-bs-toggle="pill" appSmoothScroll (click)="setActiveTab('banners')">
                   <i class="fas fa-images"></i> <span class="nav-text">Banner Slider</span>
                 </a>
               </li>
-              <li class="nav-item">
-                <a class="nav-link" href="#events" data-bs-toggle="pill" appSmoothScroll [scrollOffset]="80" (click)="setActiveTab('events')">
+              <li class="nav-item" *ngIf="hasPageAccess('events')">
+                <a class="nav-link" [class.active]="activeTab === 'events'" href="#events" data-bs-toggle="pill" appSmoothScroll [scrollOffset]="80" (click)="setActiveTab('events')">
                   <i class="fas fa-calendar-alt"></i> <span class="nav-text">Events</span>
                 </a>
               </li>
-              <li class="nav-item">
-                <a class="nav-link" href="#news" data-bs-toggle="pill" appSmoothScroll [scrollOffset]="80" (click)="setActiveTab('news')">
+              <li class="nav-item" *ngIf="hasPageAccess('news')">
+                <a class="nav-link" [class.active]="activeTab === 'news'" href="#news" data-bs-toggle="pill" appSmoothScroll [scrollOffset]="80" (click)="setActiveTab('news')">
                   <i class="fas fa-newspaper"></i> <span class="nav-text">News</span>
                 </a>
               </li>
-              <li class="nav-item">
-                <a class="nav-link" href="#courses" data-bs-toggle="pill" appSmoothScroll [scrollOffset]="80" (click)="setActiveTab('courses')">
+              <li class="nav-item" *ngIf="hasPageAccess('courses')">
+                <a class="nav-link" [class.active]="activeTab === 'courses'" href="#courses" data-bs-toggle="pill" appSmoothScroll [scrollOffset]="80" (click)="setActiveTab('courses')">
                   <i class="fas fa-book"></i> <span class="nav-text">Courses</span>
                 </a>
               </li>
-              <li class="nav-item">
-                <a class="nav-link" href="#trainings" data-bs-toggle="pill" appSmoothScroll [scrollOffset]="80" (click)="setActiveTab('trainings')">
+              <li class="nav-item" *ngIf="hasPageAccess('trainings')">
+                <a class="nav-link" [class.active]="activeTab === 'trainings'" href="#trainings" data-bs-toggle="pill" appSmoothScroll [scrollOffset]="80" (click)="setActiveTab('trainings')">
                   <i class="fas fa-chalkboard-teacher"></i> <span class="nav-text">Trainings</span>
                 </a>
               </li>
-              <li class="nav-item">
-                <a class="nav-link" href="#about" data-bs-toggle="pill" appSmoothScroll [scrollOffset]="80" (click)="setActiveTab('about')">
+              <li class="nav-item" *ngIf="hasPageAccess('about')">
+                <a class="nav-link" [class.active]="activeTab === 'about'" href="#about" data-bs-toggle="pill" appSmoothScroll [scrollOffset]="80" (click)="setActiveTab('about')">
                   <i class="fas fa-info-circle"></i> <span class="nav-text">About Page</span>
                 </a>
               </li>
-              <li class="nav-item">
-                <a class="nav-link" href="#gallery" data-bs-toggle="pill" appSmoothScroll [scrollOffset]="80" (click)="setActiveTab('gallery')">
+              <li class="nav-item" *ngIf="hasPageAccess('gallery')">
+                <a class="nav-link" [class.active]="activeTab === 'gallery'" href="#gallery" data-bs-toggle="pill" appSmoothScroll [scrollOffset]="80" (click)="setActiveTab('gallery')">
                   <i class="fas fa-images"></i> <span class="nav-text">Gallery</span>
                 </a>
               </li>
-              <li class="nav-item">
-                <a class="nav-link" href="#downloads" data-bs-toggle="pill" appSmoothScroll [scrollOffset]="80" (click)="setActiveTab('downloads')">
+              <li class="nav-item" *ngIf="hasPageAccess('downloads')">
+                <a class="nav-link" [class.active]="activeTab === 'downloads'" href="#downloads" data-bs-toggle="pill" appSmoothScroll [scrollOffset]="80" (click)="setActiveTab('downloads')">
                   <i class="fas fa-download"></i> <span class="nav-text">Downloads</span>
                 </a>
               </li>
-              <li class="nav-item">
-                <a class="nav-link" href="#schools" data-bs-toggle="pill" appSmoothScroll [scrollOffset]="80" (click)="setActiveTab('schools')">
+              <li class="nav-item" *ngIf="hasPageAccess('schools')">
+                <a class="nav-link" [class.active]="activeTab === 'schools'" href="#schools" data-bs-toggle="pill" appSmoothScroll [scrollOffset]="80" (click)="setActiveTab('schools')">
                   <i class="fas fa-school"></i> <span class="nav-text">Schools</span>
                 </a>
               </li>
-              <li class="nav-item">
-                <a class="nav-link" href="#teacher-directory" data-bs-toggle="pill" appSmoothScroll [scrollOffset]="80" (click)="setActiveTab('teacher-directory')">
+              <li class="nav-item" *ngIf="hasPageAccess('teacher-directory')">
+                <a class="nav-link" [class.active]="activeTab === 'teacher-directory'" href="#teacher-directory" data-bs-toggle="pill" appSmoothScroll [scrollOffset]="80" (click)="setActiveTab('teacher-directory')">
                   <i class="fas fa-chalkboard-teacher"></i> <span class="nav-text">Teacher Directory</span>
                 </a>
               </li>
-              <li class="nav-item">
-                <a class="nav-link" href="#teacher-docs" data-bs-toggle="pill" appSmoothScroll [scrollOffset]="80" (click)="setActiveTab('teacher-docs')">
+              <!-- Admin Details Tab: EXCLUSIVELY for Master Administrator -->
+              <li class="nav-item" *ngIf="isMasterAdmin">
+                <a class="nav-link" [class.active]="activeTab === 'admin-management'" href="#admin-management" data-bs-toggle="pill" appSmoothScroll [scrollOffset]="80" (click)="setActiveTab('admin-management')">
+                  <i class="fas fa-user-shield"></i> <span class="nav-text">Admin Details</span>
+                  <span class="badge bg-warning text-dark ms-1 small" style="font-size: 0.65rem;">Master</span>
+                </a>
+              </li>
+              <li class="nav-item" *ngIf="hasPageAccess('teacher-docs')">
+                <a class="nav-link" [class.active]="activeTab === 'teacher-docs'" href="#teacher-docs" data-bs-toggle="pill" appSmoothScroll [scrollOffset]="80" (click)="setActiveTab('teacher-docs')">
                   <i class="fas fa-file-alt"></i> <span class="nav-text">Teacher Docs</span>
                 </a>
               </li>
-              <li class="nav-item">
-                <a class="nav-link" href="#announcements" data-bs-toggle="pill" appSmoothScroll [scrollOffset]="80" (click)="setActiveTab('announcements')">
+              <li class="nav-item" *ngIf="hasPageAccess('announcements')">
+                <a class="nav-link" [class.active]="activeTab === 'announcements'" href="#announcements" data-bs-toggle="pill" appSmoothScroll [scrollOffset]="80" (click)="setActiveTab('announcements')">
                   <i class="fas fa-bullhorn"></i> <span class="nav-text">Announcements</span>
                 </a>
               </li>
-              <li class="nav-item">
-                <a class="nav-link" href="#pageBackgrounds" data-bs-toggle="pill" appSmoothScroll [scrollOffset]="80" (click)="setActiveTab('pageBackgrounds')">
+              <li class="nav-item" *ngIf="hasPageAccess('pageBackgrounds')">
+                <a class="nav-link" [class.active]="activeTab === 'pageBackgrounds'" href="#pageBackgrounds" data-bs-toggle="pill" appSmoothScroll [scrollOffset]="80" (click)="setActiveTab('pageBackgrounds')">
                   <i class="fas fa-image"></i> <span class="nav-text">Page Backgrounds</span>
                 </a>
               </li>
-              <li class="nav-item">
-                <a class="nav-link" href="#testimonials" data-bs-toggle="pill" appSmoothScroll [scrollOffset]="80" (click)="setActiveTab('testimonials')">
+              <li class="nav-item" *ngIf="hasPageAccess('testimonials')">
+                <a class="nav-link" [class.active]="activeTab === 'testimonials'" href="#testimonials" data-bs-toggle="pill" appSmoothScroll [scrollOffset]="80" (click)="setActiveTab('testimonials')">
                   <i class="fas fa-comments"></i> <span class="nav-text">Testimonials</span>
                 </a>
               </li>
@@ -101,12 +157,352 @@
 
         <!-- Content Area -->
         <div class="col-md-9 content-container">
-          <button class="sidebar-toggle-btn desktop-toggle" (click)="toggleSidebar()" [class.collapsed]="isSidebarCollapsed">
-            <i class="fas" [class.fa-bars]="isSidebarCollapsed" [class.fa-times]="!isSidebarCollapsed"></i>
-          </button>
           <div class="tab-content" [class.content-animated]="!isAnimating">
+            <!-- ======================================================== -->
+            <!-- DASHBOARD TAB (Novus Admin Panel Look & Feel / UI & UX)  -->
+            <!-- ======================================================== -->
+            <div class="tab-pane fade" id="dashboard" [class.tab-active]="activeTab === 'dashboard'">
+              <!-- Hero Welcome Banner -->
+              <div class="dashboard-hero-banner p-4 rounded-3 text-white mb-4 position-relative overflow-hidden shadow-sm">
+                <div class="row align-items-center position-relative z-1">
+                  <div class="col-lg-8">
+                    <span class="badge bg-white bg-opacity-20 text-white mb-2 px-3 py-1 text-uppercase letter-spacing-wide">
+                      <span class="pulse-dot-green me-1"></span> Live Administration Portal
+                    </span>
+                    <h2 class="hero-greeting fw-bold mb-1">
+                      Welcome back, {{ currentAdminUser?.name || currentAdminUser?.username || 'Administrator' }}!
+                    </h2>
+                    <p class="mb-0 text-white-50">
+                      Block Resource Centre (BRC), Mehsi, East Champaran &bull; {{ currentDateStr }}
+                    </p>
+                  </div>
+                  <div class="col-lg-4 text-lg-end mt-3 mt-lg-0">
+                    <button class="btn btn-light btn-sm fw-bold px-3 py-2 me-2 shadow-2xs" (click)="loadDashboardOverview()" [disabled]="isLoadingDashboard">
+                      <i class="fas fa-arrows-rotate me-1" [class.fa-spin]="isLoadingDashboard"></i> Refresh Stats
+                    </button>
+                    <button class="btn btn-warning btn-sm fw-bold px-3 py-2 text-dark shadow-2xs" (click)="goToTab('schools')">
+                      <i class="fas fa-school me-1"></i> Explore Schools
+                    </button>
+                  </div>
+                </div>
+                <div class="hero-decorative-circle"></div>
+              </div>
+
+              <!-- Top KPI Stat Cards Grid (Novus Widget Boxes) -->
+              <div class="row g-3 mb-4">
+                <!-- 1. Total Schools -->
+                <div class="col-xl-3 col-md-6 col-sm-6">
+                  <div class="novus-kpi-card kpi-blue cursor-pointer" (click)="goToTab('schools')" title="Click to view all schools">
+                    <div class="kpi-icon-box">
+                      <i class="fas fa-school"></i>
+                    </div>
+                    <div class="kpi-content">
+                      <div class="kpi-value">{{ dashboardStats.totalSchools }}</div>
+                      <div class="kpi-label">Total Schools</div>
+                      <div class="kpi-footer">
+                        <span>All institutions</span>
+                        <i class="fas fa-arrow-right"></i>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- 2. Total Teachers -->
+                <div class="col-xl-3 col-md-6 col-sm-6">
+                  <div class="novus-kpi-card kpi-teal cursor-pointer" (click)="goToTab('teacher-directory')" title="Click to view teacher directory">
+                    <div class="kpi-icon-box">
+                      <i class="fas fa-chalkboard-user"></i>
+                    </div>
+                    <div class="kpi-content">
+                      <div class="kpi-value">{{ dashboardStats.totalTeachers }}</div>
+                      <div class="kpi-label">Total Teachers</div>
+                      <div class="kpi-footer">
+                        <span>Staff directory</span>
+                        <i class="fas fa-arrow-right"></i>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- 3. Class 1-5 Schools (Primary) -->
+                <div class="col-xl-3 col-md-6 col-sm-6">
+                  <div class="novus-kpi-card kpi-amber cursor-pointer" (click)="goToTab('schools')" title="Click to view primary schools">
+                    <div class="kpi-icon-box">
+                      <i class="fas fa-shapes"></i>
+                    </div>
+                    <div class="kpi-content">
+                      <div class="kpi-value">{{ dashboardStats.schools1to5 }}</div>
+                      <div class="kpi-label">1-5 Schools</div>
+                      <div class="kpi-footer">
+                        <span>Primary (GPS / NPS)</span>
+                        <i class="fas fa-arrow-right"></i>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- 4. Class 1-8 Schools (Middle) -->
+                <div class="col-xl-3 col-md-6 col-sm-6">
+                  <div class="novus-kpi-card kpi-purple cursor-pointer" (click)="goToTab('schools')" title="Click to view middle schools">
+                    <div class="kpi-icon-box">
+                      <i class="fas fa-book-open-reader"></i>
+                    </div>
+                    <div class="kpi-content">
+                      <div class="kpi-value">{{ dashboardStats.schools1to8 }}</div>
+                      <div class="kpi-label">1-8 Schools</div>
+                      <div class="kpi-footer">
+                        <span>Middle (UMS / GMS)</span>
+                        <i class="fas fa-arrow-right"></i>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- 5. Class 9-12 Schools (Secondary / Hr. Secondary) -->
+                <div class="col-xl-3 col-md-6 col-sm-6">
+                  <div class="novus-kpi-card kpi-emerald cursor-pointer" (click)="goToTab('schools')" title="Click to view secondary schools">
+                    <div class="kpi-icon-box">
+                      <i class="fas fa-graduation-cap"></i>
+                    </div>
+                    <div class="kpi-content">
+                      <div class="kpi-value">{{ dashboardStats.schools9to12 }}</div>
+                      <div class="kpi-label">9-12 Schools</div>
+                      <div class="kpi-footer">
+                        <span>High & Higher Sec</span>
+                        <i class="fas fa-arrow-right"></i>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- 6. Class 6-12 Schools (Composite) -->
+                <div class="col-xl-3 col-md-6 col-sm-6">
+                  <div class="novus-kpi-card kpi-cyan cursor-pointer" (click)="goToTab('schools')" title="Click to view composite schools">
+                    <div class="kpi-icon-box">
+                      <i class="fas fa-building-columns"></i>
+                    </div>
+                    <div class="kpi-content">
+                      <div class="kpi-value">{{ dashboardStats.schools6to12 }}</div>
+                      <div class="kpi-label">6-12 Schools</div>
+                      <div class="kpi-footer">
+                        <span>Utkramit High (UHS)</span>
+                        <i class="fas fa-arrow-right"></i>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- 7. Teacher Requests (Pending Only) Alert Card -->
+                <div class="col-xl-6 col-md-12">
+                  <div class="novus-kpi-card kpi-rose alert-kpi-card cursor-pointer" (click)="goToTab('teacher-docs')" title="Review pending teacher requests">
+                    <div class="kpi-icon-box pulse-alert-icon">
+                      <i class="fas fa-clock-rotate-left"></i>
+                    </div>
+                    <div class="kpi-content flex-grow-1">
+                      <div class="d-flex flex-wrap justify-content-between align-items-center">
+                        <div>
+                          <div class="kpi-value text-danger">{{ dashboardStats.pendingTeacherRequests }}</div>
+                          <div class="kpi-label text-dark fw-bold">Teacher Requests (Pending Only)</div>
+                          <div class="kpi-sub-desc text-muted">Awaiting administrator digital signature & review</div>
+                        </div>
+                        <button class="btn btn-danger btn-sm px-3 py-2 fw-bold shadow-xs mt-2 mt-sm-0">
+                          Review Requests <i class="fas fa-arrow-right ms-1"></i>
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Multi-Grid: Running Training List & Latest News -->
+              <div class="row g-4 mb-4">
+                <!-- Column 1: Running Training List -->
+                <div class="col-lg-7">
+                  <div class="card novus-panel-card shadow-sm border-0 h-100">
+                    <div class="card-header bg-white py-3 px-4 d-flex justify-content-between align-items-center border-bottom">
+                      <div class="d-flex align-items-center gap-2">
+                        <div class="panel-icon-badge bg-primary-subtle text-primary">
+                          <i class="fas fa-chalkboard-teacher"></i>
+                        </div>
+                        <div>
+                          <h5 class="mb-0 fw-bold text-dark">Running Training Programs</h5>
+                          <small class="text-muted">Ongoing and active teacher training sessions</small>
+                        </div>
+                      </div>
+                      <div class="d-flex align-items-center gap-2">
+                        <span class="badge bg-success-subtle text-success border border-success px-2 py-1">
+                          <span class="live-dot"></span> {{ runningTrainings.length }} Active
+                        </span>
+                        <button class="btn btn-sm btn-outline-primary" (click)="goToTab('trainings')">
+                          View All
+                        </button>
+                      </div>
+                    </div>
+
+                    <div class="card-body p-0">
+                      <div class="table-responsive" *ngIf="runningTrainings.length > 0">
+                        <table class="table table-hover align-middle mb-0 novus-table">
+                          <thead class="table-light">
+                            <tr>
+                              <th>Training Module</th>
+                              <th>Schedule Dates</th>
+                              <th>Status</th>
+                              <th class="text-end">Action</th>
+                            </tr>
+                          </thead>
+                          <tbody>
+                            <tr *ngFor="let t of runningTrainings">
+                              <td>
+                                <div class="d-flex align-items-center gap-3">
+                                  <div class="training-avatar-circle">
+                                    <i class="fas fa-graduation-cap"></i>
+                                  </div>
+                                  <div>
+                                    <div class="fw-bold text-dark">{{ t.title }}</div>
+                                    <small class="text-muted text-truncate d-block" style="max-width: 220px;">
+                                      {{ t.description || 'Teacher Capacity Development' }}
+                                    </small>
+                                  </div>
+                                </div>
+                              </td>
+                              <td>
+                                <div class="small fw-semibold text-secondary">
+                                  <i class="fas fa-calendar-alt text-primary me-1"></i>
+                                  <span>{{ formatDate(t.fromDate) }}</span>
+                                  <span *ngIf="t.toDate"> to {{ formatDate(t.toDate) }}</span>
+                                </div>
+                              </td>
+                              <td>
+                                <span class="badge"
+                                      [class.bg-success]="t.runStatus === 'Running' || !t.runStatus"
+                                      [class.bg-info]="t.runStatus === 'Upcoming'"
+                                      [class.bg-secondary]="t.runStatus === 'Completed'">
+                                  <i class="fas me-1"
+                                     [class.fa-circle-play]="t.runStatus === 'Running' || !t.runStatus"
+                                     [class.fa-hourglass-start]="t.runStatus === 'Upcoming'"
+                                     [class.fa-check-circle]="t.runStatus === 'Completed'"></i>
+                                  {{ t.runStatus || 'Running' }}
+                                </span>
+                              </td>
+                              <td class="text-end">
+                                <button class="btn btn-sm btn-light border" (click)="goToTab('trainings')" title="Manage Training">
+                                  <i class="fas fa-chevron-right text-muted"></i>
+                                </button>
+                              </td>
+                            </tr>
+                          </tbody>
+                        </table>
+                      </div>
+
+                      <div class="p-4 text-center text-muted" *ngIf="runningTrainings.length === 0">
+                        <i class="fas fa-calendar-check fa-3x text-muted mb-3 opacity-50"></i>
+                        <p class="mb-2 fw-semibold">No ongoing training sessions today.</p>
+                        <button class="btn btn-sm btn-primary" (click)="goToTab('trainings')">
+                          <i class="fas fa-plus me-1"></i> Schedule New Training
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- Column 2: Latest News -->
+                <div class="col-lg-5">
+                  <div class="card novus-panel-card shadow-sm border-0 h-100">
+                    <div class="card-header bg-white py-3 px-4 d-flex justify-content-between align-items-center border-bottom">
+                      <div class="d-flex align-items-center gap-2">
+                        <div class="panel-icon-badge bg-info-subtle text-info">
+                          <i class="fas fa-newspaper"></i>
+                        </div>
+                        <div>
+                          <h5 class="mb-0 fw-bold text-dark">Latest News & Circulars</h5>
+                          <small class="text-muted">Department announcements & updates</small>
+                        </div>
+                      </div>
+                      <button class="btn btn-sm btn-outline-primary" (click)="goToTab('news')">
+                        Manage News
+                      </button>
+                    </div>
+
+                    <div class="card-body p-3">
+                      <div class="news-feed-list" *ngIf="dashboardLatestNews.length > 0">
+                        <div class="news-feed-item p-2 mb-2 rounded hover-bg cursor-pointer"
+                             *ngFor="let n of dashboardLatestNews" (click)="goToTab('news')">
+                          <div class="d-flex align-items-start gap-2">
+                            <span class="badge bg-primary-subtle text-primary border border-primary-subtle" style="font-size: 0.7rem;">
+                              {{ n.category || 'General' }}
+                            </span>
+                            <div class="flex-grow-1">
+                              <h6 class="mb-1 text-dark fw-bold text-truncate" style="max-width: 240px;">{{ n.title }}</h6>
+                              <div class="small text-muted d-flex align-items-center gap-3">
+                                <span><i class="fas fa-calendar-alt me-1 text-secondary"></i> {{ formatDate(n.publishDate || n.createdAt) }}</span>
+                                <span *ngIf="n.author"><i class="fas fa-user-edit me-1 text-secondary"></i> {{ n.author }}</span>
+                              </div>
+                            </div>
+                            <i class="fas fa-arrow-up-right-from-square text-muted small mt-1"></i>
+                          </div>
+                        </div>
+                      </div>
+
+                      <div class="p-4 text-center text-muted" *ngIf="dashboardLatestNews.length === 0">
+                        <i class="fas fa-newspaper fa-3x text-muted mb-3 opacity-50"></i>
+                        <p class="mb-2 fw-semibold">No news articles published yet.</p>
+                        <button class="btn btn-sm btn-primary" (click)="goToTab('news')">
+                          <i class="fas fa-plus me-1"></i> Create News
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Quick Launchpad Actions -->
+              <div class="card border-0 shadow-sm novus-panel-card p-4">
+                <h5 class="fw-bold text-dark mb-3">
+                  <i class="fas fa-rocket text-primary me-2"></i> Administrative Quick Actions
+                </h5>
+                <div class="row g-3">
+                  <div class="col-md-3 col-sm-6">
+                    <div class="quick-action-tile" (click)="goToTab('schools')">
+                      <div class="action-tile-icon bg-primary text-white">
+                        <i class="fas fa-school"></i>
+                      </div>
+                      <div class="action-tile-title">School Directory</div>
+                      <div class="action-tile-desc">Upload excel & search institutions</div>
+                    </div>
+                  </div>
+                  <div class="col-md-3 col-sm-6">
+                    <div class="quick-action-tile" (click)="goToTab('teacher-directory')">
+                      <div class="action-tile-icon bg-success text-white">
+                        <i class="fas fa-chalkboard-user"></i>
+                      </div>
+                      <div class="action-tile-title">Teacher Directory</div>
+                      <div class="action-tile-desc">Manage teachers & staff data</div>
+                    </div>
+                  </div>
+                  <div class="col-md-3 col-sm-6">
+                    <div class="quick-action-tile" (click)="goToTab('teacher-docs')">
+                      <div class="action-tile-icon bg-warning text-dark">
+                        <i class="fas fa-file-signature"></i>
+                      </div>
+                      <div class="action-tile-title">Document Verification</div>
+                      <div class="action-tile-desc">Review & digitally sign docs</div>
+                    </div>
+                  </div>
+                  <div class="col-md-3 col-sm-6">
+                    <div class="quick-action-tile" (click)="goToTab('trainings')">
+                      <div class="action-tile-icon bg-info text-white">
+                        <i class="fas fa-chalkboard-teacher"></i>
+                      </div>
+                      <div class="action-tile-title">Schedule Training</div>
+                      <div class="action-tile-desc">Create teacher learning modules</div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
             <!-- Banner Slider Tab -->
-            <div class="tab-pane fade show active" id="banners">
+            <div class="tab-pane fade" id="banners" [class.tab-active]="activeTab === 'banners'" *ngIf="hasPageAccess('banners')">
               <div class="content-card">
                 <h2>Manage Home Banner Slider</h2>
                 <p class="text-muted">Add, edit, or remove banners that appear on the home page hero section.</p>
@@ -211,7 +607,7 @@
             </div>
 
             <!-- Events Tab -->
-            <div class="tab-pane fade" id="events" [class.tab-active]="activeTab === 'events'">
+            <div class="tab-pane fade" id="events" [class.tab-active]="activeTab === 'events'" *ngIf="hasPageAccess('events')">
               <div class="content-card">
                 <h2>Add New Event</h2>
                 <form (ngSubmit)="addEvent()">
@@ -225,7 +621,10 @@
                     <div class="col-md-6">
                       <div class="form-group">
                         <label>Event Date</label>
-                        <input type="date" [(ngModel)]="eventDate" name="eventDate" class="form-control" required>
+                        <div class="datepicker-input-group">
+                          <input type="text" [(ngModel)]="eventDate" name="eventDate" class="form-control" appDatePicker placeholder="Select event date..." required>
+                          <i class="fas fa-calendar-alt datepicker-icon"></i>
+                        </div>
                       </div>
                     </div>
                   </div>
@@ -267,17 +666,17 @@
             </div>
 
             <!-- News Tab -->
-            <div class="tab-pane fade" id="news" [class.tab-active]="activeTab === 'news'">
+            <div class="tab-pane fade" id="news" [class.tab-active]="activeTab === 'news'" *ngIf="hasPageAccess('news')">
               <app-admin-news></app-admin-news>
             </div>
 
             <!-- Trainings Tab -->
-            <div class="tab-pane fade" id="trainings" [class.tab-active]="activeTab === 'trainings'">
+            <div class="tab-pane fade" id="trainings" [class.tab-active]="activeTab === 'trainings'" *ngIf="hasPageAccess('trainings')">
               <app-admin-trainings></app-admin-trainings>
             </div>
 
             <!-- Courses Tab -->
-            <div class="tab-pane fade" id="courses" [class.tab-active]="activeTab === 'courses'">
+            <div class="tab-pane fade" id="courses" [class.tab-active]="activeTab === 'courses'" *ngIf="hasPageAccess('courses')">
               <div class="content-card">
                 <h2>Manage Courses</h2>
                 <button class="btn btn-primary mb-3" (click)="addCourse()">Add Course</button>
@@ -308,7 +707,7 @@
             </div>
 
             <!-- About Page Tab -->
-            <div class="tab-pane fade" id="about" [class.tab-active]="activeTab === 'about'">
+            <div class="tab-pane fade" id="about" [class.tab-active]="activeTab === 'about'" *ngIf="hasPageAccess('about')">
               <div class="content-card">
                 <h2>Manage About Page</h2>
                 <p class="text-muted">Manage all content displayed on the About page including vision, mission, BEO profile, organization structure, and staff details.</p>
@@ -579,32 +978,38 @@
             </div>
 
             <!-- Gallery Tab -->
-            <div class="tab-pane fade" id="gallery" role="tabpanel" [class.tab-active]="activeTab === 'gallery'">
+            <div class="tab-pane fade" id="gallery" role="tabpanel" [class.tab-active]="activeTab === 'gallery'" *ngIf="hasPageAccess('gallery')">
               <app-admin-gallery></app-admin-gallery>
             </div>
 
             <!-- Downloads Tab -->
-            <div class="tab-pane fade" id="downloads" role="tabpanel" [class.tab-active]="activeTab === 'downloads'">
+            <div class="tab-pane fade" id="downloads" role="tabpanel" [class.tab-active]="activeTab === 'downloads'" *ngIf="hasPageAccess('downloads')">
               <app-admin-downloads></app-admin-downloads>
             </div>
 
             <!-- Schools Tab -->
-            <div class="tab-pane fade" id="schools" role="tabpanel" [class.tab-active]="activeTab === 'schools'">
+            <div class="tab-pane fade" id="schools" role="tabpanel" [class.tab-active]="activeTab === 'schools'" *ngIf="hasPageAccess('schools')">
               <app-admin-school></app-admin-school>
             </div>
 
             <!-- Teacher Directory Tab -->
-            <div class="tab-pane fade" id="teacher-directory" role="tabpanel" [class.tab-active]="activeTab === 'teacher-directory'">
+            <div class="tab-pane fade" id="teacher-directory" role="tabpanel" [class.tab-active]="activeTab === 'teacher-directory'" *ngIf="hasPageAccess('teacher-directory')">
               <app-admin-teacher-directory></app-admin-teacher-directory>
             </div>
 
+            <!-- Admin Management Tab -->
+            <!-- Admin Management Tab (Master Administrator ONLY) -->
+            <div class="tab-pane fade" id="admin-management" role="tabpanel" [class.tab-active]="activeTab === 'admin-management'" *ngIf="isMasterAdmin">
+              <app-admin-management></app-admin-management>
+            </div>
+
             <!-- Teacher Docs Tab -->
-            <div class="tab-pane fade" id="teacher-docs" role="tabpanel" [class.tab-active]="activeTab === 'teacher-docs'">
+            <div class="tab-pane fade" id="teacher-docs" role="tabpanel" [class.tab-active]="activeTab === 'teacher-docs'" *ngIf="hasPageAccess('teacher-docs')">
               <app-admin-teacher-docs></app-admin-teacher-docs>
             </div>
 
             <!-- Page Backgrounds Tab -->
-            <div class="tab-pane fade" id="pageBackgrounds" [class.tab-active]="activeTab === 'pageBackgrounds'">
+            <div class="tab-pane fade" id="pageBackgrounds" [class.tab-active]="activeTab === 'pageBackgrounds'" *ngIf="hasPageAccess('pageBackgrounds')">
               <div class="content-card">
                 <h2>Manage Page Background Images</h2>
                 <p class="text-muted">Upload background images for different pages (About, Contact, Courses, Events, Blog, Gallery, Search School, Downloads). These backgrounds will appear as banner sections on each page similar to the home page slider.</p>
@@ -735,7 +1140,7 @@
             </div>
 
             <!-- Testimonials Tab -->
-            <div class="tab-pane fade" id="testimonials" [class.tab-active]="activeTab === 'testimonials'">
+            <div class="tab-pane fade" id="testimonials" [class.tab-active]="activeTab === 'testimonials'" *ngIf="hasPageAccess('testimonials')">
               <div class="content-card">
                 <h2>Manage Testimonials</h2>
                 <p class="text-muted">Add, edit, or remove testimonials displayed on the home page testimonial section.</p>
@@ -842,7 +1247,7 @@
             </div>
 
             <!-- Announcements Tab -->
-            <div class="tab-pane fade" id="announcements" [class.tab-active]="activeTab === 'announcements'">
+            <div class="tab-pane fade" id="announcements" [class.tab-active]="activeTab === 'announcements'" *ngIf="hasPageAccess('announcements')">
               <div class="content-card">
                 <h2>Manage Latest Announcements</h2>
                 <p class="text-muted">Add, edit, or remove announcements that appear on the home page Latest Announcements section.</p>
@@ -858,6 +1263,18 @@
                     <button type="button" class="btn btn-link btn-sm p-0" (click)="cancelAnnouncementEdit()">Cancel edit</button>
                   </div>
                   <form (ngSubmit)="addAnnouncement()">
+                    <div class="row mb-3">
+                      <div class="col-md-6">
+                        <div class="form-group">
+                          <label class="form-label fw-bold"><i class="fas fa-calendar-alt text-primary me-1"></i> Pick Date (Auto-fill Day & Month)</label>
+                          <div class="datepicker-input-group">
+                            <input type="text" class="form-control" appDatePicker placeholder="Select announcement date..."
+                                   (dateChange)="onAnnouncementDatePick($event)">
+                            <i class="fas fa-calendar-alt datepicker-icon"></i>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
                     <div class="row">
                       <div class="col-md-3">
                         <div class="form-group">

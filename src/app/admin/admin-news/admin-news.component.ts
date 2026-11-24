@@ -1,6 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { EnhancedNewsService, DepartmentNews, NewsFormData, NewsContentType } from '../../services/enhanced-news.service';
 import { getFullUrl } from '../../core/constants/api-endpoints';
+import { DomSanitizer, SafeResourceUrl } from '@angular/platform-browser';
 
 @Component({
   selector: 'app-admin-news',
@@ -38,7 +39,8 @@ export class AdminNewsComponent implements OnInit {
     contentType: NewsContentType.TEXT,
     textContent: '',
     isActive: true,
-    displayOrder: 0
+    displayOrder: 0,
+    publishDate: ""
   };
   
   // File properties
@@ -69,7 +71,7 @@ export class AdminNewsComponent implements OnInit {
   
   NewsContentType = NewsContentType;
 
-  constructor(private newsService: EnhancedNewsService) {}
+  constructor(private newsService: EnhancedNewsService, private sanitizer: DomSanitizer) {}
 
   ngOnInit() {
     this.loadNews();
@@ -127,7 +129,8 @@ export class AdminNewsComponent implements OnInit {
       contentType: NewsContentType.TEXT,
       textContent: '',
       isActive: true,
-      displayOrder: 0
+      displayOrder: 0,
+      publishDate: ""
     };
     
     this.selectedImageFile = null;
@@ -154,7 +157,8 @@ export class AdminNewsComponent implements OnInit {
       contentType: news.content.type,
       textContent: news.content.text || '',
       isActive: news.isActive,
-      displayOrder: news.displayOrder
+      displayOrder: news.displayOrder,
+      publishDate: news.publishDate ? new Date(news.publishDate).toISOString().split("T")[0] : ""
     };
     
     // Set preview for existing content
@@ -444,7 +448,7 @@ export class AdminNewsComponent implements OnInit {
     return text.substring(0, maxLength) + '...';
   }
 
-  formatDate(date: Date): string {
+  formatDate(date: any): string {
     return new Date(date).toLocaleDateString('en-US', {
       year: 'numeric',
       month: 'short',
@@ -468,5 +472,10 @@ export class AdminNewsComponent implements OnInit {
     if (this.formData.contentType !== NewsContentType.TEXT) {
       this.formData.textContent = '';
     }
+  }
+
+  getPdfUrl(news: DepartmentNews): SafeResourceUrl {
+    const id = news._id || news.id;
+    return this.sanitizer.bypassSecurityTrustResourceUrl(getFullUrl(`/news/${id}/document`));
   }
 }

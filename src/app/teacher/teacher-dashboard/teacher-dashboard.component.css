@@ -85,7 +85,7 @@
   flex: 1;
   display: flex;
   flex-direction: column;
-  min-width: 0; /* prevent overflow */
+  min-width: 0;
 }
 
 .dashboard-topbar {
@@ -108,9 +108,14 @@
 }
 
 .dashboard-content {
-  padding: 40px;
+  padding: 30px;
   max-width: 1000px;
   width: 100%;
+}
+
+.dashboard-content.full-width {
+  max-width: 100% !important;
+  padding: 25px 30px;
 }
 
 .dashboard-card {
@@ -143,17 +148,17 @@
 .toast-notification.show { transform: translateX(0); }
 .toast-notification.error { background: #e74c3c; }
 
-/* Table */
+/* Custom Table */
 .custom-table th {
   background: #f8fafc;
   font-size: 12px;
   text-transform: uppercase;
   letter-spacing: 0.5px;
   color: #718096;
-  padding: 16px 20px;
+  padding: 14px 18px;
   border-bottom: 1px solid #e2e8f0;
 }
-.custom-table td { padding: 16px 20px; border-bottom: 1px solid #f1f5f9; }
+.custom-table td { padding: 14px 18px; border-bottom: 1px solid #f1f5f9; }
 .doc-title { font-weight: 600; color: var(--brand-dark); margin-bottom: 4px; }
 .doc-badge {
   display: inline-block;
@@ -166,10 +171,474 @@
 }
 
 .empty-state { text-align: center; padding: 60px 20px; }
+.empty-icon-circle {
+  width: 80px;
+  height: 80px;
+  border-radius: 50%;
+  background: #eff6ff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.max-w-500 { max-width: 500px; }
+
+/* ═══════════════════════════════════════════════════════════════
+   SALARY SLIP / ABSENTEE SHEET EDITOR STYLES
+   ═══════════════════════════════════════════════════════════════ */
+.salary-slip-wrapper {
+  animation: fadeIn 0.25s ease-out;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(6px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.salary-editor-card {
+  animation: fadeIn 0.25s ease-out;
+}
+
+.editor-header-bar,
+.editor-toolbar {
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+}
+
+.kpi-mini-card {
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+}
+
+.kpi-mini-icon {
+  width: 38px;
+  height: 38px;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.1rem;
+}
+
+/* Spreadsheet Table Layout */
+.salary-spreadsheet-container {
+  overflow: hidden;
+  border: 1px solid #cbd5e1;
+}
+
+.spreadsheet-scroll-container {
+  max-height: 580px;
+  overflow-x: auto;
+  overflow-y: auto;
+}
+
+.salary-grid-table {
+  font-size: 12.5px;
+  border-collapse: separate;
+  border-spacing: 0;
+  white-space: nowrap;
+}
+
+.salary-grid-head {
+  position: sticky;
+  top: 0;
+  z-index: 10;
+}
+
+.header-titles-row th {
+  background: #0f172a;
+  color: #ffffff;
+  padding: 10px 8px;
+  font-size: 11.5px;
+  font-weight: 700;
+  text-align: center;
+  border: 1px solid #334155;
+  vertical-align: middle;
+}
+
+.header-numbers-row th {
+  background: #f1f5f9;
+  color: #0f172a;
+  padding: 6px 4px;
+  font-size: 11px;
+  font-weight: 800;
+  text-align: center;
+  border: 1px solid #cbd5e1;
+}
+
+/* Category column headers */
+.col-earning {
+  background: #065f46 !important;
+  color: #ecfdf5 !important;
+}
+
+.col-deduction {
+  background: #991b1b !important;
+  color: #fef2f2 !important;
+}
+
+.col-summary {
+  background: #1e3a8a !important;
+  color: #eff6ff !important;
+}
+
+.remove-col-btn {
+  color: rgba(255, 255, 255, 0.7) !important;
+  font-size: 0.85rem;
+  transition: color 0.15s;
+}
+.remove-col-btn:hover {
+  color: #f87171 !important;
+}
+
+/* Body cells & Inputs */
+.salary-grid-table tbody td {
+  padding: 6px 6px;
+  border: 1px solid #e2e8f0;
+  vertical-align: middle;
+  background: #ffffff;
+}
+
+.salary-grid-table tbody tr:hover td {
+  background-color: #f8fafc;
+}
+
+.salary-grid-table .form-control-sm {
+  font-size: 12px;
+  padding: 4px 6px;
+  border-radius: 4px;
+  border: 1px solid #cbd5e1;
+  color: #0f172a;
+}
+
+.basic-pay-input {
+  background: #eff6ff !important;
+  border-color: #3b82f6 !important;
+  color: #1e40af !important;
+  font-weight: 700;
+}
+
+.calculated-input {
+  background: #f8fafc;
+  color: #0f172a;
+  font-weight: 600;
+}
+
+.cell-earning input {
+  border-left: 2px solid #10b981;
+}
+
+.cell-deduction input {
+  border-left: 2px solid #ef4444;
+}
+
+.cell-summary input {
+  border-left: 2px solid #3b82f6;
+  font-weight: 700;
+}
+
+/* Bottom TOTAL row */
+.salary-grid-foot {
+  position: sticky;
+  bottom: 0;
+  z-index: 9;
+}
+
+.total-row td {
+  background: #f8fafc !important;
+  color: #0f172a !important;
+  font-weight: 800;
+  padding: 10px 8px;
+  border-top: 2px solid #0f172a !important;
+  border-bottom: 2px solid #0f172a !important;
+  font-size: 13px;
+}
+
+.btn-xs {
+  padding: 2px 6px;
+  font-size: 11px;
+  border-radius: 4px;
+}
+
+/* ═══════════════════════════════════════════════════════════════
+   OFFICIAL BIHAR GOVT ABSENTEE PRINT SHEET (100% PDF MATCH)
+   ═══════════════════════════════════════════════════════════════ */
+.bihar-govt-sheet-container {
+  max-width: 1200px;
+  margin: 0 auto;
+  border: 1px solid #cbd5e1;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.06);
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  color: #000000;
+}
+
+.bihar-sheet-title {
+  font-size: 22px;
+  font-weight: 800;
+  color: #000000;
+  letter-spacing: 0.5px;
+}
+
+.bihar-meta-line {
+  font-size: 13px;
+  color: #000000;
+  letter-spacing: 0.2px;
+  border-bottom: 2px solid #000000;
+}
+
+.bihar-official-table {
+  width: 100%;
+  border-collapse: collapse;
+  border: 1.5px solid #000000;
+  margin-bottom: 20px;
+}
+
+.bihar-official-table th,
+.bihar-official-table td {
+  border: 1px solid #000000;
+  padding: 5px 4px;
+  font-size: 11px;
+  color: #000000;
+  line-height: 1.25;
+}
+
+.bihar-head-row th {
+  background: #102a43;
+  color: #ffffff;
+  font-weight: 700;
+  text-align: center;
+  vertical-align: middle;
+  padding: 7px 4px;
+  font-size: 10.5px;
+}
+
+.bihar-number-row th {
+  background: #f0f4f8;
+  color: #000000;
+  text-align: center;
+  font-weight: 700;
+  font-size: 10px;
+  padding: 4px 2px;
+}
+
+.bihar-official-table tbody tr:nth-child(even) td {
+  background: #fafafa;
+}
+
+.bihar-total-row td {
+  background: #f0f4f8;
+  font-weight: 800;
+  font-size: 11.5px;
+  border-top: 2px solid #000000 !important;
+  border-bottom: 2px solid #000000 !important;
+  padding: 7px 4px;
+}
+
+.signature-line {
+  width: 200px;
+  border-bottom: 1.5px solid #000000;
+}
+
+/* Teacher Individual Pay Slip */
+.teacher-payslip-sheet {
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+}
+
+/* ═══════════════════════════════════════════════════════════════
+   PRINT-SPECIFIC CSS RULES (A4 LANDSCAPE)
+   ═══════════════════════════════════════════════════════════════ */
+@media print {
+  @page {
+    size: landscape;
+    margin: 8mm 6mm;
+  }
+
+  body, html {
+    background: #ffffff !important;
+    color: #000000 !important;
+    font-size: 10px !important;
+  }
+
+  /* Hide navigation, headers, footers, buttons */
+  .no-print,
+  .dashboard-sidebar,
+  .dashboard-topbar,
+  header,
+  footer,
+  nav,
+  .btn,
+  .toast-notification,
+  .modal-footer {
+    display: none !important;
+  }
+
+  .dashboard-layout {
+    margin-top: 0 !important;
+    display: block !important;
+  }
+
+  .dashboard-main,
+  .dashboard-content,
+  .bihar-govt-sheet-container {
+    padding: 0 !important;
+    margin: 0 !important;
+    max-width: 100% !important;
+    border: none !important;
+    box-shadow: none !important;
+    width: 100% !important;
+  }
+
+  .bihar-official-table {
+    border: 1.5px solid #000000 !important;
+    width: 100% !important;
+  }
+
+  .bihar-official-table th,
+  .bihar-official-table td {
+    border: 1px solid #000000 !important;
+    color: #000000 !important;
+    font-size: 9.5px !important;
+    padding: 4px 3px !important;
+  }
+
+  .bihar-head-row th {
+    background: #102a43 !important;
+    color: #ffffff !important;
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+  }
+
+  .bihar-number-row th,
+  .bihar-total-row td {
+    background: #f0f0f0 !important;
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+  }
+
+  .bihar-signature-row {
+    page-break-inside: avoid;
+    margin-top: 30px !important;
+  }
+
+  /* If printing individual pay slip modal */
+  .modal {
+    position: static !important;
+    display: block !important;
+    background: transparent !important;
+    padding: 0 !important;
+  }
+
+  .modal-dialog {
+    max-width: 100% !important;
+    margin: 0 !important;
+  }
+
+  .modal-content {
+    border: none !important;
+    box-shadow: none !important;
+  }
+}
 
 @media (max-width: 991px) {
   .dashboard-layout { flex-direction: column; }
   .dashboard-sidebar { width: 100%; height: auto; position: relative; top: 0; }
-  .dashboard-content { padding: 20px; }
+  .dashboard-content { padding: 15px; }
   .school-tag { display: none; }
 }
+
+/* ══════════════════════════════════════════════════════════════════
+   TEACHER MASTER & SPREADSHEET DROPDOWN STYLES
+   ══════════════════════════════════════════════════════════════════ */
+.teacher-select-box {
+  min-width: 170px;
+}
+
+.teacher-master-select {
+  font-size: 0.82rem;
+  font-weight: 600;
+  color: #1a365d;
+  background-color: #f7fafc;
+  border-color: #cbd5e0;
+}
+
+.teacher-master-select:focus {
+  border-color: #3182ce;
+  box-shadow: 0 0 0 2px rgba(49, 130, 206, 0.2);
+}
+
+.master-teachers-table th {
+  font-size: 0.8rem;
+  font-weight: 600;
+  letter-spacing: 0.3px;
+}
+
+.master-teachers-table td {
+  font-size: 0.85rem;
+  padding: 8px 12px;
+}
+
+.teacher-master-view .kpi-mini-card {
+  transition: transform 0.15s ease, box-shadow 0.15s ease;
+}
+
+.teacher-master-view .kpi-mini-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0,0,0,0.06);
+}
+
+/* ══════════════════════════════════════════════════════════════════
+   HEADMASTER DIGITAL SIGNATURE & OFFICIAL SCHOOL SEAL STYLES
+   ══════════════════════════════════════════════════════════════════ */
+.headmaster-endorsement-block {
+  display: inline-block;
+  padding: 10px 15px;
+  background: transparent;
+}
+
+.official-school-seal-img {
+  filter: contrast(1.1) drop-shadow(0 1px 2px rgba(0,0,0,0.1));
+  transition: transform 0.2s ease;
+}
+
+.official-headmaster-sig-img {
+  filter: contrast(1.15);
+  transition: transform 0.2s ease;
+}
+
+.endorsement-visuals img:hover {
+  transform: scale(1.05);
+}
+
+.signature-upload-preview,
+.seal-upload-preview {
+  border: 1.5px dashed #cbd5e1;
+  background-color: #f8fafc;
+  transition: border-color 0.2s;
+}
+
+.signature-upload-preview:hover,
+.seal-upload-preview:hover {
+  border-color: #3b82f6;
+}
+
+.preview-authority-stamp {
+  transition: all 0.2s ease;
+}
+
+.preview-authority-stamp:hover {
+  box-shadow: 0 6px 16px rgba(0,0,0,0.08);
+}
+
+@media print {
+  .official-school-seal-img {
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+    max-height: 80px !important;
+  }
+  .official-headmaster-sig-img {
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+    max-height: 60px !important;
+  }
+  .headmaster-endorsement-block {
+    page-break-inside: avoid;
+  }
+}
+

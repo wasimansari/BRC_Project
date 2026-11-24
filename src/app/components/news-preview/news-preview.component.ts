@@ -62,7 +62,7 @@ export class NewsPreviewComponent implements OnInit {
     return text.substring(0, maxLength) + '...';
   }
 
-  formatDate(date: Date): string {
+  formatDate(date: any): string {
     return new Date(date).toLocaleDateString('en-US', {
       year: 'numeric',
       month: 'short',

@@ -48,6 +48,7 @@ export interface NewsFormData {
   pdfFile?: File;
   isActive: boolean;
   displayOrder: number;
+  publishDate?: string | Date;
 }
 
 @Injectable({
@@ -195,6 +196,7 @@ export class EnhancedNewsService {
    */
   private transformNewsData(serverNews: any): DepartmentNews {
     return {
+      _id: serverNews._id,
       id: serverNews._id || serverNews.id,
       title: serverNews.title,
       description: serverNews.description,
@@ -243,6 +245,7 @@ export class EnhancedNewsService {
     form.append('contentType', formData.contentType);
     form.append('isActive', formData.isActive.toString());
     form.append('displayOrder', formData.displayOrder.toString());
+    if (formData.publishDate) { form.append('publishDate', String(formData.publishDate)); }
     
     // Add content based on type
     if (formData.contentType === NewsContentType.TEXT && formData.textContent) {
@@ -316,6 +319,7 @@ export class EnhancedNewsService {
     form.append('contentType', formData.contentType);
     form.append('isActive', formData.isActive.toString());
     form.append('displayOrder', formData.displayOrder.toString());
+    if (formData.publishDate) { form.append('publishDate', String(formData.publishDate)); }
     
     // Add content based on type
     if (formData.contentType === NewsContentType.TEXT && formData.textContent) {
@@ -326,7 +330,13 @@ export class EnhancedNewsService {
       form.append('pdfFile', formData.pdfFile);
     }
 
-    return this.http.put<DepartmentNews>(`${this.NEWS_ENDPOINT}/${id}`, form).pipe(
+    return this.http.put<any>(`${this.NEWS_ENDPOINT}/${id}`, form).pipe(
+      map(response => {
+        if (response.success && response.data) {
+          return this.transformNewsData(response.data);
+        }
+        return this.transformNewsData(response);
+      }),
       catchError((error) => {
         console.log('Backend not available, using local fallback:', error);
         
@@ -364,7 +374,7 @@ export class EnhancedNewsService {
    * Delete a news item by ID
    */
   deleteNews(id: string): Observable<void> {
-    return this.http.delete<void>(`${app_constants.baseUrl + app_constants.departmentNews.delete}/${id}`).pipe(
+    return this.http.delete<void>(`${this.NEWS_ENDPOINT}/${id}`).pipe(
       catchError((error) => {
         console.log('Backend not available, using local fallback:', error);
         
@@ -382,7 +392,13 @@ export class EnhancedNewsService {
    * Toggle news status (active/inactive)
    */
   toggleNewsStatus(id: string): Observable<DepartmentNews> {
-    return this.http.patch<DepartmentNews>(`${app_constants.baseUrl + app_constants.departmentNews.toggle}/${id}`, {}).pipe(
+    return this.http.patch<any>(`${this.NEWS_ENDPOINT}/${id}/toggle`, {}).pipe(
+      map(response => {
+        if (response.success && response.data) {
+          return this.transformNewsData(response.data);
+        }
+        return this.transformNewsData(response);
+      }),
       catchError((error) => {
         console.log('Backend not available, using local fallback:', error);
         

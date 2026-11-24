@@ -2,12 +2,30 @@ const express = require('express');
 const router = express.Router();
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
+const cloudinary = require('cloudinary').v2;
 const { Teacher, School } = require('../models');
 const { sendOtpEmail, sendWelcomeEmail } = require('../utils/mailer');
 const { authenticateToken } = require('../middleware/auth');
 
 // ── Helpers ──────────────────────────────────────────────
 const generateOtp = () => Math.floor(100000 + Math.random() * 900000).toString();
+
+const uploadImageHelper = async (base64Str, folder = 'brc/school-authority') => {
+  if (!base64Str) return '';
+  if (base64Str.startsWith('http://') || base64Str.startsWith('https://')) {
+    return base64Str;
+  }
+  try {
+    const result = await cloudinary.uploader.upload(base64Str, {
+      folder,
+      resource_type: 'image'
+    });
+    return result.secure_url;
+  } catch (err) {
+    console.warn('Cloudinary upload warning, saving inline:', err.message);
+    return base64Str;
+  }
+};
 
 // ─────────────────────────────────────────────────────────────────────────────
 // POST /api/teacher/signup
@@ -282,7 +300,11 @@ router.post('/login', async (req, res) => {
         udiseCode: teacher.udiseCode,
         schoolName: teacher.schoolName,
         fullName:   teacher.fullName,
-        email:      teacher.email
+        email:      teacher.email,
+        headmasterName: teacher.headmasterName || teacher.fullName || '',
+        headmasterDesignation: teacher.headmasterDesignation || 'Head Master (प्रधानाध्यापक)',
+        headmasterSignatureUrl: teacher.headmasterSignatureUrl || '',
+        schoolSealUrl: teacher.schoolSealUrl || ''
       }
     });
 
@@ -386,9 +408,80 @@ router.get('/profile', authenticateToken, async (req, res) => {
   try {
     const teacher = await Teacher.findById(req.user.id);
     if (!teacher) return res.status(404).json({ message: 'Teacher not found.' });
-    res.json({ teacher });
+    
+    const teacherData = {
+      _id: teacher._id,
+      udiseCode: teacher.udiseCode,
+      schoolName: teacher.schoolName,
+      fullName: teacher.fullName,
+      email: teacher.email,
+      mobileNo: teacher.mobileNo,
+      headmasterName: teacher.headmasterName || teacher.fullName || '',
+      headmasterDesignation: teacher.headmasterDesignation || 'Head Master (प्रधानाध्यापक)',
+      headmasterSignatureUrl: teacher.headmasterSignatureUrl || '',
+      schoolSealUrl: teacher.schoolSealUrl || ''
+    };
+
+    res.json({ success: true, teacher: teacherData });
   } catch (error) {
     res.status(500).json({ message: 'Server error.', error: error.message });
+  }
+});
+
+// ─────────────────────────────────────────────────────────────────────────────
+// PUT /api/teacher/profile
+// Update school authority info, signature, and seal (protected)
+// ─────────────────────────────────────────────────────────────────────────────
+router.put('/profile', authenticateToken, async (req, res) => {
+  try {
+    const teacher = await Teacher.findById(req.user.id);
+    if (!teacher) return res.status(404).json({ success: false, message: 'Teacher not found.' });
+
+    const { fullName, headmasterName, headmasterDesignation, headmasterSignatureUrl, schoolSealUrl } = req.body;
+
+    if (fullName !== undefined) teacher.fullName = fullName.trim();
+    if (headmasterName !== undefined) teacher.headmasterName = headmasterName.trim();
+    if (headmasterDesignation !== undefined) teacher.headmasterDesignation = headmasterDesignation.trim();
+
+    if (headmasterSignatureUrl !== undefined) {
+      if (headmasterSignatureUrl && headmasterSignatureUrl.startsWith('data:image')) {
+        teacher.headmasterSignatureUrl = await uploadImageHelper(headmasterSignatureUrl, 'brc/headmaster-signatures');
+      } else {
+        teacher.headmasterSignatureUrl = headmasterSignatureUrl || '';
+      }
+    }
+
+    if (schoolSealUrl !== undefined) {
+      if (schoolSealUrl && schoolSealUrl.startsWith('data:image')) {
+        teacher.schoolSealUrl = await uploadImageHelper(schoolSealUrl, 'brc/school-seals');
+      } else {
+        teacher.schoolSealUrl = schoolSealUrl || '';
+      }
+    }
+
+    await teacher.save();
+
+    const updatedTeacherData = {
+      _id: teacher._id,
+      udiseCode: teacher.udiseCode,
+      schoolName: teacher.schoolName,
+      fullName: teacher.fullName,
+      email: teacher.email,
+      mobileNo: teacher.mobileNo,
+      headmasterName: teacher.headmasterName || teacher.fullName || '',
+      headmasterDesignation: teacher.headmasterDesignation || 'Head Master (प्रधानाध्यापक)',
+      headmasterSignatureUrl: teacher.headmasterSignatureUrl || '',
+      schoolSealUrl: teacher.schoolSealUrl || ''
+    };
+
+    res.json({
+      success: true,
+      message: 'School authority details, signature & seal updated successfully!',
+      teacher: updatedTeacherData
+    });
+  } catch (err) {
+    console.error('Error updating teacher profile:', err);
+    res.status(500).json({ success: false, message: 'Server error updating profile.', error: err.message });
   }
 });
 

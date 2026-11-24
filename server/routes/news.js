@@ -3,6 +3,7 @@ const multer = require('multer');
 const cloudinary = require('cloudinary').v2;
 const router = express.Router();
 const { News } = require('../models');
+const { proxyCloudinaryFile } = require('../utils/cloudinaryProxy');
 
 // Bug Fix 3: Use memoryStorage instead of disk - Render free tier has no persistent disk
 const storage = multer.memoryStorage();
@@ -83,6 +84,7 @@ router.post('/', upload.single('file'), async (req, res) => {
       tags: tags ? JSON.parse(tags) : [],
       isActive: isActive !== 'false',
       displayOrder: parseInt(displayOrder) || 0,
+      ...(req.body.publishDate ? { publishDate: new Date(req.body.publishDate) } : {}),
       content: {
         type: contentType || 'text'
       }
@@ -166,6 +168,7 @@ router.put('/:id', upload.single('file'), async (req, res) => {
       tags: tags ? JSON.parse(tags) : [],
       isActive: isActive !== 'false',
       displayOrder: parseInt(displayOrder) || 0,
+      ...(req.body.publishDate ? { publishDate: new Date(req.body.publishDate) } : {}),
       content: {
         type: contentType || 'text'
       }
@@ -348,35 +351,9 @@ router.get('/:id/document', async (req, res) => {
     const isPdf = true;
     const fileName = news.content.fileName || 'document.pdf';
 
-    res.setHeader('Content-Disposition', `inline; filename="${fileName}"`);
-    res.setHeader('Content-Type', 'application/pdf');
-
-    let fetchUrl = news.content.pdfUrl;
-    if (isPdf && fetchUrl.includes('/raw/upload/') && fetchUrl.endsWith('.pdf')) {
-      fetchUrl = fetchUrl.slice(0, -4);
-    }
-    
-    // For legacy uploads
-    if (isPdf && fetchUrl.includes('/image/upload/')) {
-       fetchUrl = fetchUrl.replace('/image/upload/', '/raw/upload/');
-    }
-
-    const https = require('https');
-    const request = https.get(fetchUrl, { timeout: 30000 }, (cloudinaryRes) => {
-      if (cloudinaryRes.statusCode !== 200) {
-        return res.status(cloudinaryRes.statusCode).json({ message: 'Failed to fetch file from storage' });
-      }
-      cloudinaryRes.pipe(res);
-    });
-
-    request.on('timeout', () => {
-      request.destroy();
-      res.status(504).json({ message: 'Request timed out' });
-    });
-
-    request.on('error', (error) => {
-      console.error('Error fetching document:', error);
-      res.status(500).json({ message: 'Error viewing document' });
+    await proxyCloudinaryFile(news.content.pdfUrl, res, {
+      fileName,
+      contentType: 'application/pdf'
     });
 
   } catch (error) {

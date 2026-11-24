@@ -140,14 +140,8 @@ export class DownloadsPageComponent implements OnInit {
   }
 
   downloadFile(file: DownloadFile) {
-    // Open direct Cloudinary URL in new tab
-    // User confirmed PDF opens correctly in Cloudinary
-    // if (file.url) {
-    //   window.open(file.url, '_blank');
-    // }
-  const url = `https://your-api-domain/api/downloads/${file.id}/download`;
-  window.open(url, '_blank');
-
+    // Use backend proxy endpoint to stream file from Cloudinary
+    this.downloadService.downloadFile(file.id);
   }
 
   private formatFileSize(bytes: number): string {

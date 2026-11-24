@@ -1,6 +1,7 @@
 import { NgModule } from '@angular/core';
 import { ScrollAnimateDirective } from './core/directives/scroll-animate.directive';
 import { SmoothScrollDirective } from './core/directives/smooth-scroll.directive';
+import { DatePickerDirective } from './core/directives/date-picker.directive';
 import { BrowserModule } from '@angular/platform-browser';
 import { HttpClientModule, HTTP_INTERCEPTORS } from '@angular/common/http';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
@@ -44,6 +45,7 @@ import { NewsPreviewComponent } from './components/news-preview/news-preview.com
 import { TrainingsPageComponent } from './pages/trainings/trainings.component';
 import { AdminTrainingsComponent } from './admin/admin-trainings/admin-trainings.component';
 import { AdminTeacherDocsComponent } from './admin/admin-teacher-docs/admin-teacher-docs.component';
+import { AdminManagementComponent } from './admin/admin-management/admin-management.component';
 import { AppComponent } from './app.component';
 
 @NgModule({
@@ -84,8 +86,10 @@ import { AppComponent } from './app.component';
     TrainingsPageComponent,
     AdminTrainingsComponent,
     AdminTeacherDocsComponent,
+    AdminManagementComponent,
     ScrollAnimateDirective,
-    SmoothScrollDirective
+    SmoothScrollDirective,
+    DatePickerDirective
   ],
   imports: [
     BrowserModule,

@@ -1,65 +1,884 @@
-<div class="dashboard-layout">
-  
-  <!-- SIDEBAR -->
-  <aside class="dashboard-sidebar">
+<div class="dashboard-layout" [class.print-mode-active]="salaryViewMode === 'print'">
+
+  <!-- SIDEBAR (hidden during print) -->
+  <aside class="dashboard-sidebar no-print">
     <div class="sidebar-header">
       <i class="fa-solid fa-graduation-cap"></i>
-      <h3>Teacher Portal</h3>
+      <div>
+        <h3 class="mb-0">Teacher Portal</h3>
+        <small class="text-white-50" style="font-size: 0.72rem;">BRC Mehsi, Bihar</small>
+      </div>
     </div>
-    
+
     <div class="sidebar-user">
-      <div class="avatar"><i class="fa-solid fa-user"></i></div>
+      <div class="avatar"><i class="fa-solid fa-school"></i></div>
       <div class="user-info">
-        <h4>{{ teacherData?.fullName || 'Teacher' }}</h4>
-        <span class="badge">{{ teacherData?.udiseCode }}</span>
+        <h4>{{ teacherData?.fullName || teacherData?.schoolName || 'Teacher' }}</h4>
+        <span class="badge">UDISE: {{ teacherData?.udiseCode }}</span>
       </div>
     </div>
 
     <nav class="sidebar-nav">
+      <!-- 1. PRIMARY TAB: Absentee & Salary Slip -->
+      <a [class.active]="activeTab === 'salary-slip'" (click)="switchTab('salary-slip')">
+        <i class="fa-solid fa-file-invoice-dollar text-success"></i>
+        <span>Absentee & Salary Slip</span>
+        <span class="badge bg-success text-white ms-auto" style="font-size: 0.65rem;">Official</span>
+      </a>
+
+      <!-- 2. TEACHER MASTER (School Staff Directory) -->
+      <a [class.active]="activeTab === 'teacher-master'" (click)="switchTab('teacher-master')">
+        <i class="fa-solid fa-users-gear text-info"></i>
+        <span>Teacher Master</span>
+        <span class="badge bg-info text-white ms-auto" style="font-size: 0.65rem;">{{ masterTeachers.length }}</span>
+      </a>
+
+      <!-- 3. Upload Document -->
       <a [class.active]="activeTab === 'upload'" (click)="switchTab('upload')">
-        <i class="fa-solid fa-cloud-arrow-up"></i> Upload Document
+        <i class="fa-solid fa-cloud-arrow-up"></i>
+        <span>Upload Document</span>
       </a>
+
+      <!-- 3. My Documents -->
       <a [class.active]="activeTab === 'my-docs'" (click)="switchTab('my-docs')">
-        <i class="fa-solid fa-folder-open"></i> My Documents
+        <i class="fa-solid fa-folder-open"></i>
+        <span>My Documents</span>
       </a>
+
+      <!-- 4. Profile -->
       <a [class.active]="activeTab === 'profile'" (click)="switchTab('profile')">
-        <i class="fa-solid fa-id-card"></i> Profile
+        <i class="fa-solid fa-id-card"></i>
+        <span>Profile</span>
       </a>
+
+      <!-- Logout -->
       <a (click)="logout()" class="logout-link">
-        <i class="fa-solid fa-right-from-bracket"></i> Logout
+        <i class="fa-solid fa-right-from-bracket"></i>
+        <span>Logout</span>
       </a>
     </nav>
   </aside>
 
   <!-- MAIN CONTENT -->
   <main class="dashboard-main">
-    
-    <!-- Topbar -->
-    <header class="dashboard-topbar">
-      <h2>
-        <ng-container *ngIf="activeTab === 'upload'">Upload New Document</ng-container>
-        <ng-container *ngIf="activeTab === 'my-docs'">My Documents</ng-container>
-        <ng-container *ngIf="activeTab === 'profile'">My Profile</ng-container>
-      </h2>
-      <div class="school-tag"><i class="fa-solid fa-school me-2"></i>{{ teacherData?.schoolName }}</div>
+
+    <!-- Topbar (hidden during print) -->
+    <header class="dashboard-topbar no-print">
+      <div class="d-flex align-items-center gap-3">
+        <h2>
+          <ng-container *ngIf="activeTab === 'salary-slip'">
+            <i class="fa-solid fa-file-invoice-dollar text-primary me-2"></i>
+            अनुपस्थित एवं वेतन विवरणी / Absentee & Salary Slip
+          </ng-container>
+          <ng-container *ngIf="activeTab === 'teacher-master'">
+            <i class="fa-solid fa-users-gear text-info me-2"></i>
+            विद्यालय शिक्षक मास्टर / School Teacher Master Directory
+          </ng-container>
+          <ng-container *ngIf="activeTab === 'upload'">Upload New Document</ng-container>
+          <ng-container *ngIf="activeTab === 'my-docs'">My Documents</ng-container>
+          <ng-container *ngIf="activeTab === 'profile'">My Profile</ng-container>
+        </h2>
+      </div>
+      <div class="school-tag d-flex align-items-center gap-2">
+        <i class="fa-solid fa-school text-primary"></i>
+        <span>{{ teacherData?.schoolName || 'Government School' }}</span>
+        <span class="badge bg-primary ms-1">{{ teacherData?.udiseCode }}</span>
+      </div>
     </header>
 
-    <div class="dashboard-content">
-      
+    <div class="dashboard-content" [class.full-width]="activeTab === 'salary-slip'">
+
       <!-- TOAST NOTIFICATION -->
-      <div class="toast-notification" [class.show]="toastMessage" [class.error]="toastType === 'error'">
-        <i class="fa-solid" [class.fa-check-circle]="toastType === 'success'" [class.fa-circle-exclamation]="toastType === 'error'"></i>
+      <div class="toast-notification no-print" [class.show]="toastMessage" [class.error]="toastType === 'error'">
+        <i class="fa-solid" [class.fa-check-circle]="toastType === 'success'"
+          [class.fa-circle-exclamation]="toastType === 'error'"></i>
         {{ toastMessage }}
       </div>
 
-      <!-- TAB 1: UPLOAD -->
+      <!-- ════════════════════════════════════════════════════════════════════ -->
+      <!-- TAB 1: ABSENTEE & SALARY SLIP (BIHAR GOVT TEACHER STATEMENT)         -->
+      <!-- ════════════════════════════════════════════════════════════════════ -->
+      <div *ngIf="activeTab === 'salary-slip'" class="salary-slip-wrapper">
+
+        <!-- ──────────────────────────────────────────────────────────── -->
+        <!-- SUB-VIEW A: LIST OF STATEMENTS                               -->
+        <!-- ──────────────────────────────────────────────────────────── -->
+        <div *ngIf="salaryViewMode === 'list'" class="dashboard-card">
+          <div class="d-flex flex-wrap justify-content-between align-items-center gap-3 mb-4 pb-3 border-bottom">
+            <div>
+              <h3 class="fw-bold text-dark mb-1">
+                <i class="fa-solid fa-list-check text-primary me-2"></i>
+                School Teacher Absentee & Salary Statements
+              </h3>
+              <p class="text-muted small mb-0">
+                Generate and maintain monthly teacher absentee statements (अनुपस्थित एवं वेतन विवरणी) with automatic DA,
+                HRA, Medical, NPS, and Net Pay calculations.
+              </p>
+            </div>
+            <div class="d-flex gap-2">
+              <button class="btn btn-outline-primary btn-sm d-flex align-items-center gap-2"
+                (click)="createNewStatement()">
+                <i class="fa-solid fa-plus"></i> New Absentee Statement
+              </button>
+            </div>
+          </div>
+
+          <!-- Loading Spinner -->
+          <div *ngIf="isLoadingSalary" class="text-center py-5 text-muted">
+            <i class="fa-solid fa-spinner fa-spin fa-2x mb-3 text-primary"></i>
+            <p class="mb-0">Loading absentee records...</p>
+          </div>
+
+          <!-- Empty State -->
+          <div *ngIf="!isLoadingSalary && salaryStatements.length === 0" class="empty-state text-center py-5">
+            <div class="empty-icon-circle mx-auto mb-3">
+              <i class="fa-solid fa-file-invoice-dollar fa-3x text-primary opacity-50"></i>
+            </div>
+            <h4 class="fw-bold text-dark">No Absentee Statements Created Yet</h4>
+            <p class="text-muted max-w-500 mx-auto mb-4">
+              You haven't generated any monthly teacher absentee statements for your school. Create a new statement or
+              load the Bihar Government sample template.
+            </p>
+            <div class="d-flex justify-content-center gap-3">
+              <button class="btn btn-primary px-4 py-2" (click)="createNewStatement()">
+                <i class="fa-solid fa-plus me-1"></i> Create Absentee Statement
+              </button>
+            </div>
+          </div>
+
+          <!-- Statements Table -->
+          <div class="table-responsive" *ngIf="!isLoadingSalary && salaryStatements.length > 0">
+            <table class="table table-hover align-middle custom-table">
+              <thead class="table-light">
+                <tr>
+                  <th>Month & Year</th>
+                  <th>Statement Title</th>
+                  <th>Teachers</th>
+                  <th>Total Gross</th>
+                  <th>Total Deductions</th>
+                  <th>Total Net Payment</th>
+                  <th>Status</th>
+                  <th class="text-end">Actions</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr *ngFor="let s of salaryStatements">
+                  <td>
+                    <div class="fw-bold text-dark">{{ s.month }} {{ s.year }}</div>
+                    <small class="text-muted">{{ s.createdAt | date:'mediumDate' }}</small>
+                  </td>
+                  <td>
+                    <div class="fw-semibold text-dark">{{ s.title || 'अनुपस्थित एवं वेतन विवरणी' }}</div>
+                    <small class="text-muted">{{ s.schoolName }} ({{ s.udiseCode }})</small>
+                  </td>
+                  <td>
+                    <span class="badge bg-light text-dark border px-2 py-1">
+                      <i class="fa-solid fa-users me-1 text-primary"></i> {{ s.rows.length || 0 }} Teachers
+                    </span>
+                  </td>
+                  <td class="fw-semibold text-secondary">
+                    ₹ {{ formatCurrency(s.totals ? s.totals['grossSalary'] : 0) }}
+                  </td>
+                  <td class="fw-semibold text-danger">
+                    ₹ {{ formatCurrency(s.totals ? s.totals['totalDeduction'] : 0) }}
+                  </td>
+                  <td class="fw-bold text-success fs-6">
+                    ₹ {{ formatCurrency(s.totals ? s.totals['netPayment'] : 0) }}
+                  </td>
+                  <td>
+                    <span class="badge" [class.bg-warning-subtle]="s.status === 'Draft'"
+                      [class.text-warning]="s.status === 'Draft'"
+                      [class.bg-success-subtle]="s.status === 'Submitted' || s.status === 'Approved'"
+                      [class.text-success]="s.status === 'Submitted' || s.status === 'Approved'">
+                      <i class="fa-solid" [class.fa-pen]="s.status === 'Draft'"
+                        [class.fa-check-circle]="s.status === 'Submitted' || s.status === 'Approved'"></i>
+                      {{ s.status || 'Draft' }}
+                    </span>
+                  </td>
+                  <td class="text-end">
+                    <div class="btn-group btn-group-sm">
+                      <button class="btn btn-outline-primary" (click)="viewPrintStatement(s)"
+                        title="Print / Official PDF View">
+                        <i class="fa-solid fa-print me-1"></i> Print / PDF
+                      </button>
+                      <button class="btn btn-outline-secondary" (click)="editStatement(s)" title="Edit Statement">
+                        <i class="fa-solid fa-pen-to-square"></i>
+                      </button>
+                      <button class="btn btn-outline-danger" (click)="deleteStatement(s._id!)" title="Delete">
+                        <i class="fa-solid fa-trash"></i>
+                      </button>
+                    </div>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- ──────────────────────────────────────────────────────────── -->
+        <!-- SUB-VIEW B: INTERACTIVE SPREADSHEET EDITOR                   -->
+        <!-- ──────────────────────────────────────────────────────────── -->
+        <div *ngIf="salaryViewMode === 'editor' && currentStatement" class="salary-editor-card">
+
+          <!-- Editor Top Header Controls -->
+          <div class="editor-header-bar p-3 bg-white border rounded mb-3 shadow-xs">
+            <div class="row g-2 align-items-center">
+              <div class="col-lg-4 col-md-6">
+                <button class="btn btn-outline-secondary btn-sm mb-2" (click)="backToList()">
+                  <i class="fa-solid fa-arrow-left me-1"></i> Back to Statements
+                </button>
+                <div class="input-group input-group-sm">
+                  <span class="input-group-text fw-bold bg-light">School:</span>
+                  <input type="text" class="form-control" [(ngModel)]="currentStatement.schoolName"
+                    placeholder="School Name">
+                </div>
+              </div>
+
+              <div class="col-lg-2 col-md-3 col-6">
+                <div class="input-group input-group-sm">
+                  <span class="input-group-text fw-bold bg-light">UDISE:</span>
+                  <input type="text" class="form-control" [(ngModel)]="currentStatement.udiseCode"
+                    placeholder="UDISE Code">
+                </div>
+              </div>
+
+              <div class="col-lg-2 col-md-3 col-6">
+                <div class="input-group input-group-sm">
+                  <span class="input-group-text fw-bold bg-light">Month:</span>
+                  <select class="form-select" [(ngModel)]="currentStatement.month">
+                    <option *ngFor="let m of monthsList" [value]="m">{{ m }}</option>
+                  </select>
+                </div>
+              </div>
+
+              <div class="col-lg-2 col-md-3 col-6">
+                <div class="input-group input-group-sm">
+                  <span class="input-group-text fw-bold bg-light">Year:</span>
+                  <input type="number" class="form-control" [(ngModel)]="currentStatement.year" min="2020" max="2050">
+                </div>
+              </div>
+
+              <div class="col-lg-2 col-md-3 col-6 text-end">
+                <span class="badge" [class.bg-warning]="currentStatement.status === 'Draft'"
+                  [class.bg-success]="currentStatement.status === 'Submitted'">
+                  Status: {{ currentStatement.status || 'Draft' }}
+                </span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Action Toolbar -->
+          <div
+            class="editor-toolbar d-flex flex-wrap align-items-center justify-content-between gap-2 p-3 bg-white border rounded mb-3 shadow-xs">
+            <div class="d-flex flex-wrap align-items-center gap-2">
+              <button class="btn btn-sm btn-primary" (click)="addTeacherRow()">
+                <i class="fa-solid fa-user-plus me-1"></i> Add Teacher Row
+              </button>
+
+              <button class="btn btn-sm btn-info text-white" (click)="populateAllFromMaster()"
+                title="Auto-fill sheet with all teachers from School Master">
+                <i class="fa-solid fa-users me-1"></i> Populate All from Master
+              </button>
+
+              <button class="btn btn-sm btn-outline-primary" (click)="openAddColumnModal()" title="Add custom column">
+                <i class="fa-solid fa-table-columns me-1"></i> Add Column
+              </button>
+
+              <button class="btn btn-sm btn-outline-secondary" (click)="openColumnManager()"
+                title="Edit headings, DA %, HRA %">
+                <i class="fa-solid fa-sliders me-1"></i> Manage Columns & Rates (DA {{ daRate }}%, HRA {{ hraRate }}%)
+              </button>
+
+              <button class="btn btn-sm btn-outline-success" (click)="loadSamplePdfData()"
+                title="Load 9 Bihar Govt teachers from PDF">
+                <i class="fa-solid fa-file-import me-1"></i> Load PDF Sample Data
+              </button>
+
+              <button class="btn btn-sm btn-outline-dark" (click)="switchTab('teacher-master')"
+                title="Manage School Teacher Master List">
+                <i class="fa-solid fa-users-gear me-1"></i> Manage Master ({{ masterTeachers.length }})
+              </button>
+            </div>
+
+            <div class="d-flex align-items-center gap-2">
+              <button class="btn btn-sm btn-outline-dark" (click)="viewPrintStatement(currentStatement)">
+                <i class="fa-solid fa-eye me-1"></i> Preview / Print
+              </button>
+
+              <button class="btn btn-sm btn-secondary" (click)="saveStatement(false)" [disabled]="isSavingSalary">
+                <i class="fa-solid fa-floppy-disk me-1"></i> Save Draft
+              </button>
+
+              <button class="btn btn-sm btn-success" (click)="saveStatement(true)" [disabled]="isSavingSalary">
+                <i class="fa-solid fa-paper-plane me-1"></i> Submit Statement
+              </button>
+            </div>
+          </div>
+
+          <!-- KPI Summary Strip -->
+          <div class="row g-2 mb-3">
+            <div class="col-md-3 col-sm-6">
+              <div class="kpi-mini-card p-2 px-3 bg-white border rounded d-flex align-items-center gap-3">
+                <div class="kpi-mini-icon bg-primary-subtle text-primary"><i class="fa-solid fa-users"></i></div>
+                <div>
+                  <small class="text-muted text-uppercase fw-bold" style="font-size: 0.7rem;">Teachers</small>
+                  <div class="fw-bold fs-6 text-dark">{{ currentStatement.rows.length || 0 }}</div>
+                </div>
+              </div>
+            </div>
+            <div class="col-md-3 col-sm-6">
+              <div class="kpi-mini-card p-2 px-3 bg-white border rounded d-flex align-items-center gap-3">
+                <div class="kpi-mini-icon bg-info-subtle text-info"><i class="fa-solid fa-money-bill-wave"></i></div>
+                <div>
+                  <small class="text-muted text-uppercase fw-bold" style="font-size: 0.7rem;">Total Gross</small>
+                  <div class="fw-bold fs-6 text-dark">₹ {{ formatCurrency(currentStatement.totals ?
+                    currentStatement.totals['grossSalary'] : 0) }}</div>
+                </div>
+              </div>
+            </div>
+            <div class="col-md-3 col-sm-6">
+              <div class="kpi-mini-card p-2 px-3 bg-white border rounded d-flex align-items-center gap-3">
+                <div class="kpi-mini-icon bg-danger-subtle text-danger"><i class="fa-solid fa-receipt"></i></div>
+                <div>
+                  <small class="text-muted text-uppercase fw-bold" style="font-size: 0.7rem;">Total Deductions</small>
+                  <div class="fw-bold fs-6 text-danger">₹ {{ formatCurrency(currentStatement.totals ?
+                    currentStatement.totals['totalDeduction'] : 0) }}</div>
+                </div>
+              </div>
+            </div>
+            <div class="col-md-3 col-sm-6">
+              <div class="kpi-mini-card p-2 px-3 bg-white border rounded d-flex align-items-center gap-3">
+                <div class="kpi-mini-icon bg-success-subtle text-success"><i
+                    class="fa-solid fa-hand-holding-dollar"></i></div>
+                <div>
+                  <small class="text-muted text-uppercase fw-bold" style="font-size: 0.7rem;">Net Payment</small>
+                  <div class="fw-bold fs-6 text-success">₹ {{ formatCurrency(currentStatement.totals ?
+                    currentStatement.totals['netPayment'] : 0) }}</div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- ──────────────────────────────────────────────────────── -->
+          <!-- DYNAMIC EXCEL-LIKE SPREADSHEET TABLE                     -->
+          <!-- ──────────────────────────────────────────────────────── -->
+          <div class="salary-spreadsheet-container bg-white border rounded shadow-xs p-0 mb-3">
+            <div class="table-responsive spreadsheet-scroll-container">
+              <table class="table table-bordered align-middle mb-0 salary-grid-table">
+
+                <!-- Main Header Row: Column Titles -->
+                <thead class="salary-grid-head">
+                  <tr class="header-titles-row">
+                    <th *ngFor="let col of currentStatement.columns; let colIdx = index"
+                      [style.min-width]="col.width || '110px'" [class.col-earning]="col.category === 'earning'"
+                      [class.col-deduction]="col.category === 'deduction'"
+                      [class.col-summary]="col.category === 'summary'">
+                      <div class="d-flex align-items-center justify-content-between gap-1">
+                        <span class="col-label" [title]="col.label">{{ col.label }}</span>
+                        <button *ngIf="col.isRemovable" type="button"
+                          class="btn btn-link btn-sm p-0 text-muted remove-col-btn" (click)="deleteColumn(col)"
+                          title="Delete Column">
+                          <i class="fa-solid fa-circle-xmark"></i>
+                        </button>
+                      </div>
+                    </th>
+                    <th class="action-header" style="min-width: 100px;">कार्य / Action</th>
+                  </tr>
+
+                  <!-- Column Numbering Row (1 to 18) Exactly Like Bihar Govt PDF -->
+                  <tr class="header-numbers-row text-center bg-light">
+                    <th *ngFor="let col of currentStatement.columns; let i = index">
+                      {{ i + 1 }}
+                    </th>
+                    <th>-</th>
+                  </tr>
+                </thead>
+
+                <!-- Body Rows: Teacher Records -->
+                <tbody>
+                  <tr *ngFor="let row of currentStatement.rows; let rowIdx = index">
+                    <td *ngFor="let col of currentStatement.columns" [class.cell-earning]="col.category === 'earning'"
+                      [class.cell-deduction]="col.category === 'deduction'"
+                      [class.cell-summary]="col.category === 'summary'"
+                      [class.cell-readonly]="col.calculationType === 'srNo'">
+
+                      <!-- S.No (Auto numbered) -->
+                      <ng-container *ngIf="col.calculationType === 'srNo'">
+                        <div class="text-center fw-bold">{{ rowIdx + 1 }}</div>
+                      </ng-container>
+
+                      <!-- Basic Pay (Key driver of calculation) -->
+                      <ng-container *ngIf="col.key === 'basicPay'">
+                        <input type="number" class="form-control form-control-sm text-end fw-bold basic-pay-input"
+                          [(ngModel)]="row[col.key]" (ngModelChange)="onCellChange(rowIdx, col.key)" min="0" step="10"
+                          placeholder="0">
+                      </ng-container>
+
+                      <!-- Automated / Calculated columns (DA, HRA, Medical, Gross, NPS, Total Deductions, Net Payment) -->
+                      <ng-container
+                        *ngIf="col.calculationType !== 'srNo' && col.calculationType !== 'none' && col.key !== 'basicPay'">
+                        <input type="number" class="form-control form-control-sm text-end calculated-input"
+                          [(ngModel)]="row[col.key]" (ngModelChange)="onCellChange(rowIdx, col.key)" placeholder="0"
+                          [title]="'Calculated value. Editable if special override is required.'">
+                      </ng-container>
+
+                      <!-- Column: Teacher Name (Dropdown from Teacher Master + Manual Entry option) -->
+                      <ng-container *ngIf="col.key === 'teacherName'">
+                        <div class="teacher-select-box">
+                          <select class="form-select form-select-sm teacher-master-select fw-semibold"
+                            [ngModel]="getTeacherMasterIdByName(row[col.key])"
+                            (ngModelChange)="onSelectMasterTeacher(rowIdx, $event)">
+                            <option value="">-- शिक्षक चुनें (Select from Master) --</option>
+                            <option *ngFor="let tm of masterTeachers" [value]="tm._id">
+                              {{ tm.teacherName }} ({{ tm.teacherType }} - ₹{{ formatCurrency(tm.basicPay) }})
+                            </option>
+                            <option value="__MANUAL__">✏️ Custom / Manual Entry...</option>
+                          </select>
+                          <div *ngIf="isManualTeacherName(rowIdx, row[col.key])" class="mt-1">
+                            <input type="text" class="form-control form-control-sm" [(ngModel)]="row[col.key]"
+                              (ngModelChange)="onCellChange(rowIdx, col.key)" placeholder="Enter Teacher Name">
+                          </div>
+                        </div>
+                      </ng-container>
+
+                      <!-- Column: Teacher Type (Dropdown) -->
+                      <ng-container *ngIf="col.key === 'teacherType'">
+                        <select class="form-select form-select-sm" [(ngModel)]="row[col.key]"
+                          (ngModelChange)="onCellChange(rowIdx, col.key)">
+                          <option *ngFor="let opt of teacherTypeOptions" [value]="opt">{{ opt }}</option>
+                        </select>
+                      </ng-container>
+
+                      <!-- Column: Teacher Class (Dropdown) -->
+                      <ng-container *ngIf="col.key === 'teacherClass'">
+                        <select class="form-select form-select-sm" [(ngModel)]="row[col.key]"
+                          (ngModelChange)="onCellChange(rowIdx, col.key)">
+                          <option value="">-</option>
+                          <option *ngFor="let cls of teacherClassOptions" [value]="cls">{{ cls }}</option>
+                        </select>
+                      </ng-container>
+
+                      <!-- Other Standard User Input Columns (PRAN, DOB, Shikshakosh ID, Account No, etc.) -->
+                      <ng-container
+                        *ngIf="col.calculationType === 'none' && col.key !== 'basicPay' && col.key !== 'teacherName' && col.key !== 'teacherType' && col.key !== 'teacherClass'">
+                        <input [type]="col.type === 'number' ? 'number' : 'text'" class="form-control form-control-sm"
+                          [class.text-end]="col.type === 'number'" [(ngModel)]="row[col.key]"
+                          (ngModelChange)="onCellChange(rowIdx, col.key)" [placeholder]="col.label">
+                      </ng-container>
+                    </td>
+
+                    <!-- Row Actions (Pay slip & Delete) -->
+                    <td class="text-center">
+                      <div class="d-flex justify-content-center gap-1">
+                        <button type="button" class="btn btn-xs btn-outline-primary" (click)="viewTeacherPaySlip(row)"
+                          title="Individual Pay Slip">
+                          <i class="fa-solid fa-file-invoice"></i> Slip
+                        </button>
+                        <button type="button" class="btn btn-xs btn-outline-danger" (click)="deleteTeacherRow(rowIdx)"
+                          title="Delete Row">
+                          <i class="fa-solid fa-trash"></i>
+                        </button>
+                      </div>
+                    </td>
+                  </tr>
+
+                  <!-- Empty rows prompt -->
+                  <tr *ngIf="currentStatement.rows.length === 0">
+                    <td [attr.colspan]="currentStatement.columns.length + 1" class="text-center py-4 text-muted">
+                      No teacher records added. Click <strong>"Add Teacher Row"</strong> or <strong>"Load PDF Sample
+                        Data"</strong> above.
+                    </td>
+                  </tr>
+                </tbody>
+
+                <!-- TOTAL ROW (Matching Bihar Govt Format) -->
+                <tfoot class="salary-grid-foot">
+                  <tr class="total-row fw-bold">
+                    <td *ngFor="let col of currentStatement.columns; let i = index"
+                      [class.text-end]="col.type === 'number'" [class.text-center]="i === 0">
+
+                      <!-- First column displays TOTAL -->
+                      <ng-container *ngIf="i === 0 || col.key === 'teacherName'">
+                        <span *ngIf="i === 0" class="text-uppercase fs-6">TOTAL</span>
+                      </ng-container>
+
+                      <!-- Sum of numerical columns -->
+                      <ng-container *ngIf="col.type === 'number' && col.calculationType !== 'srNo'">
+                        <span class="fs-6">{{ formatCurrency(getTotal(col.key)) }}</span>
+                      </ng-container>
+
+                      <ng-container *ngIf="col.type !== 'number' && i !== 0 && col.key !== 'teacherName'">
+                        -
+                      </ng-container>
+                    </td>
+                    <td class="text-center">-</td>
+                  </tr>
+                </tfoot>
+
+              </table>
+            </div>
+          </div>
+
+          <!-- Footer Notes / Remarks -->
+          <div class="card p-3 bg-white border rounded">
+            <label class="form-label fw-bold text-dark mb-1">टिप्पणी / Office Remarks (Optional):</label>
+            <textarea class="form-control" rows="2" [(ngModel)]="currentStatement.notes"
+              placeholder="Enter remarks regarding leaves, deductions, or special approvals..."></textarea>
+          </div>
+
+        </div>
+
+        <!-- ──────────────────────────────────────────────────────────── -->
+        <!-- SUB-VIEW C: OFFICIAL BIHAR GOVT PRINT / PDF VIEW             -->
+        <!-- Formatted Identical to the Provided PDF                      -->
+        <!-- ──────────────────────────────────────────────────────────── -->
+        <div *ngIf="salaryViewMode === 'print' && currentStatement" class="print-preview-section">
+
+          <!-- Top Screen-Only Actions -->
+          <div
+            class="d-flex justify-content-between align-items-center mb-3 no-print p-3 bg-white border rounded shadow-xs">
+            <button class="btn btn-outline-secondary btn-sm" (click)="backToList()">
+              <i class="fa-solid fa-arrow-left me-1"></i> Back to Statements
+            </button>
+            <div class="d-flex gap-2">
+              <button class="btn btn-outline-primary btn-sm" (click)="salaryViewMode = 'editor'">
+                <i class="fa-solid fa-pen-to-square me-1"></i> Edit Statement
+              </button>
+              <button class="btn btn-primary btn-sm px-4 fw-bold shadow-xs" (click)="printStatement()">
+                <i class="fa-solid fa-print me-1"></i> Print / Save as PDF
+              </button>
+            </div>
+          </div>
+
+          <!-- Printable Document Sheet (Exact PDF Reproduction) -->
+          <div class="bihar-govt-sheet-container bg-white p-4 p-md-5 border shadow-sm">
+
+            <!-- Document Heading -->
+            <div class="text-center mb-4">
+              <h2 class="bihar-sheet-title mb-1">अनुपस्थित एवं वेतन विवरणी</h2>
+            </div>
+
+            <!-- School & Month Metadata Line -->
+            <div class="row align-items-center bihar-meta-line mb-3 pb-2">
+              <div class="col-sm-5">
+                <strong>SCHOOL NAME:</strong> {{ currentStatement.schoolName || 'UHS MAHAMMADPUR MAJHAULIA' }}
+              </div>
+              <div class="col-sm-3 text-sm-center">
+                <strong>UDISE:</strong> {{ currentStatement.udiseCode || '100210507703' }}
+              </div>
+              <div class="col-sm-2 text-sm-end">
+                <strong>माह:</strong> {{ currentStatement.month }}
+              </div>
+              <div class="col-sm-2 text-sm-end">
+                <strong>वर्ष:</strong> {{ currentStatement.year }}
+              </div>
+            </div>
+
+            <!-- Official Table -->
+            <div class="table-responsive">
+              <table class="bihar-official-table">
+                <thead>
+                  <!-- Header Row 1: Titles -->
+                  <tr class="bihar-head-row">
+                    <th *ngFor="let col of currentStatement.columns">
+                      {{ col.label }}
+                    </th>
+                  </tr>
+                  <!-- Header Row 2: Numbers 1 to 18 -->
+                  <tr class="bihar-number-row">
+                    <th *ngFor="let col of currentStatement.columns; let i = index">
+                      {{ i + 1 }}
+                    </th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr *ngFor="let r of currentStatement.rows; let rIdx = index">
+                    <td *ngFor="let col of currentStatement.columns; let cIdx = index"
+                      [class.text-center]="cIdx === 0 || col.key === 'dob'"
+                      [class.text-end]="col.type === 'number' && cIdx !== 0">
+
+                      <!-- S.No -->
+                      <ng-container *ngIf="cIdx === 0">
+                        {{ rIdx + 1 }}
+                      </ng-container>
+
+                      <!-- Numbers formatted with commas -->
+                      <ng-container *ngIf="cIdx !== 0 && col.type === 'number'">
+                        {{ formatCurrency(r[col.key]) }}
+                      </ng-container>
+
+                      <!-- Text fields -->
+                      <ng-container *ngIf="cIdx !== 0 && col.type !== 'number'">
+                        {{ r[col.key] || '' }}
+                      </ng-container>
+                    </td>
+                  </tr>
+                </tbody>
+
+                <!-- Bottom TOTAL Row -->
+                <tfoot>
+                  <tr class="bihar-total-row">
+                    <td *ngFor="let col of currentStatement.columns; let i = index" [class.text-center]="i === 0"
+                      [class.text-end]="col.type === 'number' && i !== 0">
+
+                      <ng-container *ngIf="i === 0 || col.key === 'teacherName'">
+                        <span *ngIf="i === 0">TOTAL</span>
+                      </ng-container>
+
+                      <ng-container *ngIf="col.type === 'number' && col.calculationType !== 'srNo'">
+                        {{ formatCurrency(getTotal(col.key)) }}
+                      </ng-container>
+
+                      <ng-container *ngIf="col.type !== 'number' && i !== 0 && col.key !== 'teacherName'">
+
+                      </ng-container>
+                    </td>
+                  </tr>
+                </tfoot>
+              </table>
+            </div>
+
+            <!-- Signatures & School Endorsement Section (Headmaster Signature & School Seal) -->
+            <div class="bihar-signature-row mt-4 pt-4 d-flex justify-content-end">
+              <div class="headmaster-endorsement-block text-center" style="min-width: 320px; max-width: 380px;">
+
+                <!-- Seal & Digital Signature Graphic Container -->
+                <div class="d-flex align-items-center justify-content-center gap-3 mb-2 endorsement-visuals"
+                  style="min-height: 85px;">
+
+                  <!-- 1. School Seal / Stamp (विद्यालय मुहर) -->
+                  <div class="school-seal-display text-center"
+                    *ngIf="teacherData?.schoolSealUrl || currentStatement.schoolSealUrl">
+                    <img [src]="currentStatement.schoolSealUrl || teacherData?.schoolSealUrl"
+                      alt="विद्यालय मुहर (School Seal)" class="official-school-seal-img"
+                      style="max-height: 150px; max-width: 150px; object-fit: contain;">
+                  </div>
+                  <div
+                    class="seal-placeholder border border-2 border-dashed rounded-circle d-flex align-items-center justify-content-center text-muted no-print"
+                    *ngIf="!teacherData?.schoolSealUrl && !currentStatement.schoolSealUrl"
+                    style="width: 75px; height: 75px; font-size: 0.65rem; border-color: #cbd5e1 !important; background: rgba(0,0,0,0.02);"
+                    title="School Seal not uploaded yet. Upload in Profile menu.">
+                    <span>[विद्यालय मुहर]</span>
+                  </div>
+
+                  <!-- 2. Head Master Digital Signature (हस्ताक्षर) -->
+                  <div class="headmaster-sig-display text-center"
+                    *ngIf="teacherData?.headmasterSignatureUrl || currentStatement.headmasterSignatureUrl">
+                    <img [src]="currentStatement.headmasterSignatureUrl || teacherData?.headmasterSignatureUrl"
+                      alt="हस्ताक्षर (Headmaster Signature)" class="official-headmaster-sig-img"
+                      style="max-height: 85px; max-width: 150px; object-fit: contain;">
+                  </div>
+                  <div
+                    class="sig-placeholder text-muted font-italic d-flex align-items-center justify-content-center no-print"
+                    *ngIf="!teacherData?.headmasterSignatureUrl && !currentStatement.headmasterSignatureUrl"
+                    style="min-width: 120px; height: 50px; font-size: 0.75rem; border-bottom: 1px dashed #cbd5e1;"
+                    title="Digital Signature not uploaded yet. Upload in Profile menu.">
+                    <span>[डिजिटल हस्ताक्षर]</span>
+                  </div>
+
+                </div>
+
+                <!-- Signature Underline -->
+                <div class="signature-line mx-auto mb-2" style="border-top: 1.5px solid #1a365d; width: 100%;"></div>
+
+                <!-- Authority Details & Hindi Title -->
+                <!-- <div class="fw-bold text-dark fs-6">
+                  {{ teacherData?.headmasterName || teacherData?.fullName || 'प्रधानाध्यापक / प्रभारी' }}
+                </div>
+                <div class="text-primary fw-semibold" style="font-size: 0.85rem;">
+                  {{ teacherData?.headmasterDesignation || 'Head Master (प्रधानाध्यापक)' }}
+                </div>
+                <small class="text-muted d-block" style="font-size: 0.8rem;">
+                  {{ currentStatement.schoolName || teacherData?.schoolName || 'UHS MAHAMMADPUR MAJHAULIA' }}
+                </small> -->
+                <small class="text-secondary d-block fw-semibold" style="font-size: 0.75rem;">
+                  हस्ताक्षर एवं मुहर प्रधानाध्यापक / प्रभारी (Headmaster Signature & School Seal)
+                </small>
+
+              </div>
+            </div>
+
+          </div>
+        </div>
+
+      </div>
+
+      <!-- ════════════════════════════════════════════════════════════════════ -->
+      <!-- TAB 2: TEACHER MASTER (SCHOOL STAFF REGISTRY & ATTRIBUTES)           -->
+      <!-- ════════════════════════════════════════════════════════════════════ -->
+      <div *ngIf="activeTab === 'teacher-master'" class="teacher-master-view">
+
+        <!-- Header & Action Ribbon -->
+        <div class="dashboard-card mb-4">
+          <div class="d-flex flex-wrap justify-content-between align-items-center gap-3 mb-4 pb-3 border-bottom">
+            <div>
+              <h3 class="fw-bold text-dark mb-1">
+                <i class="fa-solid fa-users-gear text-info me-2"></i>
+                विद्यालय शिक्षक मास्टर पंजी (School Teacher Master Registry)
+              </h3>
+              <p class="text-muted small mb-0">
+                Manage all teachers of your school: Type, Class, PRAN/UAN, DOB, Teacher ID, Account Number, Basic Pay,
+                and dynamic attributes. Selected automatically in monthly absentee statements.
+              </p>
+            </div>
+
+            <div class="d-flex flex-wrap align-items-center gap-2">
+              <button class="btn btn-primary btn-sm" (click)="openAddMasterTeacherModal()">
+                <i class="fa-solid fa-user-plus me-1"></i> Add New Teacher
+              </button>
+              <button class="btn btn-outline-success btn-sm" (click)="seedMasterTeachersFromPdf()"
+                title="Seed 9 sample teachers from PDF">
+                <i class="fa-solid fa-file-import me-1"></i> Load PDF Sample (9 Teachers)
+              </button>
+              <button class="btn btn-success btn-sm" (click)="switchTab('salary-slip'); createNewStatement()"
+                title="Create new monthly absentee">
+                <i class="fa-solid fa-file-invoice-dollar me-1"></i> Create Absentee Statement
+              </button>
+            </div>
+          </div>
+
+          <!-- KPI Summary Cards -->
+          <div class="row g-3 mb-4">
+            <div class="col-lg-3 col-sm-6">
+              <div class="kpi-mini-card p-3 bg-light border rounded d-flex align-items-center gap-3">
+                <div class="kpi-mini-icon bg-primary text-white p-3 rounded"><i class="fa-solid fa-users fs-5"></i>
+                </div>
+                <div>
+                  <small class="text-muted text-uppercase fw-bold" style="font-size: 0.72rem;">Total Teachers</small>
+                  <div class="fw-bold fs-5 text-dark">{{ masterTeachers.length }} Staff</div>
+                </div>
+              </div>
+            </div>
+            <div class="col-lg-3 col-sm-6">
+              <div class="kpi-mini-card p-3 bg-light border rounded d-flex align-items-center gap-3">
+                <div class="kpi-mini-icon bg-info text-white p-3 rounded"><i
+                    class="fa-solid fa-money-bill-wave fs-5"></i></div>
+                <div>
+                  <small class="text-muted text-uppercase fw-bold" style="font-size: 0.72rem;">Total Basic Pay
+                    (Monthly)</small>
+                  <div class="fw-bold fs-5 text-dark">₹ {{ formatCurrency(getTotalMasterBasic()) }}</div>
+                </div>
+              </div>
+            </div>
+            <div class="col-lg-3 col-sm-6">
+              <div class="kpi-mini-card p-3 bg-light border rounded d-flex align-items-center gap-3">
+                <div class="kpi-mini-icon bg-success text-white p-3 rounded"><i class="fa-solid fa-school fs-5"></i>
+                </div>
+                <div>
+                  <small class="text-muted text-uppercase fw-bold" style="font-size: 0.72rem;">School UDISE</small>
+                  <div class="fw-bold fs-5 text-dark">{{ teacherData?.udiseCode || '10021507703' }}</div>
+                </div>
+              </div>
+            </div>
+            <div class="col-lg-3 col-sm-6">
+              <div class="kpi-mini-card p-3 bg-light border rounded d-flex align-items-center gap-3">
+                <div class="kpi-mini-icon bg-warning text-white p-3 rounded"><i class="fa-solid fa-award fs-5"></i>
+                </div>
+                <div>
+                  <small class="text-muted text-uppercase fw-bold" style="font-size: 0.72rem;">Department</small>
+                  <div class="fw-bold fs-6 text-dark">Education Dept., Bihar</div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Search Filter -->
+          <div class="row align-items-center mb-3">
+            <div class="col-md-6 col-lg-5">
+              <div class="input-group input-group-sm">
+                <span class="input-group-text bg-white"><i class="fa-solid fa-magnifying-glass text-muted"></i></span>
+                <input type="text" class="form-control" [(ngModel)]="masterSearchTerm"
+                  placeholder="Search by name, PRAN, Teacher ID, Account...">
+                <button *ngIf="masterSearchTerm" class="btn btn-outline-secondary" type="button"
+                  (click)="masterSearchTerm = ''">
+                  <i class="fa-solid fa-times"></i>
+                </button>
+              </div>
+            </div>
+            <div class="col-md-6 col-lg-7 text-md-end text-muted small mt-2 mt-md-0">
+              Showing {{ getFilteredMasterTeachers().length }} of {{ masterTeachers.length }} teachers
+            </div>
+          </div>
+
+          <!-- Master Teachers Table -->
+          <div class="table-responsive bg-white border rounded">
+            <table class="table table-hover align-middle mb-0 master-teachers-table">
+              <thead class="table-dark text-nowrap">
+                <tr>
+                  <th style="width: 50px;" class="text-center">#</th>
+                  <th>शिक्षक का नाम (Teacher Name)</th>
+                  <th>प्रकार (Type)</th>
+                  <th>वर्ग (Class)</th>
+                  <th>PRAN / UAN NO.</th>
+                  <th>जन्मतिथि (DOB)</th>
+                  <th>ई-शिक्षकोश ID</th>
+                  <th>खाता संख्या (Account No)</th>
+                  <th class="text-end">मूल वेतन (Basic Pay)</th>
+                  <th class="text-center" style="width: 110px;">कार्य (Actions)</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr *ngFor="let tm of getFilteredMasterTeachers(); let i = index">
+                  <td class="text-center fw-bold">{{ i + 1 }}</td>
+                  <td>
+                    <div class="fw-bold text-dark">{{ tm.teacherName }}</div>
+                    <small class="text-muted">{{ tm.schoolName }}</small>
+                  </td>
+                  <td>
+                    <span class="badge" [class.bg-primary]="tm.teacherType === 'HEAD MASTER'"
+                      [class.bg-info]="tm.teacherType.startsWith('TRE')"
+                      [class.bg-secondary]="!tm.teacherType.startsWith('TRE') && tm.teacherType !== 'HEAD MASTER'">
+                      {{ tm.teacherType || 'TRE-1' }}
+                    </span>
+                  </td>
+                  <td>
+                    <span class="badge bg-light text-dark border">{{ tm.teacherClass || '-' }}</span>
+                  </td>
+                  <td class="font-monospace small">{{ tm.pranNo || '-' }}</td>
+                  <td>{{ tm.dob || '-' }}</td>
+                  <td class="font-monospace small">{{ tm.teacherId || '-' }}</td>
+                  <td class="font-monospace small">{{ tm.accountNo || '-' }}</td>
+                  <td class="text-end fw-bold text-success fs-6">
+                    ₹ {{ formatCurrency(tm.basicPay) }}
+                  </td>
+                  <td class="text-center text-nowrap">
+                    <button class="btn btn-sm btn-outline-primary me-1" (click)="openEditMasterTeacherModal(tm)"
+                      title="Edit Teacher">
+                      <i class="fa-solid fa-pen-to-square"></i>
+                    </button>
+                    <button class="btn btn-sm btn-outline-danger" (click)="deleteMasterTeacher(tm)"
+                      title="Delete Teacher">
+                      <i class="fa-solid fa-trash"></i>
+                    </button>
+                  </td>
+                </tr>
+
+                <tr *ngIf="getFilteredMasterTeachers().length === 0">
+                  <td colspan="10" class="text-center py-5 text-muted">
+                    <i class="fa-solid fa-user-slash fa-2x mb-2 d-block"></i>
+                    No teachers found. Click <strong>"Add New Teacher"</strong> or <strong>"Load PDF Sample"</strong>
+                    above.
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+
+        </div>
+
+      </div>
+
+      <!-- ════════════════════════════════════════════════════════════════════ -->
+      <!-- TAB 3: UPLOAD DOCUMENT (ORIGINAL CODE PRESERVED)                     -->
+      <!-- ════════════════════════════════════════════════════════════════════ -->
       <div *ngIf="activeTab === 'upload'" class="dashboard-card">
         <form (ngSubmit)="onUpload()">
           <div class="row">
             <div class="col-md-8">
               <div class="form-group mb-4">
                 <label>Document Title <span class="text-danger">*</span></label>
-                <input type="text" class="form-control" [(ngModel)]="uploadTitle" name="title" placeholder="e.g., Leave Application Oct 2024" required>
+                <input type="text" class="form-control" [(ngModel)]="uploadTitle" name="title"
+                  placeholder="e.g., Leave Application Oct 2024" required>
               </div>
             </div>
             <div class="col-md-4">
@@ -78,13 +897,16 @@
 
           <div class="form-group mb-4">
             <label>Description (Optional)</label>
-            <textarea class="form-control" [(ngModel)]="uploadDesc" name="desc" rows="2" placeholder="Brief details about the document..."></textarea>
+            <textarea class="form-control" [(ngModel)]="uploadDesc" name="desc" rows="2"
+              placeholder="Brief details about the document..."></textarea>
           </div>
 
           <div class="form-group mb-4">
-            <label>Attach File <span class="text-danger">*</span> <small class="text-muted">(PDF, JPG, PNG, DOC — Max 5MB)</small></label>
+            <label>Attach File <span class="text-danger">*</span> <small class="text-muted">(PDF, JPG, PNG, DOC — Max
+                5MB)</small></label>
             <div class="file-upload-box">
-              <input type="file" #fileInput (change)="onFileSelect($event)" accept=".pdf,image/*,.doc,.docx" class="form-control" required>
+              <input type="file" #fileInput (change)="onFileSelect($event)" accept=".pdf,image/*,.doc,.docx"
+                class="form-control" required>
             </div>
           </div>
 
@@ -95,15 +917,16 @@
         </form>
       </div>
 
-      <!-- TAB 2: MY DOCS -->
+      <!-- ════════════════════════════════════════════════════════════════════ -->
+      <!-- TAB 3: MY DOCUMENTS (ORIGINAL CODE PRESERVED)                        -->
+      <!-- ════════════════════════════════════════════════════════════════════ -->
       <div *ngIf="activeTab === 'my-docs'" class="dashboard-card docs-card">
         <div *ngIf="isLoading" class="text-center py-5 text-muted">
           <i class="fa-solid fa-spinner fa-spin fa-2x mb-3"></i><br>Loading documents...
         </div>
-        
+
         <div *ngIf="!isLoading && documents.length === 0" class="empty-state">
-          <img src="assets/images/empty-folder.png" alt="No docs" onerror="this.style.display='none'">
-          <i class="fa-regular fa-folder-open fa-3x mb-3 text-muted" *ngIf="true"></i>
+          <i class="fa-regular fa-folder-open fa-3x mb-3 text-muted"></i>
           <h4>No documents found</h4>
           <p class="text-muted">You haven't uploaded any documents yet.</p>
           <button class="btn btn-outline-primary mt-3" (click)="switchTab('upload')">Upload First Document</button>
@@ -131,15 +954,28 @@
                   {{ doc.uploadedAt | date:'shortTime' }}
                 </td>
                 <td>
-                  <span class="badge" 
-                        [class.bg-warning]="doc.status === 'Pending' || !doc.status" 
-                        [class.text-dark]="doc.status === 'Pending' || !doc.status"
-                        [class.bg-success]="doc.status === 'Approved'" 
-                        [class.bg-danger]="doc.status === 'Rejected'">
+                  <span class="badge" [class.bg-warning]="doc.status === 'Pending' || !doc.status"
+                    [class.text-dark]="doc.status === 'Pending' || !doc.status"
+                    [class.bg-success]="doc.status === 'Approved'" [class.bg-danger]="doc.status === 'Rejected'">
                     {{ doc.status || 'Pending' }}
                   </span>
-                  <div *ngIf="doc.adminRemarks" class="small text-muted mt-1" style="max-width: 150px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;" [title]="doc.adminRemarks">
+                  <div *ngIf="doc.adminRemarks" class="small text-muted mt-1"
+                    style="max-width: 150px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;"
+                    [title]="doc.adminRemarks">
                     <i class="fa-solid fa-comment-dots"></i> {{ doc.adminRemarks }}
+                  </div>
+                  <!-- Official Digital Seal & Verification -->
+                  <div *ngIf="doc.actionBy?.adminName" class="verified-seal-box mt-2 p-1 px-2 rounded bg-light border"
+                    style="font-size: 0.72rem; line-height: 1.25;">
+                    <div class="text-success fw-bold">
+                      <i class="fa-solid fa-certificate me-1"></i> Certified by:
+                    </div>
+                    <div class="text-dark fw-bold">{{ doc.actionBy?.adminName }}</div>
+                    <div class="text-muted" style="font-size: 0.68rem;">{{ doc.actionBy?.adminDesignation }}</div>
+                    <div *ngIf="doc.actionBy?.signatureUrl" class="mt-1">
+                      <img [src]="doc.actionBy?.signatureUrl" alt="Official Signature"
+                        style="max-height: 28px; max-width: 75px; object-fit: contain; border-bottom: 1px solid #16a085;">
+                    </div>
                   </div>
                 </td>
                 <td>
@@ -158,28 +994,745 @@
         </div>
       </div>
 
-      <!-- TAB 3: PROFILE -->
-      <div *ngIf="activeTab === 'profile'" class="dashboard-card">
-        <div class="profile-details">
-          <div class="row border-bottom py-3">
-            <div class="col-md-4 text-muted fw-bold">Full Name</div>
-            <div class="col-md-8">{{ teacherData?.fullName || 'Not provided' }}</div>
+      <!-- ════════════════════════════════════════════════════════════════════ -->
+      <!-- TAB 4: SCHOOL & HEADMASTER PROFILE (SIGNATURE & SEAL MANAGEMENT)      -->
+      <!-- ════════════════════════════════════════════════════════════════════ -->
+      <div *ngIf="activeTab === 'profile'" class="profile-management-wrapper">
+
+        <!-- Top Header Card -->
+        <div class="dashboard-card mb-4">
+          <div class="d-flex flex-wrap justify-content-between align-items-center gap-3 pb-3 border-bottom">
+            <div>
+              <h3 class="fw-bold text-dark mb-1">
+                <i class="fa-solid fa-stamp text-primary me-2"></i>
+                School Authority Profile & Digital Endorsement
+              </h3>
+              <p class="text-muted small mb-0">
+                Manage your school authority details, Head Master / Principal information, digital signature, and
+                official school seal for automated certification on Absentee and Salary statements.
+              </p>
+            </div>
+            <div>
+              <span class="badge bg-primary fs-6 px-3 py-2">
+                <i class="fa-solid fa-school me-1"></i> UDISE: {{ teacherData?.udiseCode }}
+              </span>
+            </div>
           </div>
-          <div class="row border-bottom py-3">
-            <div class="col-md-4 text-muted fw-bold">Email Address</div>
-            <div class="col-md-8">{{ teacherData?.email }}</div>
-          </div>
-          <div class="row border-bottom py-3">
-            <div class="col-md-4 text-muted fw-bold">UDISE Code</div>
-            <div class="col-md-8"><span class="badge bg-primary">{{ teacherData?.udiseCode }}</span></div>
-          </div>
-          <div class="row py-3">
-            <div class="col-md-4 text-muted fw-bold">School Name</div>
-            <div class="col-md-8">{{ teacherData?.schoolName }}</div>
+
+          <!-- School Basic Information Strip -->
+          <div class="row g-3 my-2">
+            <div class="col-md-3 col-sm-6">
+              <div class="p-3 bg-light border rounded">
+                <small class="text-muted text-uppercase fw-bold" style="font-size: 0.7rem;">School Name</small>
+                <div class="fw-bold text-dark text-truncate" [title]="teacherData?.schoolName">{{
+                  teacherData?.schoolName }}</div>
+              </div>
+            </div>
+            <div class="col-md-3 col-sm-6">
+              <div class="p-3 bg-light border rounded">
+                <small class="text-muted text-uppercase fw-bold" style="font-size: 0.7rem;">UDISE Code</small>
+                <div class="fw-bold text-primary font-monospace">{{ teacherData?.udiseCode }}</div>
+              </div>
+            </div>
+            <div class="col-md-3 col-sm-6">
+              <div class="p-3 bg-light border rounded">
+                <small class="text-muted text-uppercase fw-bold" style="font-size: 0.7rem;">Registered Email</small>
+                <div class="fw-bold text-dark text-truncate" [title]="teacherData?.email">{{ teacherData?.email }}</div>
+              </div>
+            </div>
+            <div class="col-md-3 col-sm-6">
+              <div class="p-3 bg-light border rounded">
+                <small class="text-muted text-uppercase fw-bold" style="font-size: 0.7rem;">District / Block</small>
+                <div class="fw-bold text-dark">Mehsi, East Champaran, Bihar</div>
+              </div>
+            </div>
           </div>
         </div>
+
+        <!-- Main Settings Grid -->
+        <div class="row g-4 mb-4">
+
+          <!-- Left Column: Authority Designation & Name -->
+          <div class="col-lg-6">
+            <div class="dashboard-card h-100">
+              <h5 class="fw-bold text-dark mb-3 pb-2 border-bottom">
+                <i class="fa-solid fa-user-tie text-info me-2"></i>
+                School Authority / Headmaster Details
+              </h5>
+
+              <div class="mb-3">
+                <label class="form-label fw-bold text-dark">
+                  Head Master / Principal Full Name <span class="text-danger">*</span>
+                </label>
+                <input type="text" class="form-control" [(ngModel)]="profileForm.headmasterName"
+                  placeholder="e.g. DAYA SHANKAR PRASAD">
+                <small class="text-muted">This name will appear on official absentee reports.</small>
+              </div>
+
+              <div class="mb-3">
+                <label class="form-label fw-bold text-dark">
+                  Authority Designation / पदनाम <span class="text-danger">*</span>
+                </label>
+                <select class="form-select" [(ngModel)]="profileForm.headmasterDesignation">
+                  <option *ngFor="let des of headmasterDesignations" [value]="des">{{ des }}</option>
+                </select>
+                <small class="text-muted">Choose your current designation (Head Master, Principal, Prabhari Headmaster,
+                  etc.)</small>
+              </div>
+
+              <div class="mb-3">
+                <label class="form-label fw-bold text-dark">Account Registered Name</label>
+                <input type="text" class="form-control" [(ngModel)]="profileForm.fullName"
+                  placeholder="Teacher Account Name">
+              </div>
+
+              <div class="alert alert-info py-2 px-3 small rounded">
+                <i class="fa-solid fa-circle-info me-1"></i>
+                <strong>Note:</strong> Uploaded signature and official seal are automatically stamped on your monthly
+                <em>अनुपस्थित एवं वेतन विवरणी</em> and official teacher salary slips.
+              </div>
+            </div>
+          </div>
+
+          <!-- Right Column: Live Endorsement Preview -->
+          <div class="col-lg-6">
+            <div class="dashboard-card h-100 bg-white">
+              <h5 class="fw-bold text-dark mb-3 pb-2 border-bottom">
+                <i class="fa-solid fa-eye text-success me-2"></i>
+                Live Absentee Page Endorsement Preview
+              </h5>
+
+              <div class="endorsement-preview-box p-4 border rounded bg-light text-center">
+                <small class="text-muted text-uppercase fw-bold d-block mb-3"
+                  style="font-size: 0.72rem; letter-spacing: 0.5px;">
+                  How it appears on Bihar Govt Absentee Document:
+                </small>
+
+                <div class="preview-authority-stamp d-inline-block p-3 bg-white border rounded shadow-xs"
+                  style="min-width: 280px; max-width: 340px;">
+
+                  <div class="d-flex align-items-center justify-content-center gap-3 mb-2" style="min-height: 80px;">
+                    <!-- School Seal Preview -->
+                    <div *ngIf="profileForm.schoolSealUrl" class="seal-preview">
+                      <img [src]="profileForm.schoolSealUrl" alt="School Seal"
+                        style="max-height: 80px; max-width: 80px; object-fit: contain;">
+                    </div>
+                    <div *ngIf="!profileForm.schoolSealUrl"
+                      class="border border-2 border-dashed rounded-circle d-flex align-items-center justify-content-center text-muted"
+                      style="width: 75px; height: 75px; font-size: 0.65rem;">
+                      [विद्यालय मुहर]
+                    </div>
+
+                    <!-- Signature Preview -->
+                    <div *ngIf="profileForm.headmasterSignatureUrl" class="sig-preview">
+                      <img [src]="profileForm.headmasterSignatureUrl" alt="Signature"
+                        style="max-height: 60px; max-width: 140px; object-fit: contain;">
+                    </div>
+                    <div *ngIf="!profileForm.headmasterSignatureUrl"
+                      class="font-italic text-muted d-flex align-items-center justify-content-center"
+                      style="min-width: 110px; height: 45px; font-size: 0.75rem; border-bottom: 1px dashed #cbd5e1;">
+                      [हस्ताक्षर]
+                    </div>
+                  </div>
+
+                  <div class="signature-line mx-auto mb-2" style="border-top: 1.5px solid #1a365d; width: 100%;"></div>
+                  <div class="fw-bold text-dark fs-6">{{ profileForm.headmasterName || 'प्रधानाध्यापक का नाम' }}</div>
+                  <div class="text-primary fw-semibold small">{{ profileForm.headmasterDesignation }}</div>
+                  <small class="text-muted d-block" style="font-size: 0.78rem;">{{ profileForm.schoolName ||
+                    teacherData?.schoolName }}</small>
+                  <small class="text-secondary d-block fw-semibold" style="font-size: 0.72rem;">हस्ताक्षर एवं मुहर
+                    प्रधानाध्यापक / प्रभारी</small>
+                </div>
+              </div>
+            </div>
+          </div>
+
+        </div>
+
+        <!-- Signature & Seal Upload Panels -->
+        <div class="row g-4 mb-4">
+
+          <!-- Card A: Headmaster Digital Signature -->
+          <div class="col-md-6">
+            <div class="dashboard-card h-100">
+              <div class="d-flex justify-content-between align-items-center mb-3 pb-2 border-bottom">
+                <h5 class="fw-bold text-dark mb-0">
+                  <i class="fa-solid fa-signature text-primary me-2"></i>
+                  Headmaster Digital Signature (डिजिटल हस्ताक्षर)
+                </h5>
+                <span class="badge" [class.bg-success]="profileForm.headmasterSignatureUrl"
+                  [class.bg-secondary]="!profileForm.headmasterSignatureUrl">
+                  {{ profileForm.headmasterSignatureUrl ? 'Uploaded' : 'Not Uploaded' }}
+                </span>
+              </div>
+
+              <!-- Signature Preview Box -->
+              <div class="signature-upload-preview text-center p-3 mb-3 border rounded bg-light"
+                style="min-height: 120px; display: flex; align-items: center; justify-content: center;">
+                <div *ngIf="profileForm.headmasterSignatureUrl">
+                  <img [src]="profileForm.headmasterSignatureUrl" alt="Headmaster Signature"
+                    style="max-height: 80px; max-width: 220px; object-fit: contain;">
+                  <div class="mt-2">
+                    <button type="button" class="btn btn-sm btn-outline-danger" (click)="removeSignature()">
+                      <i class="fa-solid fa-trash me-1"></i> Remove Signature
+                    </button>
+                  </div>
+                </div>
+                <div *ngIf="!profileForm.headmasterSignatureUrl" class="text-muted">
+                  <i class="fa-solid fa-file-signature fa-2x mb-2 d-block text-secondary"></i>
+                  <span>No signature uploaded yet.</span>
+                </div>
+              </div>
+
+              <!-- Upload Input -->
+              <div class="mb-2">
+                <label class="form-label fw-bold text-dark small">Upload Signature File (PNG / JPG / WebP, max
+                  3MB)</label>
+                <input type="file" class="form-control" (change)="onSignatureFileSelect($event)"
+                  accept="image/png,image/jpeg,image/webp">
+                <small class="text-muted">Tip: A clear signature with a transparent or white background gives best print
+                  quality.</small>
+              </div>
+            </div>
+          </div>
+
+          <!-- Card B: School Official Seal / Stamp -->
+          <div class="col-md-6">
+            <div class="dashboard-card h-100">
+              <div class="d-flex justify-content-between align-items-center mb-3 pb-2 border-bottom">
+                <h5 class="fw-bold text-dark mb-0">
+                  <i class="fa-solid fa-certificate text-danger me-2"></i>
+                  School Official Seal / Stamp (विद्यालय मुहर / स्टैम्प)
+                </h5>
+                <span class="badge" [class.bg-success]="profileForm.schoolSealUrl"
+                  [class.bg-secondary]="!profileForm.schoolSealUrl">
+                  {{ profileForm.schoolSealUrl ? 'Uploaded' : 'Not Uploaded' }}
+                </span>
+              </div>
+
+              <!-- Seal Preview Box -->
+              <div class="seal-upload-preview text-center p-3 mb-3 border rounded bg-light"
+                style="min-height: 120px; display: flex; align-items: center; justify-content: center;">
+                <div *ngIf="profileForm.schoolSealUrl">
+                  <img [src]="profileForm.schoolSealUrl" alt="School Seal"
+                    style="max-height: 100px; max-width: 100px; object-fit: contain;">
+                  <div class="mt-2">
+                    <button type="button" class="btn btn-sm btn-outline-danger" (click)="removeSeal()">
+                      <i class="fa-solid fa-trash me-1"></i> Remove Seal
+                    </button>
+                  </div>
+                </div>
+                <div *ngIf="!profileForm.schoolSealUrl" class="text-muted">
+                  <i class="fa-solid fa-stamp fa-2x mb-2 d-block text-secondary"></i>
+                  <span>No school seal uploaded yet.</span>
+                </div>
+              </div>
+
+              <!-- Upload Input -->
+              <div class="mb-2">
+                <label class="form-label fw-bold text-dark small">Upload School Seal File (PNG / JPG / WebP, max
+                  3MB)</label>
+                <input type="file" class="form-control" (change)="onSealFileSelect($event)"
+                  accept="image/png,image/jpeg,image/webp">
+                <small class="text-muted">Upload the official circular or rectangular school seal/stamp
+                  impression.</small>
+              </div>
+            </div>
+          </div>
+
+        </div>
+
+        <!-- Submit Button Toolbar -->
+        <div class="d-flex justify-content-end gap-2 p-3 bg-white border rounded shadow-xs mb-4">
+          <button type="button" class="btn btn-outline-secondary" (click)="initProfileForm()">
+            <i class="fa-solid fa-rotate-left me-1"></i> Reset Changes
+          </button>
+          <button type="button" class="btn btn-success px-4" (click)="saveProfile()" [disabled]="isSavingProfile">
+            <span *ngIf="isSavingProfile"><i class="fa-solid fa-spinner fa-spin me-2"></i>Saving...</span>
+            <span *ngIf="!isSavingProfile"><i class="fa-solid fa-floppy-disk me-2"></i>Save Headmaster Profile &
+              Seal</span>
+          </button>
+        </div>
+
       </div>
 
     </div>
   </main>
+</div>
+
+<!-- ══════════════════════════════════════════════════════════════════════════ -->
+<!-- MODAL 1: MANAGE COLUMNS & RATES (User requirement: update column headings) -->
+<!-- ══════════════════════════════════════════════════════════════════════════ -->
+<div class="modal fade show" tabindex="-1" style="display: block; background: rgba(0,0,0,0.5);"
+  *ngIf="showColumnManagerModal && currentStatement">
+  <div class="modal-dialog modal-dialog-centered modal-lg">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title fw-bold text-dark">
+          <i class="fa-solid fa-sliders text-primary me-2"></i> Manage Columns & Salary Calculation Rates
+        </h5>
+        <button type="button" class="btn-close" (click)="closeColumnManager()"></button>
+      </div>
+      <div class="modal-body">
+
+        <!-- Rates Setting (DA, HRA, NPS) -->
+        <div class="card p-3 mb-4 bg-light border-0">
+          <h6 class="fw-bold text-dark mb-3"><i class="fa-solid fa-percent text-success me-1"></i> Government Allowance
+            & Deduction Rates</h6>
+          <div class="row g-3">
+            <div class="col-md-4">
+              <label class="form-label small fw-bold">DA Rate (%)</label>
+              <div class="input-group input-group-sm">
+                <input type="number" class="form-control" [(ngModel)]="daRate" min="0" max="100">
+                <span class="input-group-text">%</span>
+              </div>
+              <small class="text-muted">Currently 63% in Bihar</small>
+            </div>
+            <div class="col-md-4">
+              <label class="form-label small fw-bold">HRA Rate (%)</label>
+              <div class="input-group input-group-sm">
+                <input type="number" class="form-control" [(ngModel)]="hraRate" min="0" max="30">
+                <span class="input-group-text">%</span>
+              </div>
+              <small class="text-muted">Currently 5% in Bihar</small>
+            </div>
+            <div class="col-md-4">
+              <label class="form-label small fw-bold">NPS Deduction (%)</label>
+              <div class="input-group input-group-sm">
+                <input type="number" class="form-control" [(ngModel)]="npsRate" min="0" max="30">
+                <span class="input-group-text">% of Basic+DA</span>
+              </div>
+              <small class="text-muted">Standard 10%</small>
+            </div>
+          </div>
+        </div>
+
+        <!-- Column Headings List & Renaming -->
+        <h6 class="fw-bold text-dark mb-2"><i class="fa-solid fa-table-columns text-primary me-1"></i> Column Headings &
+          Labels (Edit as required)</h6>
+        <p class="text-muted small mb-3">You can rename any column heading. Changes are saved automatically when
+          applied.</p>
+
+        <div class="table-responsive" style="max-height: 320px; overflow-y: auto;">
+          <table class="table table-sm align-middle border">
+            <thead class="table-light">
+              <tr>
+                <th style="width: 50px;">#</th>
+                <th>Column Heading / Label</th>
+                <th>Type</th>
+                <th>Category</th>
+                <th class="text-end" style="width: 80px;">Action</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr *ngFor="let col of currentStatement.columns; let i = index">
+                <td class="text-center fw-bold">{{ i + 1 }}</td>
+                <td>
+                  <input type="text" class="form-control form-control-sm fw-semibold" [(ngModel)]="col.label">
+                </td>
+                <td>
+                  <span class="badge bg-secondary-subtle text-secondary small">{{ col.type }}</span>
+                </td>
+                <td>
+                  <span class="badge" [class.bg-success-subtle]="col.category === 'earning'"
+                    [class.text-success]="col.category === 'earning'"
+                    [class.bg-danger-subtle]="col.category === 'deduction'"
+                    [class.text-danger]="col.category === 'deduction'"
+                    [class.bg-primary-subtle]="col.category === 'summary'"
+                    [class.text-primary]="col.category === 'summary'" [class.bg-light]="col.category === 'info'"
+                    [class.text-dark]="col.category === 'info'">
+                    {{ col.category }}
+                  </span>
+                </td>
+                <td class="text-end">
+                  <button *ngIf="col.isRemovable" type="button" class="btn btn-sm btn-outline-danger py-0 px-2"
+                    (click)="deleteColumn(col)">
+                    <i class="fa-solid fa-trash"></i>
+                  </button>
+                  <span *ngIf="!col.isRemovable" class="text-muted small">Fixed</span>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-primary" (click)="closeColumnManager()">
+          Apply & Recalculate Sheet
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════════════════════════════════════ -->
+<!-- MODAL 2: ADD NEW DYNAMIC COLUMN (User requirement: increase/decrease cols)  -->
+<!-- ══════════════════════════════════════════════════════════════════════════ -->
+<div class="modal fade show" tabindex="-1" style="display: block; background: rgba(0,0,0,0.5);"
+  *ngIf="showAddColumnModal">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title fw-bold text-dark">
+          <i class="fa-solid fa-plus-circle text-primary me-2"></i> Add New Column to Absentee Sheet
+        </h5>
+        <button type="button" class="btn-close" (click)="closeAddColumnModal()"></button>
+      </div>
+      <div class="modal-body">
+        <div class="mb-3">
+          <label class="form-label fw-bold">Column Heading / Label <span class="text-danger">*</span></label>
+          <input type="text" class="form-control" [(ngModel)]="newCol.label"
+            placeholder="e.g., Special Allowance, PF No., GIS, Remarks" required>
+        </div>
+
+        <div class="row g-2 mb-3">
+          <div class="col-md-6">
+            <label class="form-label fw-bold">Data Type</label>
+            <select class="form-select" [(ngModel)]="newCol.type">
+              <option value="text">Text / String</option>
+              <option value="number">Number (Amount / Code)</option>
+              <option value="date">Date</option>
+            </select>
+          </div>
+          <div class="col-md-6">
+            <label class="form-label fw-bold">Category</label>
+            <select class="form-select" [(ngModel)]="newCol.category">
+              <option value="info">General Info</option>
+              <option value="earning">Earning (Included in Gross)</option>
+              <option value="deduction">Deduction (Included in Total Deductions)</option>
+              <option value="other">Other / Remarks</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="mb-3">
+          <label class="form-label fw-bold">Default Value (Optional)</label>
+          <input type="text" class="form-control" [(ngModel)]="newCol.defaultValue"
+            placeholder="Leave blank or enter default value">
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" (click)="closeAddColumnModal()">Cancel</button>
+        <button type="button" class="btn btn-primary" (click)="saveNewColumn()">
+          <i class="fa-solid fa-check me-1"></i> Add Column
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════════════════════════════════════ -->
+<!-- MODAL 3: INDIVIDUAL TEACHER SALARY PAY SLIP (वेतन पर्ची)                    -->
+<!-- ══════════════════════════════════════════════════════════════════════════ -->
+<div class="modal fade show" tabindex="-1" style="display: block; background: rgba(0,0,0,0.6);"
+  *ngIf="showPaySlipModal && selectedTeacherSlip && currentStatement">
+  <div class="modal-dialog modal-dialog-centered modal-lg">
+    <div class="modal-content">
+      <div class="modal-header no-print">
+        <h5 class="modal-title fw-bold text-dark">
+          <i class="fa-solid fa-file-invoice text-success me-2"></i> Teacher Salary Slip (वेतन पर्ची)
+        </h5>
+        <div class="d-flex gap-2">
+          <button class="btn btn-sm btn-outline-primary" (click)="printTeacherPaySlip()">
+            <i class="fa-solid fa-print me-1"></i> Print Pay Slip
+          </button>
+          <button type="button" class="btn-close" (click)="closePaySlipModal()"></button>
+        </div>
+      </div>
+      <div class="modal-body p-4 teacher-payslip-sheet">
+
+        <!-- School & Department Header -->
+        <div class="text-center border-bottom pb-3 mb-3">
+          <h4 class="fw-bold mb-1 text-primary">शिक्षा विभाग, बिहार सरकार / Education Department, Govt. of Bihar</h4>
+          <h5 class="fw-bold mb-1 text-dark">{{ currentStatement.schoolName || 'UHS MAHAMMADPUR MAJHAULIA' }}</h5>
+          <p class="mb-0 text-muted small">UDISE Code: <strong>{{ currentStatement.udiseCode }}</strong> &bull; Block:
+            Mehsi, East Champaran</p>
+          <div class="badge bg-primary text-white mt-2 px-3 py-1 fs-6">
+            वेतन पर्ची / SALARY SLIP FOR {{ currentStatement.month | uppercase }} {{ currentStatement.year }}
+          </div>
+        </div>
+
+        <!-- Teacher Particulars -->
+        <div class="row g-2 mb-3 p-3 bg-light rounded border">
+          <div class="col-md-6">
+            <div class="small text-muted">शिक्षक का नाम / Teacher Name:</div>
+            <strong class="fs-6 text-dark">{{ selectedTeacherSlip.teacherName }}</strong>
+          </div>
+          <div class="col-md-3">
+            <div class="small text-muted">PRAN / UAN NO:</div>
+            <strong class="text-dark">{{ selectedTeacherSlip.pranNo || 'N/A' }}</strong>
+          </div>
+          <div class="col-md-3">
+            <div class="small text-muted">शिक्षक का प्रकार / Type:</div>
+            <strong class="text-dark">{{ selectedTeacherSlip.teacherType || 'TRE-1' }}</strong>
+          </div>
+          <div class="col-md-3 mt-2">
+            <div class="small text-muted">शिक्षक का वर्ग / Class:</div>
+            <strong class="text-dark">{{ selectedTeacherSlip.teacherClass || '11-12th' }}</strong>
+          </div>
+          <div class="col-md-3 mt-2">
+            <div class="small text-muted">जन्म तिथि / Date of Birth:</div>
+            <strong class="text-dark">{{ selectedTeacherSlip.dob || 'N/A' }}</strong>
+          </div>
+          <div class="col-md-3 mt-2">
+            <div class="small text-muted">E-Shikshakosh ID:</div>
+            <strong class="text-dark">{{ selectedTeacherSlip.shikshakoshId || 'N/A' }}</strong>
+          </div>
+          <div class="col-md-3 mt-2">
+            <div class="small text-muted">खाता संख्या / Bank A/C:</div>
+            <strong class="text-dark">{{ selectedTeacherSlip.accountNo || 'N/A' }}</strong>
+          </div>
+        </div>
+
+        <!-- Earnings & Deductions Tables -->
+        <div class="row g-3 mb-3">
+          <!-- Earnings Table -->
+          <div class="col-md-6">
+            <div class="card h-100 border">
+              <div class="card-header bg-success text-white py-2 fw-bold">
+                <i class="fa-solid fa-plus-circle me-1"></i> उपलब्धियां / EARNINGS
+              </div>
+              <div class="card-body p-0">
+                <table class="table table-sm mb-0">
+                  <tbody>
+                    <tr>
+                      <td>मूल वेतन / Basic Pay</td>
+                      <td class="text-end fw-bold">₹ {{ formatCurrency(selectedTeacherSlip.basicPay) }}</td>
+                    </tr>
+                    <tr>
+                      <td>महंगाई भत्ता / DA ({{ daRate }}%)</td>
+                      <td class="text-end fw-bold">₹ {{ formatCurrency(selectedTeacherSlip.da) }}</td>
+                    </tr>
+                    <tr>
+                      <td>आवास भत्ता / HRA ({{ hraRate }}%)</td>
+                      <td class="text-end fw-bold">₹ {{ formatCurrency(selectedTeacherSlip.hra) }}</td>
+                    </tr>
+                    <tr>
+                      <td>चिकित्सा भत्ता / Medical</td>
+                      <td class="text-end fw-bold">₹ {{ formatCurrency(selectedTeacherSlip.medical) }}</td>
+                    </tr>
+                  </tbody>
+                  <tfoot class="table-light border-top">
+                    <tr class="fw-bold">
+                      <td class="text-dark">कुल उपलब्धि / GROSS SALARY</td>
+                      <td class="text-end text-success fs-6">₹ {{ formatCurrency(selectedTeacherSlip.grossSalary) }}
+                      </td>
+                    </tr>
+                  </tfoot>
+                </table>
+              </div>
+            </div>
+          </div>
+
+          <!-- Deductions Table -->
+          <div class="col-md-6">
+            <div class="card h-100 border">
+              <div class="card-header bg-danger text-white py-2 fw-bold">
+                <i class="fa-solid fa-minus-circle me-1"></i> कटौतियां / DEDUCTIONS
+              </div>
+              <div class="card-body p-0">
+                <table class="table table-sm mb-0">
+                  <tbody>
+                    <tr>
+                      <td>GPF / NPS Deduction (10%)</td>
+                      <td class="text-end fw-bold text-danger">₹ {{ formatCurrency(selectedTeacherSlip.gpfNps) }}</td>
+                    </tr>
+                    <tr>
+                      <td>GLI</td>
+                      <td class="text-end fw-bold text-danger">₹ {{ formatCurrency(selectedTeacherSlip.gli) }}</td>
+                    </tr>
+                    <tr>
+                      <td>ITR / TDS</td>
+                      <td class="text-end fw-bold text-danger">₹ {{ formatCurrency(selectedTeacherSlip.itr) }}</td>
+                    </tr>
+                  </tbody>
+                  <tfoot class="table-light border-top">
+                    <tr class="fw-bold">
+                      <td class="text-dark">कुल कटौती / TOTAL DEDUCTION</td>
+                      <td class="text-end text-danger fs-6">₹ {{ formatCurrency(selectedTeacherSlip.totalDeduction) }}
+                      </td>
+                    </tr>
+                  </tfoot>
+                </table>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Net Payment Highlight Card -->
+        <div
+          class="alert alert-success d-flex flex-wrap justify-content-between align-items-center p-3 mb-4 rounded border-success">
+          <div>
+            <div class="text-uppercase fw-bold text-success small" style="letter-spacing: 0.5px;">शुद्ध भुगतान / NET
+              PAYMENT</div>
+            <div class="fs-4 fw-bold text-dark">₹ {{ formatCurrency(selectedTeacherSlip.netPayment) }}</div>
+            <small class="text-muted">({{ numberToWords(selectedTeacherSlip.netPayment) }})</small>
+          </div>
+          <div class="text-end mt-2 mt-sm-0">
+            <span class="badge bg-success px-3 py-2 fs-6">
+              <i class="fa-solid fa-circle-check me-1"></i> Verified & Calculated
+            </span>
+          </div>
+        </div>
+
+        <!-- Pay Slip Signatures -->
+        <div class="row pt-4 text-center">
+          <div class="col-6">
+            <div class="signature-line mx-auto mb-2" style="max-width: 180px;"></div>
+            <strong>हस्ताक्षर शिक्षक</strong><br>
+            <small class="text-muted">Teacher Signature</small>
+          </div>
+          <div class="col-6">
+            <div class="d-flex align-items-center justify-content-center gap-2 mb-1"
+              *ngIf="teacherData?.headmasterSignatureUrl || teacherData?.schoolSealUrl" style="min-height: 50px;">
+              <img *ngIf="teacherData?.schoolSealUrl" [src]="teacherData?.schoolSealUrl" alt="Seal"
+                style="max-height: 50px; max-width: 50px; object-fit: contain;">
+              <img *ngIf="teacherData?.headmasterSignatureUrl" [src]="teacherData?.headmasterSignatureUrl"
+                alt="Signature" style="max-height: 45px; max-width: 100px; object-fit: contain;">
+            </div>
+            <div class="signature-line mx-auto mb-2" style="max-width: 180px;"></div>
+            <strong>हस्ताक्षर प्रधानाध्यापक</strong><br>
+            <small class="text-muted">Headmaster Signature & Stamp</small>
+          </div>
+        </div>
+
+      </div>
+      <div class="modal-footer no-print">
+        <button type="button" class="btn btn-secondary" (click)="closePaySlipModal()">Close</button>
+        <button type="button" class="btn btn-primary" (click)="printTeacherPaySlip()">
+          <i class="fa-solid fa-print me-1"></i> Print Pay Slip
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════════════════════════════════════ -->
+<!-- MODAL 4: ADD / EDIT TEACHER IN MASTER                                      -->
+<!-- ══════════════════════════════════════════════════════════════════════════ -->
+<div class="modal fade show" tabindex="-1" style="display: block; background: rgba(0,0,0,0.5);"
+  *ngIf="showTeacherMasterModal">
+  <div class="modal-dialog modal-dialog-centered modal-lg">
+    <div class="modal-content">
+      <div class="modal-header bg-light">
+        <h5 class="modal-title fw-bold text-dark">
+          <i class="fa-solid text-primary me-2" [class.fa-user-plus]="!isEditingMasterTeacher"
+            [class.fa-user-pen]="isEditingMasterTeacher"></i>
+          {{ isEditingMasterTeacher ? 'शिक्षक विवरण संपादित करें (Edit Teacher)' : 'नया शिक्षक जोड़ें (Add New Teacher
+          to Master)' }}
+        </h5>
+        <button type="button" class="btn-close" (click)="closeMasterTeacherModal()"></button>
+      </div>
+      <div class="modal-body p-4">
+
+        <div class="row g-3">
+          <!-- 1. Teacher Name -->
+          <div class="col-md-6">
+            <label class="form-label fw-bold text-dark">शिक्षक का नाम (Teacher Name) <span
+                class="text-danger">*</span></label>
+            <input type="text" class="form-control" [(ngModel)]="teacherMasterForm.teacherName"
+              placeholder="e.g. DAYA SHANKAR PRASAD" required>
+          </div>
+
+          <!-- 2. Teacher Type -->
+          <div class="col-md-3">
+            <label class="form-label fw-bold text-dark">प्रकार (Type)</label>
+            <select class="form-select" [(ngModel)]="teacherMasterForm.teacherType">
+              <option *ngFor="let opt of teacherTypeOptions" [value]="opt">{{ opt }}</option>
+            </select>
+          </div>
+
+          <!-- 3. Teacher Class -->
+          <div class="col-md-3">
+            <label class="form-label fw-bold text-dark">वर्ग (Class)</label>
+            <select class="form-select" [(ngModel)]="teacherMasterForm.teacherClass">
+              <option value="">-</option>
+              <option *ngFor="let cls of teacherClassOptions" [value]="cls">{{ cls }}</option>
+            </select>
+          </div>
+
+          <!-- 4. Basic Pay -->
+          <div class="col-md-4">
+            <label class="form-label fw-bold text-dark">मूल वेतन (Basic Pay ₹) <span
+                class="text-danger">*</span></label>
+            <input type="number" class="form-control fw-bold text-success" [(ngModel)]="teacherMasterForm.basicPay"
+              min="0" step="10" placeholder="34970">
+            <small class="text-muted">Auto computes DA ({{ daRate }}%), HRA ({{ hraRate }}%), NPS ({{ npsRate
+              }}%)</small>
+          </div>
+
+          <!-- 5. PRAN / UAN / GPF -->
+          <div class="col-md-4">
+            <label class="form-label fw-bold text-dark">PRAN / UAN / GPF Number</label>
+            <input type="text" class="form-control" [(ngModel)]="teacherMasterForm.pranNo" placeholder="110212956449">
+          </div>
+
+          <!-- 6. Date of Birth -->
+          <div class="col-md-4">
+            <label class="form-label fw-bold text-dark">जन्मतिथि (DOB: DD-MM-YYYY)</label>
+            <input type="text" class="form-control" [(ngModel)]="teacherMasterForm.dob" placeholder="25-01-1983">
+          </div>
+
+          <!-- 7. E-Shikshakosh Teacher ID -->
+          <div class="col-md-6">
+            <label class="form-label fw-bold text-dark">ई-शिक्षकोश Teacher ID</label>
+            <input type="text" class="form-control" [(ngModel)]="teacherMasterForm.teacherId" placeholder="42623074">
+          </div>
+
+          <!-- 8. Bank Account Number -->
+          <div class="col-md-6">
+            <label class="form-label fw-bold text-dark">खाता संख्या (Bank Account No.)</label>
+            <input type="text" class="form-control" [(ngModel)]="teacherMasterForm.accountNo" placeholder="39649662313">
+          </div>
+
+          <!-- Dynamic / Custom Fields Section (Increasing/Decreasing options flexibly) -->
+          <div class="col-12 mt-3 pt-3 border-top">
+            <div class="d-flex justify-content-between align-items-center mb-2">
+              <div>
+                <h6 class="fw-bold mb-0 text-dark">
+                  <i class="fa-solid fa-plus-circle text-info me-1"></i> Dynamic / Additional Attributes (अतिरिक्त
+                  फील्ड)
+                </h6>
+                <small class="text-muted">Easily add or delete dynamic options as your school requirements grow</small>
+              </div>
+              <button type="button" class="btn btn-sm btn-outline-info" (click)="addCustomFieldToTeacherForm()">
+                <i class="fa-solid fa-plus me-1"></i> Add Custom Field
+              </button>
+            </div>
+
+            <div *ngFor="let cf of teacherMasterForm.customFields; let cfIdx = index"
+              class="row g-2 mb-2 align-items-center">
+              <div class="col-5">
+                <input type="text" class="form-control form-control-sm" [(ngModel)]="cf.key"
+                  placeholder="Field Name (e.g. Mobile, Category)">
+              </div>
+              <div class="col-6">
+                <input type="text" class="form-control form-control-sm" [(ngModel)]="cf.value"
+                  placeholder="Field Value">
+              </div>
+              <div class="col-1 text-center">
+                <button type="button" class="btn btn-sm btn-outline-danger p-1"
+                  (click)="removeCustomFieldFromTeacherForm(cfIdx)" title="Remove field">
+                  <i class="fa-solid fa-xmark"></i>
+                </button>
+              </div>
+            </div>
+
+            <div *ngIf="teacherMasterForm.customFields.length === 0" class="text-muted small py-1">
+              No extra fields added. Click <em>"Add Custom Field"</em> if you need extra attributes.
+            </div>
+          </div>
+        </div>
+
+      </div>
+      <div class="modal-footer bg-light">
+        <button type="button" class="btn btn-secondary" (click)="closeMasterTeacherModal()">Cancel</button>
+        <button type="button" class="btn btn-primary" (click)="saveMasterTeacher()"
+          [disabled]="isSavingMasterTeacher || !teacherMasterForm.teacherName.trim()">
+          <i class="fa-solid fa-save me-1"></i> {{ isEditingMasterTeacher ? 'Update Teacher' : 'Save Teacher' }}
+        </button>
+      </div>
+    </div>
+  </div>
 </div>

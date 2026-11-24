@@ -35,6 +35,14 @@ export interface TeacherDocument {
   uploadedAt: string;
   status?: string;
   adminRemarks?: string;
+  actionBy?: {
+    adminId?: string;
+    adminUsername?: string;
+    adminName?: string;
+    adminDesignation?: string;
+    signatureUrl?: string;
+    actionDate?: string | Date;
+  };
 }
 
 @Injectable({
@@ -89,6 +97,21 @@ export class TeacherAuthService {
 
   deleteDocument(id: string): Observable<{ message: string }> {
     return this.http.delete<{ message: string }>(`${this.DOCS_ENDPOINT}/${id}`);
+  }
+
+  // ─── PROFILE & ENDORSEMENT (Headmaster / School Seal & Signature) ─
+  getProfile(): Observable<{ success: boolean; teacher: any }> {
+    return this.http.get<{ success: boolean; teacher: any }>(`${this.TEACHER_ENDPOINT}/profile`);
+  }
+
+  updateProfile(data: any): Observable<{ success: boolean; message: string; teacher: any }> {
+    return this.http.put<{ success: boolean; message: string; teacher: any }>(`${this.TEACHER_ENDPOINT}/profile`, data);
+  }
+
+  saveTeacherData(data: any) {
+    if (data) {
+      localStorage.setItem('teacherData', JSON.stringify(data));
+    }
   }
 
   // ─── UTILS ───────────────────────────────────────────────────────

@@ -1,35 +1,47 @@
 <div class="content-card">
   <h2>Teacher Document Requests</h2>
-  <p class="text-muted">Review, approve, or reject documents uploaded by teachers.</p>
+  <p class="text-muted">Review, approve, or reject documents uploaded by teachers. Official action attaches your digital signature to the verification record.</p>
 
-  <div class="row mb-4 stats-row">
-    <div class="col-md-3">
-      <div class="stat-card bg-primary text-white p-3 rounded">
-        <h5>Total Documents</h5>
-        <h3>{{ stats.total }}</h3>
+  <div class="row mb-4 stats-row g-3">
+    <div class="col-md-3 col-sm-6">
+      <div class="stat-card stat-blue">
+        <div class="stat-icon"><i class="fas fa-file-alt"></i></div>
+        <div class="stat-info">
+          <h4>{{ stats.total }}</h4>
+          <p>Total Documents</p>
+        </div>
       </div>
     </div>
-    <div class="col-md-3">
-      <div class="stat-card bg-warning text-dark p-3 rounded">
-        <h5>Pending</h5>
-        <h3>{{ stats.pending }}</h3>
+    <div class="col-md-3 col-sm-6">
+      <div class="stat-card stat-amber">
+        <div class="stat-icon"><i class="fas fa-clock"></i></div>
+        <div class="stat-info">
+          <h4>{{ stats.pending }}</h4>
+          <p>Pending Requests</p>
+        </div>
       </div>
     </div>
-    <div class="col-md-3">
-      <div class="stat-card bg-success text-white p-3 rounded">
-        <h5>Approved</h5>
-        <h3>{{ stats.approved }}</h3>
+    <div class="col-md-3 col-sm-6">
+      <div class="stat-card stat-emerald">
+        <div class="stat-icon"><i class="fas fa-check-circle"></i></div>
+        <div class="stat-info">
+          <h4>{{ stats.approved }}</h4>
+          <p>Approved Docs</p>
+        </div>
       </div>
     </div>
-    <div class="col-md-3">
-      <div class="stat-card bg-danger text-white p-3 rounded">
-        <h5>Rejected</h5>
-        <h3>{{ stats.rejected }}</h3>
+    <div class="col-md-3 col-sm-6">
+      <div class="stat-card stat-rose">
+        <div class="stat-icon"><i class="fas fa-times-circle"></i></div>
+        <div class="stat-info">
+          <h4>{{ stats.rejected }}</h4>
+          <p>Rejected Docs</p>
+        </div>
       </div>
     </div>
   </div>
 
-  <div class="row mb-3">
+  <div class="row g-2 mb-3 align-items-center">
     <div class="col-md-4">
       <input type="text" class="form-control" placeholder="Search by name, UDISE or title..." [(ngModel)]="searchQuery" (input)="onFilterChange()">
     </div>
@@ -40,6 +52,18 @@
         <option value="Approved">Approved</option>
         <option value="Rejected">Rejected</option>
       </select>
+    </div>
+    <div class="col-md-3">
+      <div class="datepicker-input-group">
+        <input type="text" class="form-control" placeholder="Filter by date..."
+               [(ngModel)]="dateFilter" appDatePicker (dateChange)="onFilterChange()">
+        <i class="fas fa-calendar-alt datepicker-icon"></i>
+      </div>
+    </div>
+    <div class="col-md-2" *ngIf="dateFilter">
+      <button class="btn btn-outline-secondary btn-sm" (click)="clearDateFilter()">
+        <i class="fas fa-times me-1"></i> Clear Date
+      </button>
     </div>
   </div>
 
@@ -52,7 +76,7 @@
           <th>UDISE</th>
           <th>Document Title</th>
           <th>Type</th>
-          <th>Status</th>
+          <th>Status & Verification</th>
           <th>Actions</th>
         </tr>
       </thead>
@@ -69,6 +93,16 @@
           <td>{{ doc.docType }}</td>
           <td>
             <span [class]="getStatusBadgeClass(doc.status)">{{ doc.status }}</span>
+            <div *ngIf="doc.actionBy?.adminName" class="mt-1 small" style="line-height: 1.2;">
+              <span class="text-muted" style="font-size: 0.75rem;">Signed by:</span>
+              <strong class="text-dark d-block" style="font-size: 0.78rem;">{{ doc.actionBy?.adminName }}</strong>
+              <span class="text-muted" style="font-size: 0.72rem;">{{ doc.actionBy?.adminDesignation }}</span>
+              <div *ngIf="doc.actionBy?.signatureUrl" class="mt-1">
+                <img [src]="doc.actionBy?.signatureUrl" alt="Sign" style="max-height: 24px; max-width: 60px; object-fit: contain; cursor: pointer; border-bottom: 1px dashed #059669;"
+                     (click)="zoomSignature(doc.actionBy?.signatureUrl, doc.actionBy?.adminName, doc.actionBy?.adminDesignation)"
+                     title="Click to view digital signature">
+              </div>
+            </div>
           </td>
           <td>
             <a [href]="getDocumentUrl(doc._id)" target="_blank" class="btn btn-sm btn-outline-primary me-2">
@@ -98,26 +132,71 @@
         <button type="button" class="btn-close" (click)="closeActionModal()"></button>
       </div>
       <div class="modal-body">
+        <!-- Reviewing Admin Authority Stamp Preview -->
+        <div class="alert alert-light border p-3 mb-3 d-flex align-items-center justify-content-between rounded">
+          <div>
+            <div class="text-uppercase text-muted fw-bold" style="font-size: 0.7rem; letter-spacing: 0.5px;">Reviewing Authority</div>
+            <strong class="text-dark">{{ currentAdmin?.name || currentAdmin?.username }}</strong>
+            <div class="small text-muted">{{ currentAdmin?.designation || (currentAdmin?.role === 'superadmin' ? 'Master Admin' : 'Admin') }}</div>
+          </div>
+          <div *ngIf="currentAdmin?.signature" class="text-end">
+            <small class="text-success fw-bold d-block" style="font-size: 0.68rem;">DIGITAL SEAL READY</small>
+            <img [src]="currentAdmin?.signature" alt="Digital Signature" style="max-height: 38px; max-width: 90px; object-fit: contain;">
+          </div>
+          <div *ngIf="!currentAdmin?.signature" class="badge bg-warning-subtle text-warning border border-warning small">
+            <i class="fas fa-exclamation-triangle me-1"></i> No signature set
+          </div>
+        </div>
+
         <div class="mb-3">
-          <label class="form-label">Update Status</label>
+          <label class="form-label fw-bold">Update Decision / Status</label>
           <select class="form-select" [(ngModel)]="actionStatus">
             <option value="Pending">Pending</option>
-            <option value="Approved">Approve</option>
-            <option value="Rejected">Reject</option>
+            <option value="Approved">Approve (Affix Digital Signature)</option>
+            <option value="Rejected">Reject (Affix Digital Signature)</option>
           </select>
         </div>
         <div class="mb-3">
-          <label class="form-label">Remarks / Comments to Teacher</label>
+          <label class="form-label fw-bold">Remarks / Comments to Teacher</label>
           <textarea class="form-control" rows="3" [(ngModel)]="adminRemarks" placeholder="Enter reason for rejection or approval notes..."></textarea>
-          <small class="text-muted">These remarks will be emailed to the teacher.</small>
+          <small class="text-muted">These remarks and your authorized signature seal will be emailed to the teacher.</small>
         </div>
       </div>
       <div class="modal-footer">
         <button type="button" class="btn btn-secondary" (click)="closeActionModal()" [disabled]="isSubmitting">Cancel</button>
         <button type="button" class="btn btn-primary" (click)="submitAction()" [disabled]="isSubmitting">
           <span *ngIf="isSubmitting" class="spinner-border spinner-border-sm me-1" role="status" aria-hidden="true"></span>
-          Save & Notify
+          Save Decision & Sign
         </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Modal: Zoom Signature from Table -->
+<div class="modal fade show" tabindex="-1" style="display: block; background: rgba(0,0,0,0.6);" *ngIf="previewSignatureUrl">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content border-0 shadow">
+      <div class="modal-header">
+        <h5 class="modal-title">
+          <i class="fas fa-certificate text-success me-2"></i> Verified Digital Signature
+        </h5>
+        <button type="button" class="btn-close" (click)="closeZoomSignature()"></button>
+      </div>
+      <div class="modal-body text-center p-4">
+        <div class="p-4 border rounded bg-light">
+          <img [src]="previewSignatureUrl" alt="Enlarged Signature" class="img-fluid" style="max-height: 160px; object-fit: contain;">
+          <div class="mt-3 pt-3 border-top">
+            <h5 class="mb-1 text-dark">{{ previewSignerName }}</h5>
+            <p class="text-muted mb-0 small">{{ previewSignerRole }}</p>
+            <div class="badge bg-success text-white mt-2">
+              <i class="fas fa-check-double me-1"></i> Officially Certified & Digitally Signed
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" (click)="closeZoomSignature()">Close</button>
       </div>
     </div>
   </div>

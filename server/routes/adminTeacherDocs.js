@@ -1,6 +1,6 @@
 const express = require('express');
 const router = express.Router();
-const { TeacherDocument, Teacher } = require('../models');
+const { TeacherDocument, Teacher, Admin } = require('../models');
 const { authenticateToken } = require('../middleware/auth');
 const { sendDocumentStatusEmail } = require('../utils/mailer');
 
@@ -25,7 +25,7 @@ router.get('/', authenticateToken, async (req, res) => {
 });
 
 // @route   PUT /api/admin-teacher-docs/:id/status
-// @desc    Update teacher document status and send email
+// @desc    Update teacher document status and attach reviewer digital signature
 // @access  Private (Admin)
 router.put('/:id/status', authenticateToken, async (req, res) => {
   try {
@@ -40,23 +40,40 @@ router.put('/:id/status', authenticateToken, async (req, res) => {
       return res.status(404).json({ message: 'Document not found' });
     }
 
+    // Fetch the acting admin details to capture signature and identity
+    const admin = await Admin.findById(req.user.id);
+
     doc.status = status;
     if (adminRemarks !== undefined) {
       doc.adminRemarks = adminRemarks;
     }
+
+    // Attach digital signature and reviewer details
+    doc.actionBy = {
+      adminId: admin ? admin._id : req.user.id,
+      adminUsername: admin ? admin.username : req.user.username,
+      adminName: (admin && admin.name) ? admin.name : (req.user.username || 'Administrator'),
+      adminDesignation: (admin && admin.designation) ? admin.designation : (req.user.role === 'superadmin' ? 'Master Admin' : 'Admin'),
+      signatureUrl: (admin && admin.signature) ? admin.signature : '',
+      actionDate: new Date()
+    };
+
     await doc.save();
 
     // Fetch the teacher details to send email
     const teacher = await Teacher.findOne({ udiseCode: doc.udiseCode });
     if (teacher && teacher.email) {
-      // Send notification email
+      // Send notification email with signature stamp
       try {
         await sendDocumentStatusEmail(
           teacher.email, 
           teacher.fullName || teacher.udiseCode, 
           doc.title, 
           status, 
-          adminRemarks
+          adminRemarks,
+          doc.actionBy.adminName,
+          doc.actionBy.adminDesignation,
+          doc.actionBy.signatureUrl
         );
       } catch (mailError) {
         console.error('Error sending document status email:', mailError);

@@ -1,0 +1,563 @@
+<div class="content-card admin-management-wrapper">
+  <!-- Alerts -->
+  <div *ngIf="successMessage" class="alert alert-success alert-dismissible fade show shadow-sm" role="alert">
+    <i class="fas fa-check-circle me-2"></i> {{ successMessage }}
+  </div>
+  <div *ngIf="errorMessage" class="alert alert-danger alert-dismissible fade show shadow-sm" role="alert">
+    <i class="fas fa-exclamation-circle me-2"></i> {{ errorMessage }}
+  </div>
+
+  <!-- Non-Master Admin Access Notice (Master Admin only view protection) -->
+  <div *ngIf="!isMasterAdmin" class="card border-0 shadow-sm p-4 text-center my-4">
+    <div class="my-3 text-warning">
+      <i class="fas fa-shield-halved fa-4x mb-3 text-secondary"></i>
+      <h3 class="fw-bold text-dark">Master Administrator Restricted Area</h3>
+      <p class="text-muted max-w-600 mx-auto">
+        Only the <strong>Master Administrator</strong> holds exclusive authority power to view, create, update, configure page-wise access, or delete administrator accounts.
+      </p>
+    </div>
+  </div>
+
+  <!-- Master Admin Dashboard Content -->
+  <ng-container *ngIf="isMasterAdmin">
+    <!-- Header Banner -->
+    <div class="d-flex flex-wrap align-items-center justify-content-between pb-3 mb-4 border-bottom gap-3">
+      <div>
+        <div class="d-flex align-items-center gap-2 flex-wrap">
+          <h2 class="mb-0 text-dark fw-bold">Admin Management & Access Control</h2>
+          <span class="badge bg-warning text-dark px-3 py-2 fs-6 fw-bold border border-warning shadow-xs">
+            <i class="fas fa-crown me-1 text-primary"></i> Master Administrator Authority
+          </span>
+        </div>
+        <p class="text-muted mb-0 mt-1">
+          Exclusive master console to add, update, configure page-wise permissions, and delete sub-administrators with email OTP verification.
+        </p>
+      </div>
+
+      <div>
+        <button class="btn btn-primary px-4 py-2 shadow-sm d-flex align-items-center gap-2" (click)="openCreateModal()">
+          <i class="fas fa-user-plus"></i>
+          <span>Add Sub-Admin</span>
+        </button>
+      </div>
+    </div>
+
+    <!-- Stats Row -->
+    <div class="row g-3 mb-4">
+      <div class="col-md-3 col-sm-6">
+        <div class="stat-box stat-primary">
+          <div class="stat-icon"><i class="fas fa-users-cog"></i></div>
+          <div>
+            <div class="stat-number">{{ stats.total }}</div>
+            <div class="stat-label">Total Administrators</div>
+          </div>
+        </div>
+      </div>
+      <div class="col-md-3 col-sm-6">
+        <div class="stat-box stat-warning">
+          <div class="stat-icon"><i class="fas fa-crown"></i></div>
+          <div>
+            <div class="stat-number">{{ stats.masterAdmins }}</div>
+            <div class="stat-label">Master Admins</div>
+          </div>
+        </div>
+      </div>
+      <div class="col-md-3 col-sm-6">
+        <div class="stat-box stat-info">
+          <div class="stat-icon"><i class="fas fa-user-tie"></i></div>
+          <div>
+            <div class="stat-number">{{ stats.subAdmins }}</div>
+            <div class="stat-label">Sub-Admins</div>
+          </div>
+        </div>
+      </div>
+      <div class="col-md-3 col-sm-6">
+        <div class="stat-box stat-success">
+          <div class="stat-icon"><i class="fas fa-check-double"></i></div>
+          <div>
+            <div class="stat-number">{{ stats.activeAdmins }}</div>
+            <div class="stat-label">Active Accounts</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Section 1: Administrator Directory Table -->
+    <div class="card mb-4 shadow-sm border-0 directory-card">
+      <div class="card-header bg-white py-3 border-bottom d-flex flex-wrap justify-content-between align-items-center gap-3">
+        <div>
+          <h5 class="mb-0 fw-bold text-dark">
+            <i class="fas fa-users text-primary me-2"></i> Authorized Administrators & Page Access Directory
+          </h5>
+          <small class="text-muted">Master control panel: Only the Master Administrator can view, edit, or delete these records.</small>
+        </div>
+        <div class="d-flex flex-wrap align-items-center gap-2">
+          <div class="search-box">
+            <input type="text" class="form-control form-control-sm" placeholder="Search name, email, username..." [(ngModel)]="searchQuery" (input)="onFilterChange()">
+          </div>
+          <select class="form-select form-select-sm w-auto" [(ngModel)]="roleFilter" (change)="onFilterChange()">
+            <option value="">All Roles</option>
+            <option value="superadmin">Master Admin</option>
+            <option value="admin">Sub-Admin</option>
+          </select>
+          <select class="form-select form-select-sm w-auto" [(ngModel)]="statusFilter" (change)="onFilterChange()">
+            <option value="">All Statuses</option>
+            <option value="true">Active</option>
+            <option value="false">Inactive</option>
+          </select>
+          <button *ngIf="stats.subAdmins > 0" class="btn btn-outline-danger btn-sm fw-semibold" (click)="deleteAllSubAdmins()" title="Permanently delete all sub-admin accounts">
+            <i class="fas fa-trash-alt me-1"></i> Delete All Sub-Admins
+          </button>
+        </div>
+      </div>
+
+      <div class="card-body p-0">
+        <div class="table-responsive">
+          <table class="table table-hover align-middle mb-0 custom-admin-table">
+            <thead class="table-light">
+              <tr>
+                <th>Administrator</th>
+                <th>Verified Email</th>
+                <th>Designation & Contact</th>
+                <th>Authority Role</th>
+                <th>Page-Wise Access</th>
+                <th>Digital Signature</th>
+                <th>Status</th>
+                <th class="text-end pe-4">Master Actions</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr *ngFor="let admin of filteredAdmins" [class.table-warning-subtle]="admin.role === 'superadmin'">
+                <td>
+                  <div class="d-flex align-items-center">
+                    <div class="admin-avatar me-3" [class.master-avatar]="admin.role === 'superadmin'">
+                      <i class="fas" [class.fa-crown]="admin.role === 'superadmin'" [class.fa-user-shield]="admin.role !== 'superadmin'"></i>
+                    </div>
+                    <div>
+                      <div class="fw-bold text-dark">{{ admin.name || 'Admin User' }}</div>
+                      <small class="text-muted">&#64;{{ admin.username }}</small>
+                    </div>
+                  </div>
+                </td>
+                <td>
+                  <div *ngIf="admin.email" class="email-badge-cell">
+                    <span class="text-dark small fw-medium">{{ admin.email }}</span>
+                    <span *ngIf="admin.isEmailVerified !== false" class="badge bg-success-subtle text-success border border-success ms-1 small" title="Email OTP Verified">
+                      <i class="fas fa-check-circle"></i> Verified
+                    </span>
+                  </div>
+                  <span *ngIf="!admin.email" class="text-muted small fst-italic">No email</span>
+                </td>
+                <td>
+                  <div class="fw-semibold text-dark small">{{ admin.designation || 'Administrator' }}</div>
+                  <div *ngIf="admin.contactNumber" class="text-muted small">
+                    <i class="fas fa-phone-alt me-1"></i> {{ admin.contactNumber }}
+                  </div>
+                </td>
+                <td>
+                  <span *ngIf="admin.role === 'superadmin'" class="badge bg-warning text-dark border border-warning px-2 py-1">
+                    <i class="fas fa-crown me-1"></i> Master Admin
+                  </span>
+                  <span *ngIf="admin.role !== 'superadmin'" class="badge bg-primary text-white px-2 py-1">
+                    <i class="fas fa-shield-alt me-1"></i> Sub-Admin
+                  </span>
+                </td>
+                <td>
+                  <!-- Page access tags -->
+                  <div *ngIf="admin.role === 'superadmin'" class="text-success small fw-bold">
+                    <i class="fas fa-infinity me-1"></i> Full Access (All Pages)
+                  </div>
+                  <div *ngIf="admin.role !== 'superadmin'" class="pages-chip-container">
+                    <span class="badge bg-secondary-subtle text-primary border border-primary-subtle fw-semibold" [title]="admin.allowedPages?.join(', ') || 'teacher-docs'">
+                      <i class="fas fa-layer-group me-1"></i> {{ admin.allowedPages?.length || 1 }} Pages Permitted
+                    </span>
+                  </div>
+                </td>
+                <td>
+                  <div *ngIf="admin.signature" class="signature-cell" (click)="openZoomSignature(admin)" title="Click to enlarge signature">
+                    <img [src]="admin.signature" alt="Digital Signature" class="signature-thumbnail">
+                    <i class="fas fa-search-plus zoom-icon"></i>
+                  </div>
+                  <div *ngIf="!admin.signature" class="text-muted small fst-italic">
+                    <i class="fas fa-pen-nib text-secondary me-1"></i> None
+                  </div>
+                </td>
+                <td>
+                  <span class="badge" [class.bg-success]="admin.isActive !== false" [class.bg-secondary]="admin.isActive === false">
+                    {{ admin.isActive !== false ? 'Active' : 'Inactive' }}
+                  </span>
+                </td>
+                <td class="text-end pe-4">
+                  <div class="btn-group btn-group-sm">
+                    <button class="btn btn-outline-primary" (click)="openEditModal(admin)" title="Edit Sub-Admin & Page Access">
+                      <i class="fas fa-edit"></i>
+                    </button>
+                    <button class="btn btn-outline-warning" (click)="toggleAdminStatus(admin)" [title]="admin.isActive !== false ? 'Deactivate' : 'Activate'">
+                      <i class="fas" [class.fa-ban]="admin.isActive !== false" [class.fa-check]="admin.isActive === false"></i>
+                    </button>
+                    <button class="btn btn-outline-danger" (click)="deleteAdmin(admin)" title="Delete Sub-Admin" [disabled]="!canDeleteAdmin(admin)">
+                      <i class="fas fa-trash-alt"></i>
+                    </button>
+                  </div>
+                </td>
+              </tr>
+              <tr *ngIf="filteredAdmins.length === 0">
+                <td colspan="8" class="text-center py-4 text-muted">
+                  <i class="fas fa-users-slash fa-2x mb-2 d-block"></i>
+                  No administrator records found matching your filter criteria.
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </ng-container>
+
+  <!-- Section 2: Personal Profile & Digital Signature Configuration -->
+  <div class="card shadow-sm border-0 my-profile-card mt-4">
+    <div class="card-header bg-white py-3 border-bottom">
+      <h5 class="mb-0 fw-bold text-dark">
+        <i class="fas fa-user-edit text-success me-2"></i> My Profile & Digital Signature Stamp
+      </h5>
+      <small class="text-muted">
+        Configure your official details and signature. When you review, approve, or reject teacher documents, your signature stamp and designation will be officially embedded on the document.
+      </small>
+    </div>
+    <div class="card-body">
+      <div class="row g-4">
+        <!-- Profile Inputs -->
+        <div class="col-lg-6">
+          <div class="mb-3">
+            <label class="form-label fw-bold">Full Name</label>
+            <input type="text" class="form-control" [(ngModel)]="profileForm.name" placeholder="e.g. Dr. Rajesh Sharma">
+          </div>
+          <div class="mb-3">
+            <label class="form-label fw-bold">Email Address</label>
+            <input type="email" class="form-control" [(ngModel)]="profileForm.email" [disabled]="true" placeholder="Official Email">
+            <small class="text-muted">Email address associated with this administrator account.</small>
+          </div>
+          <div class="mb-3">
+            <label class="form-label fw-bold">Designation</label>
+            <input type="text" class="form-control" [(ngModel)]="profileForm.designation" placeholder="e.g. Block Education Officer / CRC Coordinator">
+          </div>
+          <div class="mb-3">
+            <label class="form-label fw-bold">Contact Number</label>
+            <input type="tel" class="form-control" [(ngModel)]="profileForm.contactNumber" placeholder="e.g. 9876543210">
+          </div>
+          <div class="mb-3">
+            <label class="form-label fw-bold">Change Password <small class="text-muted fw-normal">(Leave blank to keep current)</small></label>
+            <input type="password" class="form-control" [(ngModel)]="profileForm.password" placeholder="Enter new password if updating">
+          </div>
+        </div>
+
+        <!-- Digital Signature Canvas & Upload -->
+        <div class="col-lg-6">
+          <label class="form-label fw-bold d-flex justify-content-between align-items-center">
+            <span>Official Digital Signature</span>
+            <small class="text-muted">Sign with mouse / touch or upload image</small>
+          </label>
+
+          <div class="signature-canvas-container mb-2">
+            <canvas #signatureCanvas
+                    (mousedown)="startDrawing($event, false)"
+                    (mousemove)="draw($event, false)"
+                    (mouseup)="stopDrawing(false)"
+                    (mouseleave)="stopDrawing(false)"
+                    (touchstart)="startDrawing($event, false)"
+                    (touchmove)="draw($event, false)"
+                    (touchend)="stopDrawing(false)">
+            </canvas>
+            <div class="canvas-watermark">Draw Signature Here</div>
+          </div>
+
+          <div class="d-flex flex-wrap gap-2 mb-3 align-items-center">
+            <button type="button" class="btn btn-sm btn-outline-secondary" (click)="clearCanvas(false)">
+              <i class="fas fa-eraser me-1"></i> Clear Canvas
+            </button>
+            <label class="btn btn-sm btn-outline-primary mb-0 cursor-pointer">
+              <i class="fas fa-file-image me-1"></i> Upload Signature Image
+              <input type="file" (change)="onSignatureFileSelected($event, false)" accept="image/*" class="d-none">
+            </label>
+          </div>
+
+          <!-- Signature Preview Box -->
+          <div class="signature-preview-box p-3 rounded" *ngIf="profileForm.signaturePreview">
+            <div class="small fw-bold text-success mb-2">
+              <i class="fas fa-check-circle me-1"></i> Authorized Signature Preview Stamp
+            </div>
+            <div class="stamp-border text-center p-2">
+              <img [src]="profileForm.signaturePreview" alt="Signature Preview" class="img-fluid" style="max-height: 80px; object-fit: contain;">
+              <div class="stamp-meta mt-1">
+                <strong>{{ profileForm.name || currentAdmin?.username }}</strong> &bull; {{ profileForm.designation || 'Administrator' }}
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="border-top pt-3 mt-4 text-end">
+        <button class="btn btn-success px-4 py-2" (click)="saveProfile()" [disabled]="isLoading">
+          <span *ngIf="isLoading" class="spinner-border spinner-border-sm me-1"></span>
+          <i *ngIf="!isLoading" class="fas fa-save me-1"></i> Save Profile & Digital Signature
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Modal: Add / Edit Sub-Admin User with Email OTP Verification & Page Access -->
+<div class="modal fade show" tabindex="-1" style="display: block; background: rgba(0,0,0,0.6);" *ngIf="showModal">
+  <div class="modal-dialog modal-xl modal-dialog-centered modal-dialog-scrollable">
+    <div class="modal-content border-0 shadow-lg">
+      <div class="modal-header bg-primary text-white">
+        <h5 class="modal-title d-flex align-items-center gap-2">
+          <i class="fas" [class.fa-user-plus]="modalMode === 'create'" [class.fa-user-edit]="modalMode === 'edit'"></i>
+          <span>{{ modalMode === 'create' ? 'Create & Verify Sub-Administrator' : 'Edit Sub-Admin Details & Page Access' }}</span>
+        </h5>
+        <button type="button" class="btn-close btn-close-white" (click)="closeModal()"></button>
+      </div>
+
+      <div class="modal-body p-4">
+        <!-- STEP 1: Email Address & Verification (Always top priority during create) -->
+        <div class="p-3 rounded border bg-light mb-4">
+          <div class="d-flex justify-content-between align-items-center mb-2">
+            <label class="form-label fw-bold mb-0 text-dark">
+              <i class="fas fa-envelope-open-text text-primary me-1"></i>
+              Sub-Admin Email Address <span class="text-danger">*</span>
+              <span class="badge bg-danger ms-1" *ngIf="!isEmailVerified">Verification Required</span>
+              <span class="badge bg-success ms-1" *ngIf="isEmailVerified"><i class="fas fa-check-circle me-1"></i> Verified</span>
+            </label>
+            <span *ngIf="modalMode === 'create' && !isEmailVerified" class="badge bg-warning text-dark">
+              Step 1: Verify Email
+            </span>
+            <span *ngIf="modalMode === 'create' && isEmailVerified" class="badge bg-success">
+              Step 1: Complete
+            </span>
+          </div>
+
+          <div class="input-group">
+            <span class="input-group-text"><i class="fas fa-envelope"></i></span>
+            <input type="email" class="form-control" [(ngModel)]="adminForm.email" placeholder="subadmin@example.com"
+                   [disabled]="(modalMode === 'create' && isEmailVerified)">
+            <button *ngIf="modalMode === 'create' && !isEmailVerified" type="button" class="btn btn-warning fw-bold px-3"
+                    (click)="sendVerificationOtp()" [disabled]="isSendingOtp || otpCountdown > 0">
+              <span *ngIf="isSendingOtp" class="spinner-border spinner-border-sm me-1"></span>
+              <i *ngIf="!isSendingOtp" class="fas fa-paper-plane me-1"></i>
+              {{ otpCountdown > 0 ? 'Resend in ' + otpCountdown + 's' : (otpSent ? 'Resend OTP' : 'Send Verification OTP') }}
+            </button>
+          </div>
+
+          <!-- OTP Alert Messages (NO dev OTP display) -->
+          <div *ngIf="otpSuccessMessage" class="alert alert-success py-2 px-3 mt-2 mb-0 small">
+            <i class="fas fa-check-circle me-1"></i> {{ otpSuccessMessage }}
+          </div>
+          <div *ngIf="otpErrorMessage" class="alert alert-danger py-2 px-3 mt-2 mb-0 small">
+            <i class="fas fa-exclamation-triangle me-1"></i> {{ otpErrorMessage }}
+          </div>
+
+          <!-- OTP Code Input & Small Verify Button (Visible during Create until verified) -->
+          <div *ngIf="modalMode === 'create' && !isEmailVerified && otpSent" class="mt-3 p-3 bg-white border rounded shadow-xs">
+            <label class="form-label fw-bold small text-dark mb-1">
+              Enter 6-Digit Email Verification Code <span class="text-danger">*</span>
+            </label>
+            <div class="d-flex align-items-center gap-2">
+              <input type="text" maxlength="6" class="form-control otp-input fw-bold text-center"
+                     [(ngModel)]="adminForm.otp" placeholder="••••••" style="max-width: 180px; font-size: 1.25rem;">
+              <button type="button" class="btn btn-success btn-sm px-3 py-2 fw-bold d-flex align-items-center gap-1 shadow-xs"
+                      (click)="verifySubAdminOtp()" [disabled]="!adminForm.otp || adminForm.otp.length < 6 || isVerifyingOtp">
+                <span *ngIf="isVerifyingOtp" class="spinner-border spinner-border-sm"></span>
+                <i *ngIf="!isVerifyingOtp" class="fas fa-check-circle"></i>
+                <span>Verify OTP</span>
+              </button>
+              <span class="text-muted small ms-2">Check email inbox for code</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Lock/Unlock Notification -->
+        <div *ngIf="modalMode === 'create' && !isEmailVerified" class="alert alert-warning py-2 px-3 mb-3 d-flex align-items-center gap-2">
+          <i class="fas fa-lock text-warning fs-5"></i>
+          <span class="small">
+            <strong>Account Details Disabled:</strong> Please enter the sub-admin's email, send OTP, and click <strong>Verify OTP</strong>. All account fields below will automatically enable once verified.
+          </span>
+        </div>
+
+        <div *ngIf="modalMode === 'create' && isEmailVerified" class="alert alert-success py-2 px-3 mb-3 d-flex align-items-center gap-2">
+          <i class="fas fa-check-double text-success fs-5"></i>
+          <span class="small">
+            <strong>Email Verified!</strong> All sub-admin details, page permissions, and digital signature fields are now enabled. Please fill in the details below.
+          </span>
+        </div>
+
+        <!-- STEP 2: Sub-Admin Details (Disabled until OTP verified in create mode) -->
+        <div class="row g-3" [class.opacity-50]="modalMode === 'create' && !isEmailVerified"
+             [style.pointer-events]="(modalMode === 'create' && !isEmailVerified) ? 'none' : 'auto'">
+          <!-- Username & Password -->
+          <div class="col-md-6">
+            <label class="form-label fw-bold">Username <span class="text-danger">*</span></label>
+            <input type="text" class="form-control" [(ngModel)]="adminForm.username"
+                   [disabled]="modalMode === 'edit' || (modalMode === 'create' && !isEmailVerified)" placeholder="Unique sub-admin username">
+          </div>
+
+          <div class="col-md-6">
+            <label class="form-label fw-bold">
+              {{ modalMode === 'create' ? 'Password *' : 'Reset Password (optional)' }}
+            </label>
+            <input type="password" class="form-control" [(ngModel)]="adminForm.password"
+                   [disabled]="modalMode === 'create' && !isEmailVerified"
+                   placeholder="{{ modalMode === 'create' ? 'Account login password' : 'Leave blank to keep unchanged' }}">
+          </div>
+
+          <!-- Full Name & Contact -->
+          <div class="col-md-6">
+            <label class="form-label fw-bold">Full Name</label>
+            <input type="text" class="form-control" [(ngModel)]="adminForm.name"
+                   [disabled]="modalMode === 'create' && !isEmailVerified" placeholder="Official full name">
+          </div>
+          <div class="col-md-6">
+            <label class="form-label fw-bold">Contact Number</label>
+            <input type="tel" class="form-control" [(ngModel)]="adminForm.contactNumber"
+                   [disabled]="modalMode === 'create' && !isEmailVerified" placeholder="Mobile / Phone number">
+          </div>
+
+          <!-- Designation & Role -->
+          <div class="col-md-6">
+            <label class="form-label fw-bold">Designation</label>
+            <input type="text" class="form-control" [(ngModel)]="adminForm.designation"
+                   [disabled]="modalMode === 'create' && !isEmailVerified" placeholder="e.g. CRC Officer / Academic Coordinator">
+          </div>
+          <div class="col-md-6">
+            <label class="form-label fw-bold">Account Authority Role</label>
+            <select class="form-select" [(ngModel)]="adminForm.role" [disabled]="modalMode === 'create' && !isEmailVerified">
+              <option value="admin">Sub-Admin (Page-restricted access)</option>
+              <option value="superadmin">Master Admin (Full master authority)</option>
+            </select>
+          </div>
+
+          <!-- Status toggle -->
+          <div class="col-12">
+            <div class="form-check form-switch">
+              <input class="form-check-input" type="checkbox" id="isActiveSubAdmin" [(ngModel)]="adminForm.isActive"
+                     [disabled]="modalMode === 'create' && !isEmailVerified">
+              <label class="form-check-label fw-bold" for="isActiveSubAdmin">Permit Account to Log In (Active)</label>
+            </div>
+          </div>
+
+          <!-- PAGE-WISE ACCESS CONTROL SECTION -->
+          <div class="col-12 mt-3" *ngIf="adminForm.role !== 'superadmin'">
+            <div class="card border border-primary-subtle bg-light shadow-2xs">
+              <div class="card-header bg-white py-2 px-3 d-flex flex-wrap justify-content-between align-items-center">
+                <div>
+                  <span class="fw-bold text-dark"><i class="fas fa-key text-primary me-2"></i> Page-Wise Access Permissions</span>
+                  <small class="text-muted d-block">Select which dashboard pages this sub-administrator is permitted to view & operate.</small>
+                </div>
+                <div class="btn-group btn-group-sm">
+                  <button type="button" class="btn btn-outline-primary" (click)="selectAllPages()"
+                          [disabled]="modalMode === 'create' && !isEmailVerified">Select All</button>
+                  <button type="button" class="btn btn-outline-secondary" (click)="clearAllPages()"
+                          [disabled]="modalMode === 'create' && !isEmailVerified">Reset</button>
+                </div>
+              </div>
+              <div class="card-body p-3">
+                <div class="row g-2">
+                  <div class="col-md-4 col-sm-6" *ngFor="let page of availablePages">
+                    <div class="permission-card p-2 rounded border" [class.selected]="isPageSelected(page.id)"
+                         (click)="(modalMode !== 'create' || isEmailVerified) && togglePageAccess(page.id)">
+                      <div class="form-check mb-0">
+                        <input class="form-check-input" type="checkbox" [checked]="isPageSelected(page.id)"
+                               [disabled]="modalMode === 'create' && !isEmailVerified"
+                               (change)="togglePageAccess(page.id)" (click)="$event.stopPropagation()">
+                        <label class="form-check-label fw-bold ms-1 text-dark cursor-pointer">
+                          <i [class]="page.icon + ' text-primary me-1'"></i> {{ page.label }}
+                        </label>
+                      </div>
+                      <small class="text-muted d-block ps-4" style="font-size: 0.72rem;">{{ page.desc }}</small>
+                    </div>
+                  </div>
+                </div>
+                <div *ngIf="adminForm.allowedPages.length === 0" class="text-danger small mt-2">
+                  <i class="fas fa-exclamation-circle me-1"></i> Please select at least one page for this sub-admin.
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Digital Signature for Sub-Admin -->
+          <div class="col-12 mt-3">
+            <label class="form-label fw-bold d-flex justify-content-between align-items-center">
+              <span>Digital Signature for this Sub-Admin</span>
+              <small class="text-muted">Sign on pad or upload transparent signature image</small>
+            </label>
+            <div class="signature-canvas-container mb-2">
+              <canvas #modalSignatureCanvas
+                      (mousedown)="startDrawing($event, true)"
+                      (mousemove)="draw($event, true)"
+                      (mouseup)="stopDrawing(true)"
+                      (mouseleave)="stopDrawing(true)"
+                      (touchstart)="startDrawing($event, true)"
+                      (touchmove)="draw($event, true)"
+                      (touchend)="stopDrawing(true)">
+              </canvas>
+              <div class="canvas-watermark">Draw Signature Here</div>
+            </div>
+            <div class="d-flex flex-wrap gap-2 mb-2 align-items-center">
+              <button type="button" class="btn btn-sm btn-outline-secondary" (click)="clearCanvas(true)"
+                      [disabled]="modalMode === 'create' && !isEmailVerified">
+                <i class="fas fa-eraser me-1"></i> Clear Canvas
+              </button>
+              <label class="btn btn-sm btn-outline-primary mb-0 cursor-pointer"
+                     [class.disabled]="modalMode === 'create' && !isEmailVerified">
+                <i class="fas fa-file-image me-1"></i> Upload Signature Image
+                <input type="file" (change)="onSignatureFileSelected($event, true)" accept="image/*" class="d-none"
+                       [disabled]="modalMode === 'create' && !isEmailVerified">
+              </label>
+            </div>
+
+            <div class="signature-preview-box p-2 text-center" *ngIf="adminForm.signaturePreview">
+              <img [src]="adminForm.signaturePreview" alt="Preview" style="max-height: 60px; object-fit: contain;">
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="modal-footer bg-light">
+        <button type="button" class="btn btn-secondary" (click)="closeModal()" [disabled]="isSavingAdmin">Cancel</button>
+        <button type="button" class="btn btn-primary px-4 fw-bold shadow-sm" (click)="submitAdminForm()"
+                [disabled]="isSavingAdmin || (modalMode === 'create' && !isEmailVerified)">
+          <span *ngIf="isSavingAdmin" class="spinner-border spinner-border-sm me-1"></span>
+          {{ modalMode === 'create' ? 'Create Sub-Admin User' : 'Save Changes & Permissions' }}
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Modal: Zoom / View Signature -->
+<div class="modal fade show" tabindex="-1" style="display: block; background: rgba(0,0,0,0.6);" *ngIf="zoomSignatureUrl">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content border-0 shadow">
+      <div class="modal-header">
+        <h5 class="modal-title">
+          <i class="fas fa-signature text-primary me-2"></i> Verified Digital Signature Stamp
+        </h5>
+        <button type="button" class="btn-close" (click)="closeZoomSignature()"></button>
+      </div>
+      <div class="modal-body text-center p-4">
+        <div class="zoom-stamp-box p-4 border rounded bg-light">
+          <img [src]="zoomSignatureUrl" alt="Enlarged Signature" class="img-fluid" style="max-height: 180px; object-fit: contain;">
+          <div class="mt-3 pt-3 border-top">
+            <h5 class="mb-1 text-dark">{{ zoomAdminName }}</h5>
+            <p class="text-muted mb-0 small">{{ zoomAdminDesignation }}</p>
+            <div class="badge bg-success-subtle text-success border border-success mt-2">
+              <i class="fas fa-certificate me-1"></i> Official BRC Authorized Digital Signature
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" (click)="closeZoomSignature()">Close</button>
+      </div>
+    </div>
+  </div>
+</div>

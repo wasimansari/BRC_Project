@@ -45,6 +45,7 @@ const trainingSchema = new mongoose.Schema({
   category: { type: String }, // e.g. Academic, Digital, etc.
   fromDate: { type: Date },
   toDate: { type: Date },
+  expireDate: { type: Date },
   thumbnailUrl: { type: String },
   thumbnailPublicId: { type: String },
   documentUrl: { type: String },
@@ -68,7 +69,24 @@ const courseSchema = new mongoose.Schema({
 const adminSchema = new mongoose.Schema({
   username: { type: String, required: true, unique: true },
   password: { type: String, required: true },
-  role: { type: String, enum: ['superadmin', 'admin'], default: 'admin' }
+  role: { type: String, enum: ['superadmin', 'admin'], default: 'admin' },
+  name: { type: String, default: '' },
+  email: { type: String, default: '', lowercase: true, trim: true },
+  contactNumber: { type: String, default: '' },
+  designation: { type: String, default: '' },
+  signature: { type: String, default: '' },
+  signaturePublicId: { type: String, default: '' },
+  isActive: { type: Boolean, default: true },
+  allowedPages: [{ type: String }],
+  isEmailVerified: { type: Boolean, default: false }
+}, { timestamps: true });
+
+// Admin OTP Schema for sub-admin email verification
+const adminOtpSchema = new mongoose.Schema({
+  email: { type: String, required: true, lowercase: true, trim: true },
+  otp: { type: String, required: true },
+  isVerified: { type: Boolean, default: false },
+  createdAt: { type: Date, default: Date.now, expires: 600 } // Auto-deletes after 10 mins
 });
 
 // Teacher Schema
@@ -78,6 +96,10 @@ const teacherSchema = new mongoose.Schema({
   email:       { type: String, required: true, lowercase: true, trim: true },
   schoolName:  { type: String, required: true },
   fullName:    { type: String, default: '' },
+  headmasterName: { type: String, default: '' },
+  headmasterDesignation: { type: String, default: 'Head Master (प्रधानाध्यापक)' },
+  headmasterSignatureUrl: { type: String, default: '' },
+  schoolSealUrl: { type: String, default: '' },
   password:    { type: String, default: '', select: false },
   otp:         { type: String, select: false },
   otpExpiresAt:{ type: Date, select: false },
@@ -102,7 +124,15 @@ const teacherDocumentSchema = new mongoose.Schema({
   mimeType:    { type: String, default: '' },
   uploadedAt:  { type: Date, default: Date.now },
   status:      { type: String, enum: ['Pending', 'Approved', 'Rejected'], default: 'Pending' },
-  adminRemarks:{ type: String, default: '' }
+  adminRemarks:{ type: String, default: '' },
+  actionBy: {
+    adminId: { type: mongoose.Schema.Types.ObjectId, ref: 'Admin' },
+    adminUsername: { type: String, default: '' },
+    adminName: { type: String, default: '' },
+    adminDesignation: { type: String, default: '' },
+    signatureUrl: { type: String, default: '' },
+    actionDate: { type: Date }
+  }
 });
 
 // Banner Schema
@@ -259,8 +289,12 @@ const PageBackground = mongoose.model('PageBackground', pageBackgroundSchema);
 const Testimonial = mongoose.model('Testimonial', testimonialSchema);
 const TeacherDirectory = mongoose.model('TeacherDirectory', teacherDirectorySchema);
 const TeacherDocument = mongoose.model('TeacherDocument', teacherDocumentSchema);
+const AdminOtp = mongoose.model('AdminOtp', adminOtpSchema);
+const SalarySlip = require('./salarySlip');
+const SchoolTeacherMaster = require('./schoolTeacherMaster');
 
 module.exports = {
+  AdminOtp,
   Event,
   News,
   Course,
@@ -277,6 +311,8 @@ module.exports = {
   PageBackground,
   Testimonial,
   TeacherDirectory,
-  TeacherDocument
+  TeacherDocument,
+  SalarySlip,
+  SchoolTeacherMaster
 };
 

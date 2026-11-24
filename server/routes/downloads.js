@@ -2,8 +2,8 @@ const express = require('express');
 const router = express.Router();
 const multer = require('multer');
 const cloudinary = require('cloudinary').v2;
-const https = require('https');
 const { Download } = require('../models');
+const { proxyCloudinaryFile } = require('../utils/cloudinaryProxy');
 const { authenticateToken } = require('../middleware/auth');
 
 // Multer storage for download files (5MB limit)
@@ -200,39 +200,12 @@ router.get('/:id/download', async (req, res) => {
       return res.status(404).json({ message: 'Download file not found' });
     }
 
-    // Bug Fix 2: Use 'let' so fileUrl can be reassigned for PDF URL correction
-    let fileUrl = download.fileUrl;
-    if (download.fileType === 'pdf') {
-      fileUrl = fileUrl.replace('/image/upload/', '/raw/upload/');
-    }
     const fileName = download.originalFileName || `${download.title}.${download.fileType === 'pdf' ? 'pdf' : 'jpg'}`;
+    const contentType = download.fileType === 'pdf' ? 'application/pdf' : 'image/jpeg';
 
-    // Set appropriate headers for download
-    res.setHeader('Content-Disposition', `inline; filename="${fileName}"`);
-
-    if (download.fileType === 'pdf') {
-      res.setHeader('Content-Type', 'application/pdf');
-    } else {
-      res.setHeader('Content-Type', 'image/jpeg');
-    }
-
-    // Fetch the file from Cloudinary and pipe to response
-    const request = https.get(fileUrl, { timeout: 30000 }, (cloudinaryRes) => {
-      if (cloudinaryRes.statusCode !== 200) {
-        return res.status(cloudinaryRes.statusCode).json({ message: 'Failed to fetch file from storage' });
-      }
-
-      cloudinaryRes.pipe(res);
-    });
-
-    request.on('timeout', () => {
-      request.destroy();
-      res.status(504).json({ message: 'Download request timed out' });
-    });
-
-    request.on('error', (error) => {
-      console.error('Error fetching file:', error);
-      res.status(500).json({ message: 'Error downloading file' });
+    await proxyCloudinaryFile(download.fileUrl, res, {
+      fileName,
+      contentType
     });
 
   } catch (error) {
